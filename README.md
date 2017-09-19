@@ -21,3 +21,9 @@ User Requirements
 [If you're rusty with git this is a great site](https://try.github.io)
 
 [Android Documentation](https://developer.android.com/index.html)
+
+# Best Practices (feel free to add if anything comes to you)
+
+Code for readability 
+
+Commit code when it makes sense (don't sit on a mountain of local code)

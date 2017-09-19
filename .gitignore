@@ -19,6 +19,7 @@ ehthumbs.db
 Thumbs.db
 
 .idea/
+build/
 
 *.iml
 .gradle

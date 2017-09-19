@@ -18,4 +18,9 @@
 ehthumbs.db
 Thumbs.db
 
-.idea
+/.idea
+/.gradle
+/local.properties
+/build
+/captures
+/.externalNativeBuild

@@ -18,7 +18,7 @@
 ehthumbs.db
 Thumbs.db
 
-/.idea/
+.idea/
 
 *.iml
 .gradle

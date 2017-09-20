@@ -5,7 +5,7 @@ Welcome to our capstone project!
 
 # TODO
 
-User Requirements
+Get comfortable; github will track our issues (sys reqs), be our version control, and hold our tracking board (project tab)
 
 
 # Helpful Links

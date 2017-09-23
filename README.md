@@ -2,25 +2,23 @@
 
 Welcome to our capstone project!
 
-# Status as of September 18th
-
-MKESocial android application
-
 
 # TODO
 
-User Requirements
+Get comfortable; github will track our issues (sys reqs), be our version control, and hold our tracking board (project tab)
 
 
 # Helpful Links
 
 [Command Line Git for Windows Users](https://git-scm.com)
 
-[Android Studio; you're gunna want the latest version](https://developer.android.com/studio/index.html)
-
 [If you're rusty with git this is a great site](https://try.github.io)
 
-[Android Documentation](https://developer.android.com/index.html)
+[Android Studio; you're gunna want the latest version](https://developer.android.com/studio/index.html)
+
+[Android Fundamentals (What is an activity?)](https://developer.android.com/guide/components/fundamentals.html)
+
+[Android Complete Documentation](https://developer.android.com/index.html)
 
 # Best Practices (feel free to add if anything comes to you)
 

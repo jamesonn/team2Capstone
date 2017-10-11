@@ -38,4 +38,4 @@ This will pull everything down locally and create the .git folder
 
 Once you've downloaded Android Studio, open a new project; target folder would be MKESocial
 
-You should be able to succesfully build, if not you may need to update your tools. You won't need to change any of the skeleton code.
+You should be able to successfully build, if not you may need to update your tools. You won't need to change any of the skeleton code.

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp" >
+
+    <AutoCompleteTextView
+        android:id="@+id/eventName_AutoCompleteTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/place_imageButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="Event Name"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <ImageButton
+        android:id="@+id/time_ImageButton"
+        android:layout_width="@dimen/icon_side"
+        android:layout_height="@dimen/icon_side"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="59dp"
+        app:srcCompat="@color/colorPrimaryDark"
+        android:contentDescription="" />
+
+    <ImageButton
+        android:id="@+id/place_imageButton"
+        android:layout_width="@dimen/icon_side"
+        android:layout_height="@dimen/icon_side"
+        app:srcCompat="@color/colorPrimaryDark"
+        android:layout_alignTop="@+id/time_ImageButton"
+        android:layout_alignParentEnd="true" />
+
+    <ImageButton
+        android:id="@+id/date_ImageButton"
+        android:layout_width="@dimen/icon_side"
+        android:layout_height="@dimen/icon_side"
+        app:srcCompat="@color/colorPrimaryDark"
+        android:layout_marginTop="18dp"
+        android:layout_below="@+id/time_ImageButton"
+        android:layout_alignParentStart="true"
+        android:contentDescription="" />
+
+    <ImageButton
+        android:id="@+id/invite_ImageButton"
+        android:layout_width="@dimen/icon_side"
+        android:layout_height="@dimen/icon_side"
+        app:srcCompat="@color/colorPrimaryDark"
+        android:layout_above="@+id/description_EditText"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:id="@+id/description_EditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/date_ImageButton"
+        android:layout_marginTop="17dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

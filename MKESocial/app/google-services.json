@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "604423674694",
+    "firebase_url": "https://mkesocial-3f65e.firebaseio.com",
+    "project_id": "mkesocial-3f65e",
+    "storage_bucket": "mkesocial-3f65e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604423674694:android:145cb3b024e6d53a",
+        "android_client_info": {
+          "package_name": "team2.mkesocial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604423674694-bgu9uqouv89ipt8ns9buischrgmesnhk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMaFt9ms3qcBHT6DzYQ0Bh0VINjtmLDhI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

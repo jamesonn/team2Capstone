@@ -28,4 +28,5 @@
 
         "If you have any feedback let us know by clicking the email icon."
     </string>
+    <string name="search_hint">Search Events</string>
 </resources>

@@ -48,5 +48,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void searchBtnOnClick (View view) {
+        startActivity(new Intent(this, SearchActivity.class));
+    }
 
 }

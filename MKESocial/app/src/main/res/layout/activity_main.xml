@@ -95,4 +95,14 @@
         android:layout_marginTop="19dp"
         android:onClick="searchBtnOnClick"
         android:text="Search" />
+
+    <Button
+        android:id="@+id/myEventsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/searchButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="13dp"
+        android:onClick="eventsBtnOnClick"
+        android:text="My Events" />
 </RelativeLayout>

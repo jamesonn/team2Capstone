@@ -52,4 +52,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, SearchActivity.class));
     }
 
+    public void eventsBtnOnClick (View view) {
+        startActivity(new Intent(this, MyEventsActivity.class));
+    }
 }

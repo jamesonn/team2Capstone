@@ -18,6 +18,9 @@
 ehthumbs.db
 Thumbs.db
 
+# Temporary Word files
+~$*.doc*
+
 .idea/
 build/
 

@@ -18,12 +18,15 @@
 ehthumbs.db
 Thumbs.db
 
+# Temporary Word files
+~$*.doc*
+
 .idea/
 build/
 
 *.iml
 .gradle
-/local.properties
+local.properties
 /build
 /captures
 .externalNativeBuild

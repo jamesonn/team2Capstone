@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Sample Profile Layout-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"> <!--add scrolling so that users can scroll if needed-->
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+  <!--Layout for profile page-->
+    <ImageView
+        android:id="@+id/profile_bg"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:contentDescription="@string/profile_pic"
+        android:scaleType="centerCrop"
+        android:src="@drawable/sample_profile_picture" /> <!--Profile Picture-->
+    <TextView
+        android:id="@+id/first_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="160dp"
+        android:text="@string/first_name"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        android:textStyle="bold" /> <!--Profile Name-->
+                                    <!--user's first name is stored in first_name -->
+
+    <!--NOTE: the items below are optional on a profile. Users can choose to not show them-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/profile_bg"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/about_me"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/about_me"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" /> <!--Section Title: About Me-->
+
+        <TextView
+            android:id="@+id/about_me_bio"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/bio"
+            android:textAlignment="center" /> <!--biography-->
+
+        <TextView
+            android:id="@+id/contact_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/contact_information"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" /> <!--Section Title: Contact Information-->
+
+        <TextView
+            android:id="@+id/email_addr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/email_addr"
+            android:textAlignment="center" /> <!--email address-->
+
+        <TextView
+            android:id="@+id/shared_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/events_i_am_attending"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" /> <!--Section Title: Events I am Attending-->
+
+        <!--List of Event Names-->
+        <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
+        <!--ToDo: Implement a loop to make this step automatic-->
+        <TextView
+            android:id="@+id/sampleEv1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 1"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 2"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 3"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 4"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 5"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 6"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 7"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 8"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 9"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event 10"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/sampleEv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <!--This button should only exist if the profile belongs to the user-->
+    <Button
+        android:id="@+id/edit_button"
+        style="@android:style/Widget.Button.Inset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:onClick="edit_btn_on_click"
+        android:text="Edit" />
+
+
+</RelativeLayout>
+</ScrollView>

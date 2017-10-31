@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">MKESocial</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="profile">Profile</string>
+    <string name="profile_pic">profile_pic</string>
+    <string name="first_name">FirstName</string>
+    <string name="about_me">About Me</string>
+    <string name="bio">I am a happy panda who stares at a bubble all day long! My daily life consist of: Eat, Sleep, Repeat. Simple and Plain.</string>
+    <string name="contact_information">Contact Information</string>
+    <string name="email_addr">imacutepanda@gmail.com</string>
+    <string name="events_i_am_attending">Events I am Attending</string>
+    <string name="other_info">=== Other Information ===</string>
+    <string name="middle_initial">Middle Initial</string>
+    <string name="last_name">Last Name</string>
+    <string name="age">Age</string>
+    <string name="home_address">Home Address</string>
+    <string name="save">Save</string>
+    <string name="edit_photo">Edit Photo</string>
 </resources>

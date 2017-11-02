@@ -9,9 +9,9 @@ import com.google.firebase.database.IgnoreExtraProperties;
 public class Tag {
 
     private static String[] _suggestTags = {"outdoors", "family-friendly", "kid-friendly","alcohol",
-        "entertainment","music", "18+", "sports", "indoor", "private", "public", "large", "small",
-        "lake", "downtown", "tour", "all-day", "free", "cheap", "$$$", "$$", "$",
-        "theater", "water"}; //TODO add more suggested tag values
+            "entertainment","music", "18+", "sports", "indoor", "private", "public", "large", "small",
+            "lake", "downtown", "tour", "all-day", "free", "cheap", "$$$", "$$", "$",
+            "theater", "water"}; //TODO add more suggested tag values
     private String _name;
 
 

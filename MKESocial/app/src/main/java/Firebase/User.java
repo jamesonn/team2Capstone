@@ -12,7 +12,9 @@ public class User {
 
     private String _firstName, _middleInitial, _lastName, _email, _age, _bio;
     private android.location.Address _address;
-    private ArrayList<Event> _eventsAttending;
+    private ArrayList<String> _eventIDsAttending;
+
+    private ArrayList<String> _eventIDsHosting;
     //TODO https://firebase.google.com/docs/storage/android/start
     //private SomePictureType _photo
     private Settings _userSettings;
@@ -92,12 +94,8 @@ public class User {
         this._address = _address;
     }
 
-    public ArrayList<Event> get_eventsAttending() {
-        return _eventsAttending;
-    }
-
-    public void set_eventsAttending(ArrayList<Event> _eventsAttending) {
-        this._eventsAttending = _eventsAttending;
+    public ArrayList<String> get_eventIDsAttending() {
+        return _eventIDsAttending;
     }
 
     public Settings get_userSettings() {
@@ -109,5 +107,13 @@ public class User {
     }
 
 
+    public ArrayList<String> get_eventIDsHosting() { return _eventIDsHosting;}
 
+    public void add_eventIDHosting(String eventIDHosting) {
+        this._eventIDsHosting.add(eventIDHosting);
+    }
+
+    public void add_eventAttending(String eventAttending) {
+        this._eventIDsAttending.add(eventAttending);
+    }
 }

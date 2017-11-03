@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,5 +28,25 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, ProfileActivity.class));
         }
     }
+
+    public void create_event_btn_on_click(View v)
+    {
+        if(v.getId() == R.id.create_event_button) {
+            startActivity(new Intent(MainActivity.this, CreateEventActivity.class));
+        }
+    }
+    public void settings_btn_on_click(View v)
+    {
+        if(v.getId() == R.id.setting_button) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        }
+    }
+    public void about_btn_on_click(View v)
+    {
+        if(v.getId() == R.id.about_image_button) {
+            startActivity(new Intent(MainActivity.this, AboutActivity.class));
+        }
+    }
+
 
 }

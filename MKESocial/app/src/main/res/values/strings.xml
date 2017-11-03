@@ -16,4 +16,16 @@
     <string name="home_address">Home Address</string>
     <string name="save">Save</string>
     <string name="edit_photo">Edit Photo</string>
+    <string name="create_event_label">Create Event</string>
+    <string name="edit_settings_label">Edit App Settings</string>
+    <string name="title_activity_about">AboutActivity</string>
+    <string name="MKE_social_email_address">MKESocialApp@gmail.com</string>
+    <string name="default_email_subject">Subj:To MKE Social App:</string>
+    <string name="about_page_header">"About the MKE Social App</string>
+    <string name="about_page_text">
+        "This App was made by our group of four to fulfill a senior capstone requirement."
+        "But, we put some work into it, and we hope you enjoy using it.\n\n"
+
+        "If you have any feedback let us know by clicking the email icon."
+    </string>
 </resources>

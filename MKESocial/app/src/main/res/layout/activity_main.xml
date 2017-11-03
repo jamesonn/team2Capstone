@@ -44,4 +44,51 @@
         tools:layout_editor_absoluteX="44dp"
         tools:layout_editor_absoluteY="165dp" />
 
+    <Button
+        android:id="@+id/create_event_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:background="@android:color/darker_gray"
+        android:onClick="create_event_btn_on_click"
+        android:padding="@dimen/fab_margin"
+        android:text="@string/create_event_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintTop_creator="1" />
+
+    <Button
+        android:id="@+id/setting_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/create_event_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="27dp"
+        android:background="@android:color/holo_green_light"
+        android:onClick="settings_btn_on_click"
+        android:padding="@dimen/fab_margin"
+        android:text="@string/edit_settings_label"
+        app:layout_constraintLeft_toLeftOf="@+id/create_event_button"
+        app:layout_constraintTop_toBottomOf="@+id/create_event_button"
+        tools:layout_constraintLeft_creator="1" />
+
+    <ImageButton
+        android:id="@+id/about_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/mke_white"
+        android:onClick="about_btn_on_click"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_info_details"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
+
 </RelativeLayout>

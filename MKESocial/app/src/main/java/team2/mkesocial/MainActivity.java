@@ -48,5 +48,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void search_btn_on_click (View view) {
+        startActivity(new Intent(this, SearchActivity.class));
+    }
 
+    public void events_btn_on_click (View view) {
+        startActivity(new Intent(this, MyEventsActivity.class));
+    }
 }

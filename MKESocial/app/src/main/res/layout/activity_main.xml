@@ -93,7 +93,7 @@
         android:layout_alignStart="@+id/button2"
         android:layout_below="@+id/setting_button"
         android:layout_marginTop="19dp"
-        android:onClick="searchBtnOnClick"
+        android:onClick="search_btn_on_click"
         android:text="Search" />
 
     <Button
@@ -103,6 +103,6 @@
         android:layout_below="@+id/searchButton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="13dp"
-        android:onClick="eventsBtnOnClick"
+        android:onClick="events_btn_on_click"
         android:text="My Events" />
 </RelativeLayout>

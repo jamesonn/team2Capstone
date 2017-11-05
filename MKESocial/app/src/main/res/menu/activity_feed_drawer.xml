@@ -20,19 +20,15 @@
             android:id="@+id/nav_search"
             android:icon="@drawable/ic_menu_manage"
             android:title="Search Events" />
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Profile" />
+        <item
+            android:id="@+id/nav_my_events"
+            android:icon="@drawable/ic_menu_send"
+            android:title="My Events" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_profile"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Profile" />
-            <item
-                android:id="@+id/nav_my_events"
-                android:icon="@drawable/ic_menu_send"
-                android:title="My Events" />
-        </menu>
-    </item>
 
 </menu>

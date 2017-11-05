@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import team2.mkesocial.R;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;

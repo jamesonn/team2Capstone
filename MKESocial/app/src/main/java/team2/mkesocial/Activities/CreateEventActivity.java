@@ -1,7 +1,5 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
-import android.location.Address;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,8 +13,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import Firebase.User;
 import Firebase.Event;
+import team2.mkesocial.R;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,8 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import team2.mkesocial.R;
 
 public class SettingsActivity extends BaseActivity {
 

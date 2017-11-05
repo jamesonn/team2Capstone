@@ -28,5 +28,9 @@
             android:id="@+id/nav_my_events"
             android:icon="@drawable/ic_menu_send"
             android:title="My Events" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_menu_send"
+            android:title="About" />
     </group>
 </menu>

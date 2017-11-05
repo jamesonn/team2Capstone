@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
 /**
  * Created by cfoxj2 on 11/1/2017.

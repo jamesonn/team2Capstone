@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="*"
+    android:background="@drawable/flag_background">
+
+    <TableRow android:layout_marginTop="100dp">
+        <EditText
+            android:id="@+id/userName"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center"
+            android:ems="10"
+            android:hint="Username"
+            android:inputType="textPersonName" />
+    </TableRow>
+    <TableRow>
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center"
+            android:ems="10"
+            android:hint="Password"
+            android:inputType="textPassword" />
+    </TableRow>
+    <TableRow>
+        <CheckBox
+            android:id="@+id/checkboxRememberMe"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Remember me" />
+    </TableRow>
+    <TableRow>
+        <Button
+            android:id="@+id/sign_in_button"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Log in" />
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:id="@+id/signUp"
+            android:layout_width="20dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Sign up" />
+    </TableRow>
+</TableLayout>

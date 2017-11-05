@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "604423674694-ronsspokdgq21l8ag3vluienpnlhf8p3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "team2.mkesocial",
+            "certificate_hash": "19ce4d6ec2ca2ad9f421ad2c2eaf0b55bbad75a7"
+          }
+        },
+        {
           "client_id": "604423674694-bgu9uqouv89ipt8ns9buischrgmesnhk.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604423674694-bgu9uqouv89ipt8ns9buischrgmesnhk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -10,6 +10,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import team2.mkesocial.R;
 
 
 /**

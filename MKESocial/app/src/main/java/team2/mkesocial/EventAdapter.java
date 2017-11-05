@@ -6,9 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
+import team2.mkesocial.R;
 import Firebase.Event;
-
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 

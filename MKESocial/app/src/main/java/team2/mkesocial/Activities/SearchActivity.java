@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import team2.mkesocial.R;
 
 public class SearchActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 

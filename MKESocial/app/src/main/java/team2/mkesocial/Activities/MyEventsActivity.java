@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Activities;
 
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import Firebase.Event;
+import team2.mkesocial.EventAdapter;
+import team2.mkesocial.EventDecorator;
+import team2.mkesocial.R;
+import team2.mkesocial.WeekendDecorator;
 
 public class MyEventsActivity extends AppCompatActivity implements OnDateSelectedListener {
 

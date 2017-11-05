@@ -29,6 +29,4 @@
             android:icon="@drawable/ic_menu_send"
             android:title="My Events" />
     </group>
-
-
 </menu>

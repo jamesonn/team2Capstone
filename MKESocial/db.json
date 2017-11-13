@@ -1,0 +1,70 @@
+{
+  "app_title" :"MKE Social",
+  
+    "users":
+    {
+      "$userId":
+	  {
+			"_name": "",
+			"_email": "",
+			"_age": "",
+			"_bio": "",
+			"_address": "",
+			"_userSettings": ""
+	  },
+	  "$userId2":{}
+    },
+    "events":
+    {
+		"$eventId":
+		{
+			"_title": "",
+			"_description": "",
+			"_date": "",
+			"_startTime": "",
+			"_endTime": "",
+			"_location": "",
+			"_hostUid": "",
+			"_suggestedAge": "",
+			"_rating": "",
+			"_cost": "",
+			"_tags": ""
+		
+		},
+		"$eventId2": {}
+    },
+	"user-events-attending":
+	{
+		"$userId":
+		{
+			"0": "$eventId1",
+			"1": "$eventId2"
+		},
+		"$userId2":{}
+	},
+	"user-events-hosting":
+	{
+		"$userId":
+		{
+			"0": "$eventId1",
+			"1": "$eventId2"
+		},
+		"$userId2":{}
+	},
+	"locations":
+	{
+		"$locationId":
+		{
+		}
+	},
+	"event-locations":
+	{
+		"$locationId":
+		{
+			"0": "$eventId1",
+			"1": "$eventId2"
+		},
+		"$locationId2":{}
+	}
+  
+}

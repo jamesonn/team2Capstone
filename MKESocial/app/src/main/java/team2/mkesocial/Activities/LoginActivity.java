@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import android.app.ProgressDialog;
 
+import Firebase.User;
 import team2.mkesocial.R;
 
 
@@ -107,6 +108,8 @@ public class LoginActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
                             startActivity(goToFeed);
+                            // add User to our firebase database once the login is successful - default
+                            User.addUser(null);
                         } else {
                             // If sign in fails, display a message to the user.
 

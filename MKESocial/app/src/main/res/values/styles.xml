@@ -16,6 +16,15 @@
         -->
     </style>
 
+
+    <style name="linearLayoutItems">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColorLink">@color/mke_yellow</item>
+       <!--<item name="android:textAlignment"></item>-->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

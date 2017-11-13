@@ -10,8 +10,8 @@ public class Tag {
 
     private static String[] _suggestTags = {"outdoors", "family-friendly", "kid-friendly","alcohol",
             "entertainment","music", "18+", "sports", "indoor", "private", "public", "large", "small",
-            "lake", "downtown", "tour", "all-day", "free", "cheap", "$$$", "$$", "$",
-            "theater", "water"}; //TODO add more suggested tag values
+            "lake", "downtown", "tour", "all-day", "free", "cheap", "$$$", "$$", "$", "adult",
+            "theater", "water", "winter", "fall", "spring", "summer"}; //TODO add more suggested tag values
     private String _name;
 
 
@@ -30,4 +30,8 @@ public class Tag {
         this._name = _name;
     }
 
+    public static String[] get_suggestTags()
+    {
+        return _suggestTags;
+    }
 }

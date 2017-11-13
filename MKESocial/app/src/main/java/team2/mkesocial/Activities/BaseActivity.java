@@ -8,7 +8,14 @@ import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
 
 //TODO
-//import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import Firebase.User;
 
 
 public class BaseActivity extends AppCompatActivity {
@@ -31,12 +38,10 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public String getUid() {
-        //TODO
-       //return FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //jrfox@uwm.edu UID
-        return "Xf8K7LZcJvZiMPqAnqFCWM1wbDl2";
+    public static String getUid() {
+       return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
+
 
 
 }

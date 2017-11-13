@@ -6,110 +6,97 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="32dp"
+        android:paddingEnd="32dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingTop="24dp">
 
         <EditText
             android:id="@+id/edit_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/linearLayoutItems"
             android:ems="10"
             android:hint="Title"
             android:inputType="textCapWords"
-            android:textColorLink="@color/mke_yellow" />
+            android:textSize="30sp" />
 
         <EditText
             android:id="@+id/edit_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Description"
             android:inputType="textMultiLine"
-            android:textColorLink="@color/mke_yellow" />
-
-        <DatePicker
-            android:id="@+id/datePicker4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TimePicker
-            android:id="@+id/timePicker3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TimePicker
-            android:id="@+id/timePicker4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            style="@style/linearLayoutItems"/>
 
         <EditText
-            android:id="@+id/edit_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Date"
+            android:id="@+id/edit_start_date"
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Click to set start date"
             android:inputType="date"
-            android:textColorLink="@color/mke_yellow" />
+            style="@style/linearLayoutItems"/>
+
+        <EditText
+            android:id="@+id/edit_end_date"
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Click to set end date"
+            android:inputType="date"
+            style="@style/linearLayoutItems"/>
 
         <EditText
             android:id="@+id/edit_start_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Start Time"
-            android:inputType="time"
-            android:textColorLink="@color/mke_yellow" />
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Click to set start time"
+            android:inputType="date"
+            style="@style/linearLayoutItems"/>
 
         <EditText
             android:id="@+id/edit_end_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="End Time"
-            android:inputType="time"
-            android:textColorLink="@color/mke_yellow" />
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Click to set end time"
+            android:inputType="date"
+            style="@style/linearLayoutItems"/>
 
         <EditText
             android:id="@+id/edit_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Location"
             android:inputType="textPostalAddress"
-            android:textColorLink="@color/mke_yellow" />
+            style="@style/linearLayoutItems"/>
 
         <EditText
             android:id="@+id/edit_suggested_age"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Suggest Age (Optional)"
             android:inputType="numberSigned"
-            android:textColorLink="@color/mke_yellow" />
+            style="@style/linearLayoutItems"/>
 
         <EditText
             android:id="@+id/edit_cost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Cost (Optional)"
             android:inputType="numberDecimal"
-            android:textColorLink="@color/mke_yellow" />
+            style="@style/linearLayoutItems"/>
 
-        <EditText
+        <MultiAutoCompleteTextView
             android:id="@+id/edit_tags"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Tags"
-            android:inputType="textMultiLine"
-            android:textColorLink="@color/mke_yellow" />
+            android:hint="Tags (first, second, ...)"
+            android:inputType="textMultiLine|textCapCharacters"
+            style="@style/linearLayoutItems"/>
 
         <Button
             android:id="@+id/button_create"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create" />
+            android:layout_margin="16dp"
+            android:text="Create Event"/>
+
     </LinearLayout>
 
 </ScrollView>

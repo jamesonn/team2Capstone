@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import Firebase.User;
 import team2.mkesocial.R;
 
 public class FeedActivity extends AppCompatActivity
@@ -42,6 +44,9 @@ public class FeedActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Add user to database if they don't already exist
+
     }
 
     @Override

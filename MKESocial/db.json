@@ -3,7 +3,7 @@
   
     "users":
     {
-      "$userId":
+      "userId":
 	  {
 			"_name": "",
 			"_email": "",
@@ -12,11 +12,11 @@
 			"_address": "",
 			"_userSettings": ""
 	  },
-	  "$userId2":{}
+	  "userId2":{}
     },
     "events":
     {
-		"$eventId":
+		"eventId":
 		{
 			"_title": "",
 			"_description": "",
@@ -31,40 +31,40 @@
 			"_tags": ""
 		
 		},
-		"$eventId2": {}
+		"eventId2": {}
     },
 	"user-events-attending":
 	{
-		"$userId":
+		"userId":
 		{
-			"0": "$eventId1",
-			"1": "$eventId2"
+			"0": "eventId1",
+			"1": "eventId2"
 		},
-		"$userId2":{}
+		"userId2":{}
 	},
 	"user-events-hosting":
 	{
-		"$userId":
+		"userId":
 		{
-			"0": "$eventId1",
-			"1": "$eventId2"
+			"0": "eventId1",
+			"1": "eventId2"
 		},
-		"$userId2":{}
+		"userId2":{}
 	},
 	"locations":
 	{
-		"$locationId":
+		"locationId":
 		{
 		}
 	},
 	"event-locations":
 	{
-		"$locationId":
+		"locationId":
 		{
-			"0": "$eventId1",
-			"1": "$eventId2"
+			"0": "eventId1",
+			"1": "eventId2"
 		},
-		"$locationId2":{}
+		"locationId2":{}
 	}
   
 }

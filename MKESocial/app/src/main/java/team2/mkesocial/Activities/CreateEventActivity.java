@@ -283,6 +283,20 @@ public class CreateEventActivity extends BaseActivity {
         //putting new node in "user-events-hosting" with unique ID
         String hostEventId = mFirebaseDatabase.getReference(User.DB_USER_EVENTS_HOSTING_NODE_NAME).child(userId).push().getKey();
         mFirebaseDatabase.getReference(User.DB_USER_EVENTS_HOSTING_NODE_NAME).child(userId).child(hostEventId).setValue(eventId);
+
+        //add event's ID under it's location under 'event-locations' database node
+
+        //check if the node related to this location already exists, otherwise add it
+        if(mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).getRoot() == null)
+        {
+            Map<String, Object> locationUpdates = new HashMap<>();
+            locationUpdates.put("/" + location, "");
+            // add the new child location under 'event-locations' node
+            mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).updateChildren(locationUpdates);
+        }
+        //finally, store the
+        String eventLocID = mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).push().getKey();
+        mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).child(eventLocID).setValue(eventId);
     }
 
 

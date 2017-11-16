@@ -82,7 +82,7 @@ public class Event implements Databasable{
     private int parseInt(String number)
     {
         if(number.isEmpty()) return -1;
-        if(isInteger(number, number.length()))
+        if(isInteger(number, 10))
             return Integer.parseInt(number);
         else
             return -1;

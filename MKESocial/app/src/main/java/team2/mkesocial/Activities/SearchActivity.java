@@ -9,14 +9,27 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import Firebase.Event;
 import team2.mkesocial.R;
 
-public class SearchActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+public class SearchActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, ValueEventListener {
+
+    private static final String TAG = "SearchActivity";
 
     private SearchView _searchView;
     private ListView _searchResults;
     private ArrayAdapter<String> _resultsAdapter;
+    private FirebaseDatabase _database;
+    private DatabaseReference _ref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +40,10 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
         _searchResults = (ListView)findViewById(R.id.searchResults);
 
         _searchView.setOnQueryTextListener(this);
+
+        _database = FirebaseDatabase.getInstance();
+        _ref =  _database.getReference(Event.DB_EVENTS_NODE_NAME);
+        _ref.addValueEventListener(this);
     }
 
     @Override
@@ -52,5 +69,25 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
         if (newText.equals(""))
             _resultsAdapter.clear();
         return false;
+    }
+
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot)
+    {
+        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            try {
+                Event event = snapshot.getValue(Event.class);
+                Log.d(TAG, "Event: " + event.getTitle());
+            } catch (Exception e) {
+                Log.d(TAG, "Exception:" + e.toString());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError)
+    {
+
     }
 }

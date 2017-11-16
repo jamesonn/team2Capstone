@@ -24,15 +24,15 @@ public class Event implements Databasable{
 
     private static final String TAG = Event.class.getSimpleName();
 
-    private String _title, _description;
-    private GregorianCalendar _date, _startTime, _endTime;
-    private Address _location;
-    private String _hostUid;
-    private int _suggestedAge, _rating;
-    private double _cost;
-    private List<Tag> _tags;
+    private String title, description;
+    private long date, startTime, endTime;
+    private String location;
+    private String hostUid;
+    private int suggestedAge, rating;
+    private double cost;
+    private List<Tag> tags;
     //TODO link to other users https://developer.android.com/training/app-links/deep-linking.html
-    private List<String> _attendeesUids;
+    private List<String> attendeesUids;
 
 
     public Event() {
@@ -41,33 +41,33 @@ public class Event implements Databasable{
     public Event(String title, String description, GregorianCalendar date,
                  GregorianCalendar startTime, GregorianCalendar endTime, Address location,
                  String hostUid, int suggestedAge, int rating, double cost, List<Tag> tags) {
-        set_title(title);
-        set_description(description);
-        set_date(date);
-        set_startTime(startTime);
-        set_endTime(endTime);
-        set_location(location);
-        set_hostUid(hostUid);
-        set_suggestedAge(suggestedAge);
-        set_rating(rating);
-        set_cost(cost);
-        set_tags(tags);
+        setTitle(title);
+        setDescription(description);
+        setDate(date);
+        setStartTime(startTime);
+        setEndTime(endTime);
+        setLocation(location);
+        setHostUid(hostUid);
+        setSuggestedAge(suggestedAge);
+        setRating(rating);
+        setCost(cost);
+        setTags(tags);
     }
 
     public Event(String title, String description, String date, String startTime, String endTime,
                  String location, String hostUid, String suggestedAge, String rating, String cost,
                  String tags) {
-        set_title(title);
-        set_description(description);
-        set_date(parseDate(date));
-        set_startTime(parseTime(startTime));
-        set_endTime(parseTime(endTime));
-        set_location(parseLocation(location));
-        set_hostUid(hostUid);
-        set_suggestedAge(parseInt(suggestedAge));
-        set_rating(parseInt(rating));
-        set_cost(parseInt(cost));
-        set_tags(parseTags(tags));
+        setTitle(title);
+        setDescription(description);
+        setDate(parseDate(date));
+        setStartTime(parseTime(startTime));
+        setEndTime(parseTime(endTime));
+        setLocation(parseLocation(location));
+        setHostUid(hostUid);
+        setSuggestedAge(parseInt(suggestedAge));
+        setRating(parseInt(rating));
+        setCost(parseInt(cost));
+        setTags(parseTags(tags));
     }
 
     public List<Tag> parseTags(String tags)
@@ -86,8 +86,8 @@ public class Event implements Databasable{
             return Integer.parseInt(number);
         else
             return -1;
-
     }
+
     public static boolean isInteger(String s, int radix) {
         if(s.isEmpty()) return false;
         for(int i = 0; i < s.length(); i++) {
@@ -101,13 +101,29 @@ public class Event implements Databasable{
     }
     private Address parseLocation(String loc)
     {
-        Address location = new Address(new Locale(loc));
+        Address location = new Address(Locale.getDefault());
+        Double latitude = 0.0, longitude = 0.0;
+        String addr = loc;
+        String[] coords = loc.split(";", 3);
+        try {
+            addr = coords[0];
+            latitude = Double.parseDouble(coords[1]);
+            longitude = Double.parseDouble(coords[2]);
+        }
+        catch (Exception e) {
+            Log.w(TAG, "Location not converted: "+ loc);
+        }
+
+        location.setAddressLine(0, addr);
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
         return location;
     }
 
     private GregorianCalendar parseDate(String cDate)
     {
-        DateFormat df = new SimpleDateFormat("dd MM yyyy");
+        final String myFormat = "MM/dd/yy";
+        DateFormat df = new SimpleDateFormat(myFormat, Locale.US);
         Date date = new Date();
         GregorianCalendar gDate = new GregorianCalendar();
         try {
@@ -116,13 +132,14 @@ public class Event implements Databasable{
         catch(java.text.ParseException e){
             Log.w(TAG, "Date not converted: "+ cDate);
         }
-        gDate.setGregorianChange(date);
+        gDate.setTime(date);
         return gDate;
     }
 
     private GregorianCalendar parseTime(String cTime)
     {
-        DateFormat df = new SimpleDateFormat("HH:mm");
+        final String displayFormat = "hh:mm a";
+        DateFormat df = new SimpleDateFormat(displayFormat);
         Date time = new Date();
         GregorianCalendar gTime = new GregorianCalendar();
         try {
@@ -139,115 +156,128 @@ public class Event implements Databasable{
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("title", get_title());
-        result.put("description", get_description());
-        result.put("date", get_date().toString());
-        result.put("startTime", get_startTime().toString());
-        result.put("endTime", get_endTime().toString());
-        result.put("location", get_location().toString());
-        result.put("hostUid", get_hostUid());
-        result.put("suggestedAge", get_suggestedAge());
-        result.put("rating", get_rating());
-        result.put("cost", get_cost());
-        result.put("tags", get_tags().toString());
+        result.put("title", getTitle());
+        result.put("description", getDescription());
+        result.put("date", date);
+        result.put("startTime", startTime);
+        result.put("endTime", endTime);
+        result.put("location", location);
+        result.put("hostUid", getHostUid());
+        result.put("suggestedAge", getSuggestedAge());
+        result.put("rating", getRating());
+        result.put("cost", getCost());
+        result.put("tags", getTags());
 
         return result;
     }
     //GETTERS & SETTERS
-    public String get_title() {
-        return _title;
+    public String getTitle() {
+        return title;
     }
 
-    public void set_title(String _title) {
-        this._title = _title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String get_description() {
-        return _description;
+    public String getDescription() {
+        return description;
     }
 
-    public void set_description(String _description) {
-        this._description = _description;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public GregorianCalendar get_date() {
-        return _date;
+    public GregorianCalendar getDate() {
+        GregorianCalendar gDate = new GregorianCalendar();
+        gDate.setTimeInMillis(date);
+        return gDate;
     }
 
-    public void set_date(GregorianCalendar _date) {
-        this._date = _date;
+    @Exclude
+    public void setDate(GregorianCalendar date) {
+        this.date = date.getTimeInMillis();
     }
 
-    public GregorianCalendar get_startTime() {
-        return _startTime;
+    public GregorianCalendar getStartTime() {
+        GregorianCalendar gTime = new GregorianCalendar();
+        gTime.setTimeInMillis(startTime);
+        return gTime;
     }
 
-    public void set_startTime(GregorianCalendar _startTime) {
-        this._startTime = _startTime;
+    @Exclude
+    public void setStartTime(GregorianCalendar startTime) {
+        this.startTime = startTime.getTimeInMillis();
     }
 
-    public GregorianCalendar get_endTime() {
-        return _endTime;
+    public GregorianCalendar getEndTime() {
+        GregorianCalendar gTime = new GregorianCalendar();
+        gTime.setTimeInMillis(endTime);
+        return gTime;
     }
 
-    public void set_endTime(GregorianCalendar _endTime) {
-        this._endTime = _endTime;
+    @Exclude
+    public void setEndTime(GregorianCalendar endTime) {
+        this.endTime = endTime.getTimeInMillis();
     }
 
-    public Address get_location() {
-        return _location;
+    public Address getLocation() {
+        return parseLocation(location);
     }
 
-    public void set_location(Address _location) {
-        this._location = _location;
+    @Exclude
+    public void setLocation(Address location) {
+        String addr = location.getAddressLine(0);
+        Double latitude = location.getLatitude();
+        Double longitude = location.getLongitude();
+        this.location = String.format("%s;%f;%f", addr, latitude, longitude);
     }
 
-    public String get_hostUid() {
-        return _hostUid;
+    public String getHostUid() {
+        return hostUid;
     }
 
-    public void set_hostUid(String _hostUid) {
-        this._hostUid = _hostUid;
+    public void setHostUid(String hostUid) {
+        this.hostUid = hostUid;
     }
 
-    public int get_suggestedAge() {
-        return _suggestedAge;
+    public int getSuggestedAge() {
+        return suggestedAge;
     }
 
-    public void set_suggestedAge(int _suggestedAge) {
-        this._suggestedAge = _suggestedAge;
+    public void setSuggestedAge(int suggestedAge) {
+        this.suggestedAge = suggestedAge;
     }
 
-    public int get_rating() {
-        return _rating;
+    public int getRating() {
+        return rating;
     }
 
-    public void set_rating(int _rating) {
-        this._rating = _rating;
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
-    public double get_cost() {
-        return _cost;
+    public double getCost() {
+        return cost;
     }
 
-    public void set_cost(double _cost) {
-        this._cost = _cost;
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 
-    public List<Tag> get_tags() {
-        return _tags;
+    public List<Tag> getTags() {
+        return tags;
     }
 
-    public void set_tags(List<Tag> _tags) {
-        this._tags = _tags;
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
-    public List<String> get_attendeesUids() {
-        return _attendeesUids;
+    public List<String> getAttendeesUids() {
+        return attendeesUids;
     }
 
-    public void set_attendeesUids(List<String> _attendeesUids) {
-        this._attendeesUids = _attendeesUids;
+    public void setAttendeesUids(List<String> attendeesUids) {
+        this.attendeesUids = attendeesUids;
     }
 
 

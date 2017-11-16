@@ -42,21 +42,21 @@ public class MyEventsActivity extends AppCompatActivity implements OnDateSelecte
         _markedDays.add(CalendarDay.from(2017, 10, 14));
 
         // Dummy data for dummy events
-        _event1.set_title("Concert");
-        _event1.set_startTime(new GregorianCalendar(2017, 10, 6, 19, 0));
-        _event1.set_endTime(new GregorianCalendar(2017, 10, 6, 21, 0));
+        _event1.setTitle("Concert");
+        _event1.setStartTime(new GregorianCalendar(2017, 10, 6, 19, 0));
+        _event1.setEndTime(new GregorianCalendar(2017, 10, 6, 21, 0));
 
-        _event2.set_title("Trivia Night");
-        _event2.set_startTime(new GregorianCalendar(2017, 10, 8, 20, 0));
-        _event2.set_endTime(new GregorianCalendar(2017, 10, 8, 22, 0));
+        _event2.setTitle("Trivia Night");
+        _event2.setStartTime(new GregorianCalendar(2017, 10, 8, 20, 0));
+        _event2.setEndTime(new GregorianCalendar(2017, 10, 8, 22, 0));
 
-        _event3.set_title("Movie Marathon");
-        _event3.set_startTime(new GregorianCalendar(2017, 10, 11, 17, 0));
-        _event3.set_endTime(new GregorianCalendar(2017, 10, 11, 23, 0));
+        _event3.setTitle("Movie Marathon");
+        _event3.setStartTime(new GregorianCalendar(2017, 10, 11, 17, 0));
+        _event3.setEndTime(new GregorianCalendar(2017, 10, 11, 23, 0));
 
-        _event4.set_title("Charity Dinner");
-        _event4.set_startTime(new GregorianCalendar(2017, 10, 14, 18, 0));
-        _event4.set_endTime(new GregorianCalendar(2017, 10, 14, 20, 0));
+        _event4.setTitle("Charity Dinner");
+        _event4.setStartTime(new GregorianCalendar(2017, 10, 14, 18, 0));
+        _event4.setEndTime(new GregorianCalendar(2017, 10, 14, 20, 0));
     }
 
     @Override

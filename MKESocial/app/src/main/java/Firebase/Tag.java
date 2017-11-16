@@ -12,22 +12,22 @@ public class Tag {
             "entertainment","music", "18+", "sports", "indoor", "private", "public", "large", "small",
             "lake", "downtown", "tour", "all-day", "free", "cheap", "$$$", "$$", "$", "adult",
             "theater", "water", "winter", "fall", "spring", "summer"}; //TODO add more suggested tag values
-    private String _name;
+    private String name;
 
 
     public Tag() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
-    public Tag(String _name) {
-        this._name = _name;
+    public Tag(String name) {
+        this.name = name;
     }
 
-    public String get_name() {
-        return _name;
+    public String getName() {
+        return name;
     }
 
-    public void set_name(String _name) {
-        this._name = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public static String[] get_suggestTags()

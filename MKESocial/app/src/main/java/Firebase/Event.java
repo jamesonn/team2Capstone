@@ -102,7 +102,7 @@ public class Event implements Databasable{
     private Address parseLocation(String loc)
     {
         Address location = new Address(Locale.getDefault());
-        Double latitude = 0.0, longitude = 0.0;
+        double latitude = 0.0, longitude = 0.0;
         String addr = loc;
         String[] coords = loc.split(";", 3);
         try {
@@ -227,8 +227,8 @@ public class Event implements Databasable{
     @Exclude
     public void setLocation(Address location) {
         String addr = location.getAddressLine(0);
-        Double latitude = location.getLatitude();
-        Double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
         this.location = String.format("%s;%f;%f", addr, latitude, longitude);
     }
 

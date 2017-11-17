@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import team2.mkesocial.R;
+
 import Firebase.Event;
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
@@ -49,9 +49,9 @@ public class EventAdapter extends BaseAdapter {
         Event e = (Event)getItem(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a");
-        startTime.setText(dateFormat.format(e.get_startTime().getTime()));
-        endTime.setText(dateFormat.format(e.get_endTime().getTime()));
-        eventTitle.setText(e.get_title());
+        startTime.setText(dateFormat.format(e.getStartTime().getTime()));
+        endTime.setText(dateFormat.format(e.getEndTime().getTime()));
+        eventTitle.setText(e.getTitle());
 
         return eventItem;
     }

@@ -26,17 +26,17 @@ import team2.mkesocial.Activities.BaseActivity;
 @IgnoreExtraProperties
 public class User implements Databasable{
 
-    private String _name, _email, _age, _bio, _uid;
-    private android.location.Address _address;
+    private String name, email, age, bio, uid;
+    private String address;
     // store which events a User is Attending and created/hosting
-    private List<String> _eventIDsAttending, _eventIDsHosting;
+    private List<String> eventIDsAttending, eventIDsHosting;
 
     //TODO https://firebase.google.com/docs/storage/android/start
     //storing user profile photo
     //private SomePictureType _photo
 
     // storing user preferences & visibility options of their bio info
-    private Settings _userSettings;
+    private Settings userSettings;
 
     //FIREBASE DB "users" node reference
     final private static DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
@@ -56,33 +56,40 @@ public class User implements Databasable{
      * @param address
      */
     public User(String name, String email, Address address) {
-        set_name(name);
-        set_email(email);
-        set_age("");
-        set_bio("");
-        set_address(address);
+        setName(name);
+        setEmail(email);
+        setAge("");
+        setBio("");
+        setAddress(address);
         // give a new user default settings when they are created
-        set_userSettings(new Settings());
+        setUserSettings(new Settings());
         // push new user to DB
         String uid = userDatabase.push().getKey();
-        set_uid(uid);
-        _eventIDsAttending = new ArrayList<String>();
-        _eventIDsHosting = new ArrayList<String>();
+        setUid(uid);
+        eventIDsAttending = new ArrayList<String>();
+        eventIDsHosting = new ArrayList<String>();
 
     }
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("name", get_name());
-        result.put("email", get_email());
-        result.put("age", get_age());
-        result.put("bio", get_bio());
-        result.put("uid", get_uid());
-        result.put("address", get_address().toString());
-        result.put("eventIDsAttending", get_eventIDsAttending().toString());
-        result.put("eventIDsHosting", get_eventIDsHosting().toString());
+        result.put("name", getName());
+        result.put("email", getEmail());
+        result.put("age", getAge());
+        result.put("bio", getBio());
+        result.put("uid", getUid());
+        result.put("address", address);
+        result.put("eventIDsAttending", getEventIDsAttending());
+        result.put("eventIDsHosting", getEventIDsHosting());
 
         return result;
+    }
+
+    private Address parseAddress(String addr)
+    {
+        Address address = new Address(Locale.getDefault());
+        address.setAddressLine(0, addr);
+        return address;
     }
 
     /**
@@ -93,15 +100,15 @@ public class User implements Databasable{
      */
     public void attendEvent(String eventId)
     {
-        _eventIDsAttending.add(eventId);
-        userAttendingEventDatabase.child(get_uid()).setValue(get_eventIDsAttending().toString());
+        eventIDsAttending.add(eventId);
+        userAttendingEventDatabase.child(getUid()).setValue(getEventIDsAttending().toString());
 
     }
 
     public void hostEvent(String eventId)
     {
-        _eventIDsHosting.add(eventId);
-        userHostEventDatabase.child(get_uid()).setValue(get_eventIDsAttending().toString());
+        eventIDsHosting.add(eventId);
+        userHostEventDatabase.child(getUid()).setValue(getEventIDsAttending().toString());
     }
 
     /**
@@ -168,62 +175,64 @@ public class User implements Databasable{
     /**GETTERS
      * & SETTERS*/
 
-    public String get_name() {
-        return _name;
+    public String getName() {
+        return name;
     }
 
-    public void set_name(String _name) {
-        this._name = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String get_email() {
-        return _email;
+    public String getEmail() {
+        return email;
     }
 
-    public void set_email(String _email) {
-        this._email = _email;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String get_age() {
-        return _age;
+    public String getAge() {
+        return age;
     }
 
-    public void set_age(String _age) {
-        this._age = _age;
+    public void setAge(String age) {
+        this.age = age;
     }
 
-    public String get_bio() {
-        return _bio;
+    public String getBio() {
+        return bio;
     }
 
-    public void set_bio(String _bio) {
-        this._bio = _bio;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
-    public String get_uid() {return _uid;}
+    public String getUid() {return uid;}
 
-    public void set_uid(String _uid) { this._uid = _uid;}
+    public void setUid(String uid) { this.uid = uid;}
 
-    public Address get_address() {
-        return _address;
+    public Address getAddress() {
+        return parseAddress(address);
     }
 
-    public void set_address(Address _address) {
-        this._address = _address;
+    @Exclude
+    public void setAddress(Address address) {
+        String addr = address.getAddressLine(0);
+        this.address = addr != null ? addr : "";
     }
 
-    public List<String> get_eventIDsAttending() {
-        return _eventIDsAttending;
+    public List<String> getEventIDsAttending() {
+        return eventIDsAttending;
     }
 
-    public Settings get_userSettings() {
-        return _userSettings;
+    public Settings getUserSettings() {
+        return userSettings;
     }
 
-    public void set_userSettings(Settings _userSettings) {
-        this._userSettings = _userSettings;
+    public void setUserSettings(Settings userSettings) {
+        this.userSettings = userSettings;
     }
 
-    public List<String> get_eventIDsHosting() { return _eventIDsHosting;}
+    public List<String> getEventIDsHosting() { return eventIDsHosting;}
 
 }

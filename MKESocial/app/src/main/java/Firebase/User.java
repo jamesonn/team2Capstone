@@ -99,6 +99,7 @@ public class User implements Databasable{
         result.put("address", address);
         result.put("eventIDsAttending", getEventIDsAttending());
         result.put("eventIDsHosting", getEventIDsHosting());
+        result.put("settings", getUserSettings().toMap());
 
         return result;
     }

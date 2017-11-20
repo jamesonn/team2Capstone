@@ -10,22 +10,28 @@ public class Settings {
 
     //TODO theme class?
     //private Theme _theme;
-    private boolean _notificationEnabled;
+    private String notificationEnabled, privateProfile;
 
 
     public Settings() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
-    public Settings(boolean _notificationEnabled) {
-        this._notificationEnabled = _notificationEnabled;
+    public Settings(String notificationEnabled) {
+        setNotificationEnabled(notificationEnabled);
     }
 
-    public boolean is_notificationEnabled() {
-        return _notificationEnabled;
+    public String getNotificationEnabled() {
+        return notificationEnabled;
     }
 
-    public void set_notificationEnabled(boolean _notificationEnabled) {
-        this._notificationEnabled = _notificationEnabled;
+    public void setNotificationEnabled(String notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
+    public String getPrivateProfile() {
+        return privateProfile;
     }
 
+    public void setPrivateProfile(String privateProfile) {
+        this.privateProfile = privateProfile;
+    }
 }

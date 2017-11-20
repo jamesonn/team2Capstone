@@ -1,54 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="team2.mkesocial.Activities.SettingsActivity">
+    android:layout_height="match_parent">
 
-    <TabHost
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="32dp"
+        android:paddingEnd="32dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingTop="24dp">
 
-        <LinearLayout
+
+        <Switch
+            android:id="@+id/switch_location"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:text="User Current Location" />
 
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+        <Space
+            style="@style/linearLayoutItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-            <FrameLayout
-                android:id="@android:id/tabcontent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        <Switch
+            android:id="@+id/switch_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/linearLayoutItems"
+            android:text="Notifications" />
 
-                <LinearLayout
-                    android:id="@+id/General"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+        <Space
+            style="@style/linearLayoutItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-                </LinearLayout>
+        <Switch
+            android:id="@+id/switch_private_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/linearLayoutItems"
+            android:text="Make Profile Private" />
 
-                <LinearLayout
-                    android:id="@+id/Notification"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/linearLayoutItems"/>
 
-                </LinearLayout>
+        <TextView
+            android:id="@+id/textView_invite"
+            style="@style/linearLayoutItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Invite Friends to MKE Social"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
 
-                <LinearLayout
-                    android:id="@+id/Logout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+        <TextView
+            android:id="@+id/textView_rate"
+            style="@style/linearLayoutItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rate this app"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
 
-                </LinearLayout>
-            </FrameLayout>
-        </LinearLayout>
-    </TabHost>
-</android.support.constraint.ConstraintLayout>
+    </LinearLayout>
+
+</ScrollView>

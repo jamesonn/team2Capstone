@@ -108,8 +108,8 @@ public class LoginActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
                             startActivity(goToFeed);
-                            // add User to our firebase database once the login is successful - default
-                            User.addUser(null);
+                            // add User to our firebase database once the login is successful
+                            new User(mAuth.getCurrentUser()).add();
                         } else {
                             // If sign in fails, display a message to the user.
 

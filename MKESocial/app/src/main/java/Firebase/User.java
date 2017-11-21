@@ -1,6 +1,7 @@
 package Firebase;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -12,6 +13,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
 import android.location.Address;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,17 +29,17 @@ import team2.mkesocial.Activities.BaseActivity;
 @IgnoreExtraProperties
 public class User implements Databasable{
 
-    private String _name, _email, _age, _bio, _uid;
-    private android.location.Address _address;
+    private String name, email, age, bio;
+    private String address;
     // store which events a User is Attending and created/hosting
-    private List<String> _eventIDsAttending, _eventIDsHosting;
+    private List<String> eventIDsAttending, eventIDsHosting;
 
     //TODO https://firebase.google.com/docs/storage/android/start
     //storing user profile photo
     //private SomePictureType _photo
 
     // storing user preferences & visibility options of their bio info
-    private Settings _userSettings;
+    private Settings userSettings;
 
     //FIREBASE DB "users" node reference
     final private static DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
@@ -45,8 +48,26 @@ public class User implements Databasable{
     final private static DatabaseReference userHostEventDatabase = FirebaseDatabase.getInstance()
             .getReference(DB_USER_EVENTS_HOSTING_NODE_NAME);
 
+    private static final String TAG = User.class.getSimpleName();
+
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
+
+    public User(FirebaseUser fbUser)
+    {
+        //grab Firebase Authentication to fill in user info
+        setName(fbUser.getDisplayName());
+        setEmail(fbUser.getEmail());
+        setAge("");
+        setBio("");
+        setAddress("");
+        // give a new user default settings when they are created
+        setUserSettings(new Settings());
+        // push new user to DB
+        eventIDsAttending = new ArrayList<String>();
+        eventIDsHosting = new ArrayList<String>();
+
     }
 
     /**
@@ -55,34 +76,38 @@ public class User implements Databasable{
      * @param email
      * @param address
      */
-    public User(String name, String email, Address address) {
-        set_name(name);
-        set_email(email);
-        set_age("");
-        set_bio("");
-        set_address(address);
+    public User(String name, String email, String address) {
+        setName(name);
+        setEmail(email);
+        setAge("");
+        setBio("");
+        setAddress(address);
         // give a new user default settings when they are created
-        set_userSettings(new Settings());
+        setUserSettings(new Settings());
         // push new user to DB
-        String uid = userDatabase.push().getKey();
-        set_uid(uid);
-        _eventIDsAttending = new ArrayList<String>();
-        _eventIDsHosting = new ArrayList<String>();
+        eventIDsAttending = new ArrayList<String>();
+        eventIDsHosting = new ArrayList<String>();
 
     }
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("name", get_name());
-        result.put("email", get_email());
-        result.put("age", get_age());
-        result.put("bio", get_bio());
-        result.put("uid", get_uid());
-        result.put("address", get_address().toString());
-        result.put("eventIDsAttending", get_eventIDsAttending().toString());
-        result.put("eventIDsHosting", get_eventIDsHosting().toString());
+        result.put("name", getName());
+        result.put("email", getEmail());
+        result.put("age", getAge());
+        result.put("bio", getBio());
+        result.put("address", address);
+        result.put("eventIDsAttending", getEventIDsAttending());
+        result.put("eventIDsHosting", getEventIDsHosting());
 
         return result;
+    }
+
+    private Address parseAddress(String addr)
+    {
+        Address address = new Address(Locale.getDefault());
+        address.setAddressLine(0, addr);
+        return address;
     }
 
     /**
@@ -93,137 +118,104 @@ public class User implements Databasable{
      */
     public void attendEvent(String eventId)
     {
-        _eventIDsAttending.add(eventId);
-        userAttendingEventDatabase.child(get_uid()).setValue(get_eventIDsAttending().toString());
+        eventIDsAttending.add(eventId);
+        userAttendingEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
 
     }
 
     public void hostEvent(String eventId)
     {
-        _eventIDsHosting.add(eventId);
-        userHostEventDatabase.child(get_uid()).setValue(get_eventIDsAttending().toString());
+        eventIDsHosting.add(eventId);
+        userHostEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
     }
 
     /**
      * Adds a user object into the database under 'users' node under the Firebase Authorization unique
      *  id node
      *      i.e. "/users/FirebaseAuth.getInstance().getCurrentUser().getUid();"
-     * @param userObj
      */
-    public static void addUser(User userObj)
-    {
-        //Push user into DB
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String userId = BaseActivity.getUid();
-        UserInfo currentUser = mAuth.getCurrentUser();
-
-        // default user object created with Firebase User Authentication info
-        if(userObj == null)
-        {
-            userObj = new User(currentUser.getDisplayName(), currentUser.getEmail(),
-                    new Address(new Locale("English")));
-        }
-        // create hash map from User Java Obj's fields
-        Map<String, Object> userUpdates = new HashMap<>();
-        userUpdates.put("/" + userId, userObj.toMap());
-        // add new User child under 'users' node
-        userDatabase.updateChildren(userUpdates);
-    }
-
-
-    public static void getUser(String userId)
-    {
-        // Query User database looking for the matching user ID
-        userDatabase.orderByChild("uid").equalTo(userId).addChildEventListener(new ChildEventListener() {
+    public void add() {
+        final String userId = BaseActivity.getUid();
+        // Check if the Authenicated user id node already exists in FB DB under "users/$userId"
+        userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                System.out.println(dataSnapshot.getKey());
-
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.hasChild(userId)) {
+                    // check if any fields have to be updated
+                    User currentUser = snapshot.child(userId).getValue(User.class);
+                    //TODO updateUser(currentUser);
+                } else {
+                    // add new user to DB
+                    // create hash map from User Java Obj's fields
+                    Map<String, Object> userUpdates = new HashMap<>();
+                    userUpdates.put("/" + userId, toMap());
+                    // add new User child under 'users' node
+                    userDatabase.updateChildren(userUpdates);
+                }
             }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey)
-            {
-
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey)
-            {
-
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot)
-           {
-
-           }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // ...
+                Log.d(TAG, "Exception while getting Datasnapshot after logging in, was:" + databaseError.toString());
             }
         });
-
-
     }
-
 
     /**GETTERS
      * & SETTERS*/
 
-    public String get_name() {
-        return _name;
+    public String getName() {
+        return name;
     }
 
-    public void set_name(String _name) {
-        this._name = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String get_email() {
-        return _email;
+    public String getEmail() {
+        return email;
     }
 
-    public void set_email(String _email) {
-        this._email = _email;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String get_age() {
-        return _age;
+    public String getAge() {
+        return age;
     }
 
-    public void set_age(String _age) {
-        this._age = _age;
+    public void setAge(String age) {
+        this.age = age;
     }
 
-    public String get_bio() {
-        return _bio;
+    public String getBio() {
+        return bio;
     }
 
-    public void set_bio(String _bio) {
-        this._bio = _bio;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
-    public String get_uid() {return _uid;}
-
-    public void set_uid(String _uid) { this._uid = _uid;}
-
-    public Address get_address() {
-        return _address;
+    public String getAddress() {
+        return address;
     }
 
-    public void set_address(Address _address) {
-        this._address = _address;
+    @Exclude
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public List<String> get_eventIDsAttending() {
-        return _eventIDsAttending;
+    public List<String> getEventIDsAttending() {
+        return eventIDsAttending;
     }
 
-    public Settings get_userSettings() {
-        return _userSettings;
+    public Settings getUserSettings() {
+        return userSettings;
     }
 
-    public void set_userSettings(Settings _userSettings) {
-        this._userSettings = _userSettings;
+    public void setUserSettings(Settings userSettings) {
+        this.userSettings = userSettings;
     }
 
-    public List<String> get_eventIDsHosting() { return _eventIDsHosting;}
+    public List<String> getEventIDsHosting() { return eventIDsHosting;}
 
 }

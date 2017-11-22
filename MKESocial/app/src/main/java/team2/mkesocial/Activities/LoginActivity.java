@@ -11,6 +11,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -41,6 +46,25 @@ public class LoginActivity extends AppCompatActivity {
         userName = (EditText) findViewById(R.id.userName);
         password = (EditText) findViewById(R.id.password);
         mAuth = FirebaseAuth.getInstance();
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        SignInButton signInButton = (SignInButton) findViewById(R.id.google_sign_in);
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if(account != null){
+            logMeRightIn();
+        }
+
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signIn(mGoogleSignInClient);
+            }
+        });
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +98,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onPause() { super.onPause(); }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+    }
+
     private void signUp(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -95,6 +125,11 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    private void signIn(GoogleSignInClient client){
+        Intent signInIntent = client.getSignInIntent();
+        startActivityForResult(signInIntent, 1);
+    }
+
     private void signIn(String email, String password){
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -106,10 +141,10 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "Sign In Successful",
                                     Toast.LENGTH_SHORT).show();
-                            Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
-                            startActivity(goToFeed);
                             // add User to our firebase database once the login is successful
                             new User(mAuth.getCurrentUser()).add();
+
+                            logMeRightIn();
                         } else {
                             // If sign in fails, display a message to the user.
 
@@ -118,5 +153,10 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void logMeRightIn(){
+        Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
+        startActivity(goToFeed);
     }
 }

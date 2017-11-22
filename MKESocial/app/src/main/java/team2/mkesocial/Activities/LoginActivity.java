@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -27,7 +28,6 @@ import android.app.ProgressDialog;
 import Firebase.User;
 import team2.mkesocial.R;
 
-
 public class LoginActivity extends AppCompatActivity {
     private TextView signUp;
     private Button login;
@@ -35,74 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox rememberMe;
     private FirebaseAuth mAuth;
     public ProgressDialog mProgressDialog;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        signUp = (TextView) findViewById(R.id.signUp);
-        login = (Button) findViewById(R.id.sign_in_button);
-        userName = (EditText) findViewById(R.id.userName);
-        password = (EditText) findViewById(R.id.password);
-        mAuth = FirebaseAuth.getInstance();
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        SignInButton signInButton = (SignInButton) findViewById(R.id.google_sign_in);
-
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account != null){
-            logMeRightIn();
-        }
-
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signIn(mGoogleSignInClient);
-            }
-        });
-
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //See if user exists
-                signIn(userName.getText().toString(), password.getText().toString());
-            }
-        });
-
-        signUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //See if user exists
-                signUp(userName.getText().toString(), password.getText().toString());
-            }
-        });
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() { super.onPause(); }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-    }
+    public static GoogleSignInClient mGoogleSignInClient;
 
     private void signUp(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -158,5 +91,96 @@ public class LoginActivity extends AppCompatActivity {
     private void logMeRightIn(){
         Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
         startActivity(goToFeed);
+    }
+
+    private void startOver(){
+        Intent startOver = new Intent(this, SplashActivity.class);
+        startActivity(startOver);
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            logMeRightIn();
+        } catch (ApiException e) {
+
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        signUp = (TextView) findViewById(R.id.signUp);
+        login = (Button) findViewById(R.id.sign_in_button);
+        userName = (EditText) findViewById(R.id.userName);
+        password = (EditText) findViewById(R.id.password);
+        mAuth = FirebaseAuth.getInstance();
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        SignInButton signInButton = (SignInButton) findViewById(R.id.google_sign_in);
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if(account != null){
+            logMeRightIn();
+        }
+
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signIn(mGoogleSignInClient);
+            }
+        });
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //See if user exists
+                signIn(userName.getText().toString(), password.getText().toString());
+            }
+        });
+
+        signUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //See if user exists
+                signUp(userName.getText().toString(), password.getText().toString());
+            }
+        });
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() { super.onPause(); }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+
+    }
+
+    public static GoogleSignInClient getGoogleSignIn(){
+        return mGoogleSignInClient;
     }
 }

@@ -45,6 +45,13 @@
             android:text="Log in" />
     </TableRow>
     <TableRow>
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_sign_in"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+    </TableRow>
+    <TableRow>
         <TextView
             android:id="@+id/signUp"
             android:layout_width="20dip"

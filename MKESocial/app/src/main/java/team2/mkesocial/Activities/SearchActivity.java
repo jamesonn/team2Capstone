@@ -2,34 +2,52 @@ package team2.mkesocial.Activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.SearchView;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.util.Log;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import Firebase.Event;
+import Firebase.Tag;
+import team2.mkesocial.DateFilterFragment;
 import team2.mkesocial.R;
 
-public class SearchActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, ValueEventListener {
+public class SearchActivity extends AppCompatActivity
+        implements SearchView.OnQueryTextListener,
+        ValueEventListener,
+        AdapterView.OnItemSelectedListener,
+        DateFilterFragment.DateFilterListener {
 
     private static final String TAG = "SearchActivity";
 
     private SearchView _searchView;
+    private TextView _searchTextField;
+    private Spinner _searchFilter;
     private ListView _searchResults;
+    private ArrayList<String> _eventList;
     private ArrayAdapter<String> _resultsAdapter;
     private FirebaseDatabase _database;
-    private DatabaseReference _ref;
+    private Query _dataQuery;
+    private String _queryString;
+    private Date _filterStartDate;
+    private Date _filterEndDate;
+    private Toast _searchActivityToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +55,29 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
         setContentView(R.layout.activity_search);
 
         _searchView = (SearchView)findViewById(R.id.searchView);
+        _searchFilter = (Spinner)findViewById(R.id.searchFilter);
         _searchResults = (ListView)findViewById(R.id.searchResults);
+
+        _searchTextField = (TextView)_searchView.findViewById(
+                getResources().getIdentifier("android:id/search_src_text", null, null));
 
         _searchView.setOnQueryTextListener(this);
 
+        _eventList = new ArrayList<>();
+        _resultsAdapter = new ArrayAdapter<>(this, R.layout.list_item_searchresult, _eventList);
+        _searchResults.setAdapter(_resultsAdapter);
+
         _database = FirebaseDatabase.getInstance();
-        _ref =  _database.getReference(Event.DB_EVENTS_NODE_NAME);
-        _ref.addValueEventListener(this);
+
+        _searchView.setIconified(false);
+        _searchFilter.setOnItemSelectedListener(this);
+
+        if (savedInstanceState != null) {
+            DateFilterFragment dff = (DateFilterFragment)getSupportFragmentManager().findFragmentByTag(TAG);
+            if (dff != null) {
+                dff.setListener(this);
+            }
+        }
     }
 
     @Override
@@ -51,14 +85,15 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
     {
         Log.d("Search", "Query string: " + query);
 
-        // Dummy data for demonstration
-        String[] events = {"Concert", "Trivia Night", "Movie Marathon", "Charity Dinner"};
-        ArrayList<String> eventList = new ArrayList<>();
-        eventList.addAll(Arrays.asList(events));
+        _resultsAdapter.clear();
+        _queryString = query.toLowerCase();
 
-        _resultsAdapter = new ArrayAdapter<>(this, R.layout.list_item_searchresult, eventList);
+        _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).orderByChild("title");
+        _dataQuery.addValueEventListener(this);
+        _searchView.clearFocus();
 
-        _searchResults.setAdapter(_resultsAdapter);
+        _searchActivityToast = Toast.makeText(this, R.string.search_activity, Toast.LENGTH_SHORT);
+        _searchActivityToast.show();
 
         return true;
     }
@@ -76,18 +111,112 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
     {
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             try {
+                boolean shouldAdd = false;
                 Event event = snapshot.getValue(Event.class);
-                Log.d(TAG, "Event: " + event.getTitle());
+
+                switch (_searchFilter.getSelectedItemPosition())
+                {
+                    case 0:
+                        String title = event.getTitle().toLowerCase();
+                        shouldAdd = title.contains(_queryString);
+                        break;
+                    case 1:
+                        String desc = event.getDescription().toLowerCase();
+                        shouldAdd = desc.contains(_queryString);
+                        break;
+                    case 2:
+                        Date date = event.getDate().getTime();
+                        shouldAdd = date.getTime() >= _filterStartDate.getTime() &&
+                                date.getTime() <= _filterEndDate.getTime();
+                        break;
+                    case 3:
+                        for (Tag tag : event.getTags()) {
+                            if (tag.getName().toLowerCase().contains(_queryString))
+                                shouldAdd = true;
+                                break;
+                        }
+                        break;
+                }
+
+                if (shouldAdd) {
+                    _resultsAdapter.add(event.getTitle());
+                    if (_searchActivityToast != null) {
+                        _searchActivityToast.cancel();
+                        _searchActivityToast = null;
+                    }
+                }
+
+                if (event != null)
+                    Log.d(TAG, "Event: " + event.getTitle());
             } catch (Exception e) {
                 Log.d(TAG, "Exception:" + e.toString());
                 e.printStackTrace();
             }
         }
+        _dataQuery.removeEventListener(this);
+        _searchResults.requestFocus();
+
+        int numResults = _resultsAdapter.getCount();
+        Toast resultToast;
+        if (numResults == 0)
+            resultToast = Toast.makeText(this, R.string.search_empty_results, Toast.LENGTH_LONG);
+        else
+            resultToast = Toast.makeText(this,
+                    String.format(getString(R.string.search_results_format), numResults, numResults > 1 ? "s" : ""),
+                    Toast.LENGTH_SHORT);
+
+        resultToast.show();
     }
 
     @Override
     public void onCancelled(DatabaseError databaseError)
     {
 
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (position == 2) {
+            _searchTextField.setFocusable(false);
+            _searchTextField.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DateFilterFragment dff = DateFilterFragment.create(SearchActivity.this,
+                            _filterStartDate, _filterEndDate);
+                    dff.show(getSupportFragmentManager(), TAG);
+                }
+            });
+            DateFilterFragment dff = DateFilterFragment.create(this, _filterStartDate, _filterEndDate);
+            dff.show(getSupportFragmentManager(), TAG);
+        } else {
+            if (!_searchTextField.isFocusable()) {
+                _searchTextField.setText("");
+                _searchTextField.setFocusableInTouchMode(true);
+                _searchTextField.setFocusable(true);
+                _searchTextField.setOnClickListener(null);
+                _queryString = "";
+                _filterStartDate = _filterEndDate = null;
+            }
+            // Trigger a search when the selected filter is changed
+            if (_queryString != null && !_queryString.isEmpty())
+                onQueryTextSubmit(_queryString);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        Log.wtf(TAG, "No search filters selected. This shouldn't happen!");
+    }
+
+    @Override
+    public void onDateFilterPositive(Date startDate, Date endDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.date_format), Locale.getDefault());
+        _filterStartDate = startDate;
+        _filterEndDate = endDate;
+        _searchTextField.setText(sdf.format(startDate) + " to " + sdf.format(endDate));
+        _queryString = _searchTextField.getText().toString();
+
+        // Trigger a search for the specified date range
+        onQueryTextSubmit(_queryString);
     }
 }

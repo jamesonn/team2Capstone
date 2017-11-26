@@ -180,11 +180,26 @@ public class CreateEventActivity extends BaseActivity {
         });
         // Verify Input
         startDateField.addTextChangedListener(new TextWatcher() {
+            boolean _ignore = false; // indicates if the change was made by the TextWatcher itself.
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (_ignore)
+                    return;
+
+                _ignore = true; // prevent infinite loop
+                // Change your text here.
                 if(Calendar.getInstance().compareTo(myCalendar) < 0)
                     startDateField.setError("Invalid Date inputted");
+
+//                else
+//                    startDateField.setText(s);
+                _ignore = false; // release, so the TextWatcher start to listen again.
+
+
+
+
+
             }
 
             @Override
@@ -195,8 +210,7 @@ public class CreateEventActivity extends BaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                if(s.length() != 0)
-                    startDateField.setText("");
+               startDateField.setText(s);
             }
         });
         //end date listener

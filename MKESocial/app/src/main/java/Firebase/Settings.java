@@ -29,23 +29,24 @@ public class Settings {
     private static String notificationEnabled, privateProfile, theme;
     //DB user setting ref
     final private static DatabaseReference settingsDBReference = FirebaseDatabase.getInstance()
-            .getReference(Databasable.DB_USER_SETTINGS_NODE_NAME).child(BaseActivity.getUid());//.child(DB_SETTINGS);
+            .getReference(Databasable.DB_USER_SETTINGS_NODE_NAME).child(BaseActivity.getUid());
 
     private static final String TAG = Settings.class.getSimpleName();
 
     public Settings() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
+
     }
 
-    @Exclude
     public static Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put(DB_NOTIFICATIONS_ENABLED, getNotificationEnabled());
-        result.put(DB_PRIVATE_PROFILE, getPrivateProfile());
-        result.put(DB_THEME, getTheme());
+        result.put(DB_NOTIFICATIONS_ENABLED, getNotificationEnabled2());
+        result.put(DB_PRIVATE_PROFILE, getPrivateProfile2());
+        result.put(DB_THEME, getTheme2());
 
         return result;
     }
+
 
     /**
      * Takes a Consumer<Settings> </Settings>function and runs it on the current user's settings obj
@@ -60,11 +61,8 @@ public class Settings {
         settingsDBReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                Class usr = snapshot.getClass();
-                Settings asdf = snapshot.getValue(Settings.class);
-                Settings userSettings = null;
-               // .getValue(User.class);
-                // = usr.getUserSettings();//snapshot.getValue(Settings.class);
+
+                Settings userSettings = snapshot.getValue(Settings.class);
 
                 if(userSettings != null){
                     // run passed function using fetched userSetting Obj
@@ -78,7 +76,7 @@ public class Settings {
                     userSettings = new Settings();
                     function_to_run_on_settings_obj.accept(userSettings);
                     if(update)
-                        update();
+                        userSettings.update();
 
                     //pass null if unable to run
                     //function_to_run_on_settings_obj.accept(null);
@@ -98,31 +96,34 @@ public class Settings {
         settingsDBReference.setValue(toMap());
     }
 
-
-    public Settings(String notificationEnabled) {
-        setNotificationEnabled(notificationEnabled);
-    }
-
-    final public static String getNotificationEnabled() {
+    @Exclude
+    final public static String getNotificationEnabled2() {
         return notificationEnabled;
     }
 
-    final public void setNotificationEnabled(String notificationEnabled) {
+    public String getNotificationEnabled(){return  notificationEnabled; }
+
+    public void setNotificationEnabled(String notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
     }
-    final public static String getPrivateProfile() {
+    @Exclude
+    public static String getPrivateProfile2() {
         return privateProfile;
     }
+    public String getPrivateProfile(){return privateProfile;}
 
-    final public void setPrivateProfile(String privateProfile) {
+    public void setPrivateProfile(String privateProfile) {
         this.privateProfile = privateProfile;
     }
 
-    public static String getTheme() {
+    @Exclude
+    public static String getTheme2() {
         return theme;
     }
 
-    public static void setTheme(String theme) {
+    public String getTheme(){ return theme;}
+
+    public void setTheme(String theme) {
         Settings.theme = theme;
     }
 

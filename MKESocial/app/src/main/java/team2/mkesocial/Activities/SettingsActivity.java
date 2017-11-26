@@ -1,6 +1,7 @@
 package team2.mkesocial.Activities;
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,7 +34,7 @@ import team2.mkesocial.R;
 
 public class SettingsActivity extends BaseActivity {
 
-    private Switch location, notifications, privateProfile;
+    private Switch location, notifications, privateProfile, darkTheme;
     private TextView invite, rate;
 
     //publically visible location enabled flag, best coding practices
@@ -57,6 +58,7 @@ public class SettingsActivity extends BaseActivity {
         location = (Switch) findViewById(R.id.switch_location);
         notifications = (Switch) findViewById(R.id.switch_notifications);
         privateProfile = (Switch) findViewById(R.id.switch_private_profile);
+        darkTheme = (Switch) findViewById(R.id.switch_theme);
         invite = (TextView) findViewById(R.id.textView_invite);
         rate = (TextView) findViewById(R.id.textView_rate);
 
@@ -120,6 +122,29 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
+        darkTheme.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                final String checkedState = String.valueOf(isChecked);
+                //lambda to update
+                final BiConsumer<Settings, String> updatePrivateProfileNotifications= (settingsObj, theme_state)
+                        -> settingsObj.setTheme(theme_state);
+
+                //wrap it in a consumer lambda to give to Settings Class
+                final Consumer<Settings> updateSet = settings ->
+                        updatePrivateProfileNotifications.accept(settings, checkedState);
+
+                try {
+                    Settings.runMethodOnDBSettingsObj(updateSet, true);
+                }
+                catch(NullPointerException e)
+                {
+                    Toast.makeText(SettingsActivity.this, "Error Saving to DB",
+                            Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
         // Set the text view listeners
         invite.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -130,9 +155,13 @@ public class SettingsActivity extends BaseActivity {
                     i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
                     String strShareMessage = "\nLet me recommend you this application\n\n";
                     strShareMessage = strShareMessage + "https://play.google.com/store/apps/details?id=" + getPackageName();
-                    Uri screenshotUri = Uri.parse("android.resource://packagename/drawable/flag");
-                    i.setType("image/png");
-                    i.putExtra(Intent.EXTRA_STREAM, screenshotUri);
+                   /** Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                            "://" + getResources().getResourcePackageName(R.drawable.flag)
+                            + '/' + getResources().getResourceTypeName(R.drawable.flag) + '/' + getResources()
+                            .getResourceEntryName(R.drawable.flag) );
+                   // Uri screenshotUri = Uri.parse()//Uri.parse("android.resource://packagename/drawable/flag");
+                   // i.setType("image/jpg");
+                   // i.putExtra(Intent.EXTRA_STREAM, imageUri);*/
                     i.putExtra(Intent.EXTRA_TEXT, strShareMessage);
                     startActivity(Intent.createChooser(i, "Share via"));
                 } catch(Exception e) {

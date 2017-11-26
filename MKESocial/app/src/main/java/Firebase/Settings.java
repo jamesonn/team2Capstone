@@ -22,15 +22,14 @@ import team2.mkesocial.Activities.BaseActivity;
 @IgnoreExtraProperties
 public class Settings {
 
-    final public static String DB_SETTINGS = "settings";
     final public static String DB_NOTIFICATIONS_ENABLED = "notificationsEnabled";
     final public static String DB_PRIVATE_PROFILE = "privateProfile";
-    //TODO theme class?
+    final public static String DB_THEME = "theme";
     //private Theme _theme;
-    private static String notificationEnabled, privateProfile;
+    private static String notificationEnabled, privateProfile, theme;
     //DB user setting ref
     final private static DatabaseReference settingsDBReference = FirebaseDatabase.getInstance()
-            .getReference(Databasable.DB_USERS_NODE_NAME).child(BaseActivity.getUid()).child(DB_SETTINGS);
+            .getReference(Databasable.DB_USER_SETTINGS_NODE_NAME).child(BaseActivity.getUid());//.child(DB_SETTINGS);
 
     private static final String TAG = Settings.class.getSimpleName();
 
@@ -43,6 +42,7 @@ public class Settings {
         HashMap<String, Object> result = new HashMap<>();
         result.put(DB_NOTIFICATIONS_ENABLED, getNotificationEnabled());
         result.put(DB_PRIVATE_PROFILE, getPrivateProfile());
+        result.put(DB_THEME, getTheme());
 
         return result;
     }
@@ -60,7 +60,12 @@ public class Settings {
         settingsDBReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                Settings userSettings = snapshot.getValue(Settings.class);
+                Class usr = snapshot.getClass();
+                Settings asdf = snapshot.getValue(Settings.class);
+                Settings userSettings = null;
+               // .getValue(User.class);
+                // = usr.getUserSettings();//snapshot.getValue(Settings.class);
+
                 if(userSettings != null){
                     // run passed function using fetched userSetting Obj
                     //*****ACCEPT FUNCTION REQUIRES API OF 24 OR GREATER
@@ -69,8 +74,14 @@ public class Settings {
                         userSettings.update();
 
                 } else {
+                    //Give user a settings obj
+                    userSettings = new Settings();
+                    function_to_run_on_settings_obj.accept(userSettings);
+                    if(update)
+                        update();
+
                     //pass null if unable to run
-                    function_to_run_on_settings_obj.accept(null);
+                    //function_to_run_on_settings_obj.accept(null);
                 }
             }
 
@@ -92,18 +103,28 @@ public class Settings {
         setNotificationEnabled(notificationEnabled);
     }
 
-    public static String getNotificationEnabled() {
+    final public static String getNotificationEnabled() {
         return notificationEnabled;
     }
 
-    public void setNotificationEnabled(String notificationEnabled) {
+    final public void setNotificationEnabled(String notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
     }
-    public static String getPrivateProfile() {
+    final public static String getPrivateProfile() {
         return privateProfile;
     }
 
-    public void setPrivateProfile(String privateProfile) {
+    final public void setPrivateProfile(String privateProfile) {
         this.privateProfile = privateProfile;
     }
+
+    public static String getTheme() {
+        return theme;
+    }
+
+    public static void setTheme(String theme) {
+        Settings.theme = theme;
+    }
+
+
 }

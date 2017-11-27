@@ -134,6 +134,7 @@ public class FeedActivity extends AppCompatActivity
     }
 
     public void logout(){
+        LoginActivity.getAuth().signOut();
         final Intent startOver = new Intent(this, SplashActivity.class);
         LoginActivity.getGoogleSignIn().signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -152,6 +153,7 @@ public class FeedActivity extends AppCompatActivity
     @Override
     public void onDataChange(DataSnapshot dataSnapshot)
     {
+        _resultsAdapter.clear();
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             Event event = snapshot.getValue(Event.class);
             if (event.getTitle() != null) {

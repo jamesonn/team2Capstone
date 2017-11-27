@@ -16,8 +16,24 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.firebase.database.FirebaseDatabase;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.AutocompletePredictionBuffer;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 
 import Firebase.Event;
 import Firebase.Tag;
@@ -44,12 +60,15 @@ public class CreateEventActivity extends BaseActivity {
     private static final String REQUIRED = "Required";
 
     private EditText titleField, descriptionField, startDateField, endDateField, startTimeField,
-        endTimeField, locationField, suggestedAgeField, costField;
+        endTimeField, suggestedAgeField, costField;
     private Button createButton;
     private FirebaseDatabase mFirebaseDatabase;
     private Calendar startCalendar, endCalendar, myTime;
     private MultiAutoCompleteTextView tagsField;
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
+
+    private PlaceAutocompleteFragment autocompleteFragment;
+    private Place placePicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +82,6 @@ public class CreateEventActivity extends BaseActivity {
         endDateField = (EditText) findViewById(R.id.edit_end_date);
         startTimeField = (EditText) findViewById(R.id.edit_start_time);
         endTimeField = (EditText) findViewById(R.id.edit_end_time);
-        locationField = (EditText) findViewById(R.id.edit_location);
         suggestedAgeField = (EditText) findViewById(R.id.edit_suggested_age);
         costField = (EditText) findViewById(R.id.edit_cost);
         tagsField = (MultiAutoCompleteTextView) findViewById(R.id.edit_tags);
@@ -72,7 +90,7 @@ public class CreateEventActivity extends BaseActivity {
         //put all the edit text references in an array for easy verification later
         objectList.add(titleField); objectList.add(descriptionField); objectList.add(startDateField);
         objectList.add(endDateField);objectList.add(startTimeField);objectList.add(endTimeField);
-        objectList.add(locationField);objectList.add(suggestedAgeField);objectList.add(costField);objectList.add(tagsField);
+        objectList.add(suggestedAgeField);objectList.add(costField);objectList.add(tagsField);
 
         // get reference to 'users' node
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -155,8 +173,7 @@ public class CreateEventActivity extends BaseActivity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Calendar mcurrentTime = Calendar.getInstance();
+                Calendar mcurrentTime = startTime;
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker = new TimePickerDialog(CreateEventActivity.this,
@@ -177,20 +194,6 @@ public class CreateEventActivity extends BaseActivity {
                             Toast.makeText(getApplicationContext(), "Invalid Time", Toast.LENGTH_LONG).show();
                         }
                     }}, hour, minute, false);//No 24 hour time*/
-
-/**
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        SimpleDateFormat parseFormat = new SimpleDateFormat("HH:mm");
-                        SimpleDateFormat displayFormat = new SimpleDateFormat("hh:mm a");
-                        Date date = new Date();
-                        try {
-                            date = parseFormat.parse(selectedHour + ":" + selectedMinute);
-                        }catch (ParseException e)
-                        {}
-                        endTimeField.setText(displayFormat.format(date));
-                    }
-                }, hour, minute, false);//No 24 hour time*/
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
 
@@ -293,19 +296,24 @@ public class CreateEventActivity extends BaseActivity {
             }
         });
 
-/**        //edit location auto complete
-        int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+       //edit location fragment auto complete
+        autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
-        try {
-            Intent intent =
-                    new PlaceAutoComplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(this);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
-            // TODO: Handle the error.
-        } catch (GooglePlayServicesNotAvailableException e) {
-            // TODO: Handle the error.
-        }*/
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                placePicked = place;
+                Log.i(TAG, "Place: " + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
     }
 
 
@@ -317,7 +325,7 @@ public class CreateEventActivity extends BaseActivity {
         final String date = startDateField.getText().toString();
         final String startTime = startTimeField.getText().toString();
         final String endTime = endTimeField.getText().toString();
-        final String location = locationField.getText().toString();
+        String location = "";
         final String suggestedAge =  suggestedAgeField.getText().toString();
         final String cost = costField.getText().toString();
         final String tags = tagsField.getText().toString();
@@ -351,12 +359,13 @@ public class CreateEventActivity extends BaseActivity {
         if (TextUtils.isEmpty(endTime)) {
             endTimeField.setError(REQUIRED);
             return false;
-        }
-        // Location is required
-        if (TextUtils.isEmpty(location)) {
-            locationField.setError(REQUIRED);
+        }//TODO on location deleted check
+        if(placePicked == null || placePicked.getAddress().toString().isEmpty()) {
+            autocompleteFragment.setHint("Please add a location before creating event");
             return false;
-        }
+
+        }else
+            location = placePicked.getAddress().toString();
         // Tag(s) are required
         if (TextUtils.isEmpty(tags)) {
             tagsField.setError(REQUIRED);

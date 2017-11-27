@@ -284,6 +284,8 @@ public class ProfileActivity extends Activity {
                 events_host_layout.setVisibility(View.VISIBLE);
                 if(!see_attend) quickUpdatePA();
             }
+            if(!see_attend && !see_host) quickUpdatePA();
+            if(!see_attend && !see_host && !see_email) quickUpdatePA();
         }
     }
 

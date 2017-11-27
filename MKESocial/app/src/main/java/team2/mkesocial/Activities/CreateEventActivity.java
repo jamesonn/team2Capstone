@@ -34,6 +34,7 @@ import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+
 import Firebase.Event;
 import Firebase.Tag;
 import Firebase.User;
@@ -193,7 +194,6 @@ public class CreateEventActivity extends BaseActivity {
                             Toast.makeText(getApplicationContext(), "Invalid Time", Toast.LENGTH_LONG).show();
                         }
                     }}, hour, minute, false);//No 24 hour time*/
-
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
 

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "604423674694-as1gjab9m7ob07tqhvp3qpn1hqld51d5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "team2.mkesocial",
+            "certificate_hash": "76b5fc7adbd8e3d268d5219d4dff18f92827ba77"
+          }
+        },
+        {
           "client_id": "604423674694-ronsspokdgq21l8ag3vluienpnlhf8p3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

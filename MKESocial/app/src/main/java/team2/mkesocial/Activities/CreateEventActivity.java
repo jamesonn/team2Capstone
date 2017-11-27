@@ -153,15 +153,9 @@ public class CreateEventActivity extends BaseActivity {
                         Calendar c = Calendar.getInstance();
                         startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         startTime.set(Calendar.MINUTE, minute);
-                        if (startTime.getTimeInMillis() >= c.getTimeInMillis()) {
-                            //it's after current
-                            int hour = hourOfDay % 12;
-                            startTimeField.setText(String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
-                                    minute, hourOfDay < 12 ? "am" : "pm"));
-                        } else {
-                            //it's before current'
-                            Toast.makeText(getApplicationContext(), "Invalid Time", Toast.LENGTH_LONG).show();
-                        }
+                        int hour = hourOfDay % 12;
+                        startTimeField.setText(String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
+                                minute, hourOfDay < 12 ? "am" : "pm"));
                     }}, hour, minute, false);//No 24 hour time*/
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();

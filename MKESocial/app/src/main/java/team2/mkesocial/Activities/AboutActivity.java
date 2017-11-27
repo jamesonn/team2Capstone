@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.net.Uri;
+import android.widget.Toast;
 
 import team2.mkesocial.R;
 
@@ -22,13 +23,20 @@ public class AboutActivity extends AppCompatActivity {
 
     public void fab_email_on_click(View v)
     {
-        if(v.getId() == R.id.fab_email) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            String emailAddress = getString(R.string.MKE_social_email_address);
-            String defaultSubject = getString(R.string.default_email_subject);
-            Uri data = Uri.parse("mailto:"+ emailAddress +"?subject=" + defaultSubject + "&body=" + "");
-            intent.setData(data);
-            startActivity(intent);
+        try {
+            if (v.getId() == R.id.fab_email) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                String emailAddress = getString(R.string.MKE_social_email_address);
+                String defaultSubject = getString(R.string.default_email_subject);
+                Uri data = Uri.parse("mailto:" + emailAddress + "?subject=" + defaultSubject + "&body=" + "");
+                intent.setData(data);
+                startActivity(intent);
+            }
+        }
+        catch(Exception e)
+        {
+            Toast.makeText(AboutActivity.this, "Error opening email",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

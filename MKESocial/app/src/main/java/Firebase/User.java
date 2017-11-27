@@ -41,9 +41,6 @@ public class User implements Databasable{
     //storing user profile photo
     //private SomePictureType _photo
 
-    // storing user preferences & visibility options of their bio info
-    private Settings userSettings;
-
     //FIREBASE DB "users" node reference
     final private static DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     final private static DatabaseReference userAttendingEventDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_EVENTS_ATTENDING_NODE_NAME);
@@ -71,8 +68,6 @@ public class User implements Databasable{
         setImg("");
         setAttendEid("");
         setHostEid("");
-        // give a new user default settings when they are created
-        setUserSettings(new Settings());
         // push new user to DB
         eventIDsAttending = new ArrayList<String>();
         eventIDsHosting = new ArrayList<String>();
@@ -98,8 +93,6 @@ public class User implements Databasable{
         setAttendEid("");
         setHostEid("");
         setAddress(address);
-        // give a new user default settings when they are created
-        setUserSettings(new Settings());
         // push new user to DB
         eventIDsAttending = new ArrayList<String>();
         eventIDsHosting = new ArrayList<String>();
@@ -264,14 +257,6 @@ public class User implements Databasable{
 
     public List<String> getEventIDsAttending() {
         return eventIDsAttending;
-    }
-
-    public Settings getUserSettings() {
-        return userSettings;
-    }
-
-    public void setUserSettings(Settings userSettings) {
-        this.userSettings = userSettings;
     }
 
     public List<String> getEventIDsHosting() { return eventIDsHosting;}

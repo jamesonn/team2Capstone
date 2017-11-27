@@ -70,7 +70,6 @@
         <activity
             android:name=".Activities.MyEventsActivity"
             android:label="My Events" />
-        <activity android:name=".Activities.SignUp" />
         <activity
             android:name=".Activities.FeedActivity"
             android:label="@string/title_activity_feed"

@@ -11,16 +11,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Date;
+
+import Firebase.Event;
+import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.R;
 
 public class FeedActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        ValueEventListener {
+
+    private FirebaseDatabase _database;
+    private Query _dataQuery;
+    private ListView _eventResults;
+    private ArrayAdapter<String> _resultsAdapter;
+    private ArrayList<String> _eventList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +48,8 @@ public class FeedActivity extends AppCompatActivity
         setContentView(R.layout.activity_feed);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        _eventResults = (ListView)findViewById(R.id.event_results);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -38,7 +60,15 @@ public class FeedActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Add user to database if they don't already exist
+        _database = FirebaseDatabase.getInstance();
+
+        _eventList = new ArrayList<>();
+        _resultsAdapter = new ArrayAdapter<>(this, R.layout.list_item_searchresult, _eventList);
+        _eventResults.setAdapter(_resultsAdapter);
+
+        _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).orderByChild("title");
+        _dataQuery.addValueEventListener(this);
+
 
     }
 
@@ -111,5 +141,22 @@ public class FeedActivity extends AppCompatActivity
                 startActivity(startOver);
             }
         });
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError)
+    {
+
+    }
+
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot)
+    {
+        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            Event event = snapshot.getValue(Event.class);
+            if (event.getTitle() != null) {
+                _resultsAdapter.add(event.getTitle());
+            }
+        }
     }
 }

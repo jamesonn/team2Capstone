@@ -62,6 +62,53 @@ public class SettingsActivity extends BaseActivity {
         invite = (TextView) findViewById(R.id.textView_invite);
         rate = (TextView) findViewById(R.id.textView_rate);
 
+        // Grab user settings to display
+        //Location
+
+        //Notifications
+        final BiConsumer<Settings, Switch> readSettingNotifications= (settingsObj, notifications)
+                -> notifications.setChecked(Boolean.parseBoolean(settingsObj.getNotificationEnabled()));
+        final Consumer<Settings> readNotifSet = settings ->
+                readSettingNotifications.accept(settings, notifications);
+        try {
+            Settings.runMethodOnDBSettingsObj(readNotifSet, false);
+        }
+        catch(NullPointerException e)
+        {
+            Toast.makeText(SettingsActivity.this, "Error Fetching DB info",
+                    Toast.LENGTH_SHORT).show();
+        }
+        //Private Profile
+        final BiConsumer<Settings, Switch> readSettingPrivateProfile = (settingsObj, notifications)
+                -> privateProfile.setChecked(Boolean.parseBoolean(settingsObj.getPrivateProfile()));
+        final Consumer<Settings> readPriv = settings ->
+                readSettingPrivateProfile.accept(settings, notifications);
+        try {
+            Settings.runMethodOnDBSettingsObj(readPriv, false);
+        }
+        catch(NullPointerException e)
+        {
+            Toast.makeText(SettingsActivity.this, "Error Fetching DB info",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        //Theme
+        final BiConsumer<Settings, Switch> readSettingTheme = (settingsObj, notifications)
+                -> darkTheme.setChecked(Boolean.parseBoolean(settingsObj.getPrivateProfile()));
+        final Consumer<Settings> readTheme = settings ->
+                readSettingTheme.accept(settings, notifications);
+        try {
+            Settings.runMethodOnDBSettingsObj(readTheme, false);
+        }
+        catch(NullPointerException e)
+        {
+            Toast.makeText(SettingsActivity.this, "Error Fetching DB info",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        //Theme setup
+
+
 
         // Set the switch listeners
         location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
@@ -155,13 +202,6 @@ public class SettingsActivity extends BaseActivity {
                     i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
                     String strShareMessage = "\nLet me recommend you this application\n\n";
                     strShareMessage = strShareMessage + "https://play.google.com/store/apps/details?id=" + getPackageName();
-                   /** Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
-                            "://" + getResources().getResourcePackageName(R.drawable.flag)
-                            + '/' + getResources().getResourceTypeName(R.drawable.flag) + '/' + getResources()
-                            .getResourceEntryName(R.drawable.flag) );
-                   // Uri screenshotUri = Uri.parse()//Uri.parse("android.resource://packagename/drawable/flag");
-                   // i.setType("image/jpg");
-                   // i.putExtra(Intent.EXTRA_STREAM, imageUri);*/
                     i.putExtra(Intent.EXTRA_TEXT, strShareMessage);
                     startActivity(Intent.createChooser(i, "Share via"));
                 } catch(Exception e) {

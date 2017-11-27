@@ -3,39 +3,30 @@ package team2.mkesocial.Activities;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.location.Address;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.DatePicker;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserInfo;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import Firebase.Event;
 import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.R;
+import Validation.TextValidator;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Calendar;
@@ -56,8 +47,9 @@ public class CreateEventActivity extends BaseActivity {
         endTimeField, locationField, suggestedAgeField, costField;
     private Button createButton;
     private FirebaseDatabase mFirebaseDatabase;
-    private Calendar myCalendar, myTime;
+    private Calendar startCalendar, endCalendar, myTime;
     private MultiAutoCompleteTextView tagsField;
+    private ArrayList<EditText> objectList = new ArrayList<EditText>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +69,11 @@ public class CreateEventActivity extends BaseActivity {
         tagsField = (MultiAutoCompleteTextView) findViewById(R.id.edit_tags);
         createButton = (Button) findViewById(R.id.button_create);
 
+        //put all the edit text references in an array for easy verification later
+        objectList.add(titleField); objectList.add(descriptionField); objectList.add(startDateField);
+        objectList.add(endDateField);objectList.add(startTimeField);objectList.add(endTimeField);
+        objectList.add(locationField);objectList.add(suggestedAgeField);objectList.add(costField);objectList.add(tagsField);
+
         // get reference to 'users' node
         mFirebaseDatabase = FirebaseDatabase.getInstance();
 
@@ -89,24 +86,40 @@ public class CreateEventActivity extends BaseActivity {
         tagsField.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
         //  Date picker event
-        myCalendar = Calendar.getInstance();
+        startCalendar = Calendar.getInstance();
+        endCalendar = Calendar.getInstance();
+        // Standard Time Display
         myTime = Calendar.getInstance();
+        String  myFormat = "MM/dd/yy";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
-        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+
+        final DatePickerDialog.OnDateSetListener startDate = new DatePickerDialog.OnDateSetListener() {
 
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                // TODO Auto-generated method stub
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                startCalendar.set(Calendar.YEAR, year);
+                startCalendar.set(Calendar.MONTH, monthOfYear);
+                startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            }
+        };
+        final DatePickerDialog.OnDateSetListener endDate = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                startCalendar.set(Calendar.YEAR, year);
+                startCalendar.set(Calendar.MONTH, monthOfYear);
+                startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
             }
         };
 
 
         //Time calendar format
+        Calendar startTime = Calendar.getInstance();
         startTimeField.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -118,24 +131,26 @@ public class CreateEventActivity extends BaseActivity {
                 TimePickerDialog mTimePicker;
                 mTimePicker = new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        SimpleDateFormat parseFormat = new SimpleDateFormat("HH:mm");
-                        SimpleDateFormat displayFormat = new SimpleDateFormat("hh:mm a");
-                        Date date = new Date();
-                        try {
-                            date = parseFormat.parse(selectedHour + ":" + selectedMinute);
-                        }catch (ParseException e)
-                        {}
-                        startTimeField.setText(displayFormat.format(date));
-                    }
-                }, hour, minute, false);//No 24 hour time
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        Calendar c = Calendar.getInstance();
+                        startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        startTime.set(Calendar.MINUTE, minute);
+                        if (startTime.getTimeInMillis() >= c.getTimeInMillis()) {
+                            //it's after current
+                            int hour = hourOfDay % 12;
+                            startTimeField.setText(String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
+                                    minute, hourOfDay < 12 ? "am" : "pm"));
+                        } else {
+                            //it's before current'
+                            Toast.makeText(getApplicationContext(), "Invalid Time", Toast.LENGTH_LONG).show();
+                        }
+                    }}, hour, minute, false);//No 24 hour time*/
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
 
             }
         });
         // End Time Listener
-        //Time calendar format
         endTimeField.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -144,8 +159,26 @@ public class CreateEventActivity extends BaseActivity {
                 Calendar mcurrentTime = Calendar.getInstance();
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog mTimePicker = new TimePickerDialog(CreateEventActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        Calendar datetime = Calendar.getInstance();
+                        datetime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        datetime.set(Calendar.MINUTE, minute);
+                        //Make sure endtime is after start time
+                        if (datetime.getTimeInMillis() >= startTime.getTimeInMillis()) {
+                            //it's after current
+                            int hour = hourOfDay % 12;
+                            endTimeField.setText(String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
+                                    minute, hourOfDay < 12 ? "am" : "pm"));
+                        } else {
+                            //it's before current'
+                            Toast.makeText(getApplicationContext(), "Invalid Time", Toast.LENGTH_LONG).show();
+                        }
+                    }}, hour, minute, false);//No 24 hour time*/
+
+/**
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         SimpleDateFormat parseFormat = new SimpleDateFormat("HH:mm");
@@ -157,7 +190,7 @@ public class CreateEventActivity extends BaseActivity {
                         {}
                         endTimeField.setText(displayFormat.format(date));
                     }
-                }, hour, minute, false);//No 24 hour time
+                }, hour, minute, false);//No 24 hour time*/
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
 
@@ -169,69 +202,94 @@ public class CreateEventActivity extends BaseActivity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                new DatePickerDialog(CreateEventActivity.this, date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-                String  myFormat = "MM/dd/yy";
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                startDateField.setText(sdf.format(myCalendar.getTime()));
-            }
-        });
-        // Verify Input
-        startDateField.addTextChangedListener(new TextWatcher() {
-            boolean _ignore = false; // indicates if the change was made by the TextWatcher itself.
+                DatePickerDialog mDatePicker = new DatePickerDialog(CreateEventActivity.this, startDate, startCalendar
+                        .get(Calendar.YEAR), startCalendar.get(Calendar.MONTH),
+                        startCalendar.get(Calendar.DAY_OF_MONTH)){
+                    @Override
+                    public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                        startCalendar.set(year, month, dayOfMonth);
+                        startDateField.setText(sdf.format(startCalendar.getTime()));
+                        if(startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()) {
+                            endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
+                            endDateField.setText(sdf.format(endCalendar.getTime()));
+                        }
+                    }
+                };
+                // Limit Date picker to current dates
+                mDatePicker.getDatePicker().setMinDate(System.currentTimeMillis());
+                mDatePicker.show();
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (_ignore)
-                    return;
-
-                _ignore = true; // prevent infinite loop
-                // Change your text here.
-                if(Calendar.getInstance().compareTo(myCalendar) < 0)
-                    startDateField.setError("Invalid Date inputted");
-
-//                else
-//                    startDateField.setText(s);
-                _ignore = false; // release, so the TextWatcher start to listen again.
-
-
-
-
-
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-               startDateField.setText(s);
             }
         });
         //end date listener
         endDateField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                new DatePickerDialog(CreateEventActivity.this, date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-                String  myFormat = "MM/dd/yy";
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                endDateField.setText(sdf.format(myCalendar.getTime()));
+                DatePickerDialog mDatePicker = new DatePickerDialog(CreateEventActivity.this, endDate, endCalendar
+                        .get(Calendar.YEAR), endCalendar.get(Calendar.MONTH),
+                        endCalendar.get(Calendar.DAY_OF_MONTH) - 1)
+                {
+                    @Override
+                    public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                        endCalendar.set(year, month, dayOfMonth);
+                        endDateField.setText(sdf.format(endCalendar.getTime()));
+                        Log.d("Date", "Year=" + year + " Month=" + (month + 1) + " day=" + dayOfMonth);
+                    }
+                };
+                // Limit Date picker to current dates
+                mDatePicker.getDatePicker().setMinDate(startCalendar.getTimeInMillis());
+                mDatePicker.show();
+            }
+        });
+
+        // Suggested Age Listener input validation
+        suggestedAgeField.addTextChangedListener(new TextValidator(suggestedAgeField) {
+            @Override
+            public void validate(TextView textView, String text) {
+                // check if text has an non numeric characters
+                if(text.matches("^[0-9]+$"))
+                {
+                    // check range
+                    try{
+                        int inputtedAge = Integer.parseInt(text);
+                        if(inputtedAge > 120 || inputtedAge < 0) {
+                            suggestedAgeField.setError("Please input a valid age");
+                        }
+
+                    }catch(NumberFormatException e){
+                        suggestedAgeField.setError("Only numeric characters are allowed (0-9)");
+                    }
+                }
+            }
+        });
+
+        // Cost field verification
+        costField.addTextChangedListener(new TextValidator(costField) {
+            @Override
+            public void validate(TextView textView, String text) {
+                // check price input is valid
+                if(text.matches("[0-9]+([,.][0-9]{1,2})?"))
+                {
+                    // check price range
+                    try{
+                        double inputtedAge = Double.parseDouble(text);
+                        if(inputtedAge > 500 || inputtedAge < 0) {
+                            costField.setError("Please input a valid price");
+                        }
+
+                    }catch(NumberFormatException e){
+                        costField.setError("Expected format: xx.xx");
+                    }
+                }
             }
         });
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                submitEvent();
-                startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
+
+                if(submitEvent())
+                    startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
             }
         });
 
@@ -251,7 +309,7 @@ public class CreateEventActivity extends BaseActivity {
     }
 
 
-    private void submitEvent()
+    private boolean submitEvent()
     {
         //collect filled out info
         final String title = titleField.getText().toString();
@@ -264,42 +322,54 @@ public class CreateEventActivity extends BaseActivity {
         final String cost = costField.getText().toString();
         final String tags = tagsField.getText().toString();
 
-    /**    // Title is required
+       // Title is required
         if (TextUtils.isEmpty(title)) {
             titleField.setError(REQUIRED);
-            return;
+            return false;
         }
         // Description is required
         if (TextUtils.isEmpty(description)) {
             descriptionField.setError(REQUIRED);
-            return;
+            return false;
         }
-        // Date is required
+        // Start Date is required
         if (TextUtils.isEmpty(date)) {
-            dateField.setError(REQUIRED);
-            return;
+            startDateField.setError(REQUIRED);
+            return false;
+        }
+        // End Date is required
+        if (TextUtils.isEmpty(date)) {
+            endDateField.setError(REQUIRED);
+            return false;
         }
         // Start Time is required
         if (TextUtils.isEmpty(startTime)) {
             startTimeField.setError(REQUIRED);
-            return;
+            return false;
         }
         // End Time is required
         if (TextUtils.isEmpty(endTime)) {
             endTimeField.setError(REQUIRED);
-            return;
+            return false;
         }
         // Location is required
         if (TextUtils.isEmpty(location)) {
             locationField.setError(REQUIRED);
-            return;
+            return false;
         }
         // Tag(s) are required
         if (TextUtils.isEmpty(tags)) {
             tagsField.setError(REQUIRED);
-            return;
-        }**/
+            return false;
+        }
 
+        // Check if any fields are in error
+        for(EditText x: objectList){
+            if(x.getError() != null) {
+                createButton.setError("One or more fields are invalid");
+                return false;
+            }
+        }
         // Disable button
         setEditingEnabled(false);
 
@@ -334,6 +404,7 @@ public class CreateEventActivity extends BaseActivity {
         //finally, store the
         String eventLocID = mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).push().getKey();
         mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).child(eventLocID).setValue(eventId);
+        return true;
     }
 
 

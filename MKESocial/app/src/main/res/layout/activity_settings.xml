@@ -19,7 +19,8 @@
             android:id="@+id/switch_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="User Current Location" />
+            android:text="User Current Location"
+            android:textColorLink="@android:color/holo_green_light" />
 
         <Space
             style="@style/linearLayoutItems"
@@ -28,9 +29,9 @@
 
         <Switch
             android:id="@+id/switch_notifications"
+            style="@style/linearLayoutItems"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/linearLayoutItems"
             android:text="Notifications" />
 
         <Space
@@ -40,10 +41,11 @@
 
         <Switch
             android:id="@+id/switch_private_profile"
+            style="@style/linearLayoutItems"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/linearLayoutItems"
-            android:text="Make Profile Private" />
+            android:text="Make Profile Private"
+            android:textColorLink="@android:color/holo_green_light" />
 
         <Space
             style="@style/linearLayoutItems"
@@ -54,33 +56,40 @@
             android:id="@+id/switch_theme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lights Off" />
+            android:text="Lights Off"
+            android:textColorLink="@android:color/black" />
 
         <Space
             style="@style/linearLayoutItems"
             android:layout_width="match_parent"
             android:layout_height="@android:dimen/app_icon_size" />
 
-        <TextView
+        <Button
             android:id="@+id/textView_invite"
-            style="@style/linearLayoutItems"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Invite Friends to MKE Social"
-            android:textAppearance="@style/TextAppearance.AppCompat" />
+            android:textAlignment="textStart"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textColor="@color/mke_light_blue"
+            android:textStyle="bold" />
 
         <Space
             style="@style/linearLayoutItems"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <TextView
+        <Button
             android:id="@+id/textView_rate"
-            style="@style/linearLayoutItems"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Rate this app"
-            android:textAppearance="@style/TextAppearance.AppCompat" />
+            android:textAlignment="textStart"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textColor="@color/mke_dark_blue"
+            android:textStyle="bold" />
 
     </LinearLayout>
 

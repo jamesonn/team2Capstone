@@ -160,9 +160,10 @@ public class SearchActivity extends AppCompatActivity
                         break;
                     case 3:
                         for (Tag tag : event.getTags()) {
-                            if (tag.getName().toLowerCase().contains(_queryString))
+                            if (tag.getName().toLowerCase().contains(_queryString)) {
                                 shouldAdd = true;
                                 break;
+                            }
                         }
                         break;
                 }

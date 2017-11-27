@@ -142,6 +142,7 @@ public class User implements Databasable{
      */
     public void attendEvent(String eventId)
     {
+        attendEid+=" "+eventId;
         eventIDsAttending.add(eventId);
         userAttendingEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
 
@@ -149,6 +150,7 @@ public class User implements Databasable{
 
     public void hostEvent(String eventId)
     {
+        hostEid+=" "+eventId;
         eventIDsHosting.add(eventId);
         userHostEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
     }

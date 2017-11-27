@@ -64,7 +64,7 @@ public class ProfileActivity extends Activity {
     TextView profile_email, profile_bio, profile_fName, email_head, attend_head, host_head, eventsL;
     EditText pro_email, pro_bio, pro_fName, pro_lName, pro_mInit, pro_age, pro_addr;
     Switch email_toggle, attend_toggle, host_toggle;
-    boolean see_email=true, see_attend=true, see_host=true;
+    boolean see_email=true, see_attend=true, see_host=true, picChange;
     String email, bio, fName, lName, mInit, age, addr, attendEid, hostEid, rEName, eName;
     String[] EventAid, EventHid, Anames, Hnames;
     LinearLayout events_attend_layout, events_host_layout;
@@ -145,11 +145,11 @@ public class ProfileActivity extends Activity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             filePath = data.getData();
             try {
-                System.out.println("I GOT TO BE INSIDE OF TRY..");
+                //System.out.println("I GOT TO BE INSIDE OF TRY..");
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 //correcting orientation so it displays correctly
                 ExifInterface exif = new ExifInterface(getContentResolver().openInputStream(filePath));
-                System.out.println("//////////////////////////////////////////////////////////"+getContentResolver().openInputStream(filePath));
+                //System.out.println("//////////////////////////////////////////////////////////"+getContentResolver().openInputStream(filePath));
                 //get current rotation...
                 int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                 //convert to degrees
@@ -161,15 +161,17 @@ public class ProfileActivity extends Activity {
                 //bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 profile_picture = (ImageView)findViewById(R.id.profile_ebg);
                 profile_picture.setImageBitmap(adjustedBitmap);
+                //picChange=true;
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
+               // picChange=false;
             }
         }
+        //picChange=false;
     }
 
     public void save_btn_on_click(View v){
-        //Todo
         if(v.getId() == R.id.save_button) {
             //Get the information entered in each field...handle the cases where a field is NOT updated (aka use old value)
             //first name
@@ -232,6 +234,7 @@ public class ProfileActivity extends Activity {
             ////////////////////////////////////////Information below this is from activity_profile////////////////////////////////////////////////////////
             setContentView(R.layout.activity_profile);
             npic = (ImageView)findViewById(R.id.profile_bg);
+            //if(picChange==true)
             uploadFile();
             npic.setImageBitmap(adjustedBitmap);
 

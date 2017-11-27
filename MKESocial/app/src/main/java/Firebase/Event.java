@@ -120,7 +120,7 @@ public class Event implements Databasable{
         return location;
     }
 
-    private GregorianCalendar parseDate(String cDate)
+    private static GregorianCalendar parseDate(String cDate)
     {
         final String myFormat = "MM/dd/yy";
         DateFormat df = new SimpleDateFormat(myFormat, Locale.US);
@@ -136,7 +136,7 @@ public class Event implements Databasable{
         return gDate;
     }
 
-    private GregorianCalendar parseTime(String cTime)
+    private static GregorianCalendar parseTime(String cTime)
     {
         final String displayFormat = "hh:mm a";
         DateFormat df = new SimpleDateFormat(displayFormat);

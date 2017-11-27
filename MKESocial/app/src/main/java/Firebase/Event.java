@@ -120,7 +120,7 @@ public class Event implements Databasable{
         return location;
     }
 
-    private static GregorianCalendar parseDate(String cDate)
+    private GregorianCalendar parseDate(String cDate)
     {
         final String myFormat = "MM/dd/yy";
         DateFormat df = new SimpleDateFormat(myFormat, Locale.US);
@@ -136,7 +136,7 @@ public class Event implements Databasable{
         return gDate;
     }
 
-    private static GregorianCalendar parseTime(String cTime)
+    private GregorianCalendar parseTime(String cTime)
     {
         final String displayFormat = "hh:mm a";
         DateFormat df = new SimpleDateFormat(displayFormat);
@@ -170,6 +170,8 @@ public class Event implements Databasable{
 
         return result;
     }
+
+
     //GETTERS & SETTERS
     public String getTitle() {
         return title;
@@ -178,6 +180,7 @@ public class Event implements Databasable{
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     public String getDescription() {
         return description;
@@ -279,6 +282,5 @@ public class Event implements Databasable{
     public void setAttendeesUids(List<String> attendeesUids) {
         this.attendeesUids = attendeesUids;
     }
-
 
 }

@@ -14,7 +14,7 @@
         android:layout_height="200dp"
         android:contentDescription="@string/profile_pic"
         android:scaleType="centerCrop"
-        android:src="@drawable/sample_profile_picture" /> <!--Profile Picture-->
+        android:background="@color/mke_dark_blue" /> <!--Profile Picture-->
     <TextView
         android:id="@+id/first_name"
         android:layout_width="wrap_content"
@@ -22,11 +22,11 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="18dp"
-        android:layout_marginTop="160dp"
-        android:text="@string/first_name"
+        android:layout_marginTop="140dp"
+        android:text=""
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="30sp"
+        android:textSize="50sp"
         android:textStyle="bold" /> <!--Profile Name-->
                                     <!--user's first name is stored in first_name -->
 
@@ -45,7 +45,7 @@
             android:padding="20dp"
             android:text="@string/about_me"
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="30sp"
             android:textStyle="bold" /> <!--Section Title: About Me-->
 
         <TextView
@@ -53,7 +53,9 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/bio"
+            android:textSize="20sp"
+            android:text=""
+            android:maxLength="1000"
             android:textAlignment="center" /> <!--biography-->
 
         <TextView
@@ -63,14 +65,15 @@
             android:padding="20dp"
             android:text="@string/contact_information"
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="30sp"
             android:textStyle="bold" /> <!--Section Title: Contact Information-->
 
         <TextView
             android:id="@+id/email_addr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/email_addr"
+            android:textSize="20sp"
+            android:text=""
             android:textAlignment="center" /> <!--email address-->
 
         <TextView
@@ -80,12 +83,22 @@
             android:padding="20dp"
             android:text="@string/events_i_am_attending"
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="30sp"
             android:textStyle="bold" /> <!--Section Title: Events I am Attending-->
 
         <!--List of Event Names-->
-        <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
-        <!--ToDo: Implement a loop to make this step automatic-->
+        <LinearLayout
+            android:id="@+id/for_att_events"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/shared_events"
+            android:orientation="vertical">
+
+            <!--list of events attending goes here-->
+            <!--these events should be clickable-->
+        </LinearLayout>
+        <!--
         <TextView
             android:id="@+id/sampleEv1"
             android:layout_width="match_parent"
@@ -151,11 +164,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="..."
-            android:textAlignment="center" />
+            android:textAlignment="center" />-->
+
+        <TextView
+            android:id="@+id/shared_host_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Events I am Hosting"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold" /> <!--Section Title: Events I am Hosting-->
+
+        <!--List of Event Names-->
+        <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
+        <LinearLayout
+            android:id="@+id/for_host_events"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/shared_events"
+            android:orientation="vertical">
+
+            <!--list of events attending goes here-->
+        </LinearLayout>
+
     </LinearLayout>
 
     <!--This button should only exist if the profile belongs to the user-->
-    <Button
+    <!--<Button
         android:id="@+id/edit_button"
         style="@android:style/Widget.Button.Inset"
         android:layout_width="wrap_content"
@@ -163,7 +200,19 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:onClick="edit_btn_on_click"
-        android:text="Edit" />
+        android:text="Edit" /> -->
+
+    <ImageButton
+        android:id="@+id/edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:onClick="edit_btn_on_click"
+        android:background="@android:color/transparent"
+        android:padding="15dp"
+        android:src="@mipmap/ic_edit_profile" />
 
 
 </RelativeLayout>

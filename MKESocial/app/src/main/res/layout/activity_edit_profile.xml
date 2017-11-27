@@ -10,12 +10,12 @@
 
         <!--Layout for profile page-->
         <ImageView
-            android:id="@+id/profile_bg"
+            android:id="@+id/profile_ebg"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:contentDescription="@string/profile_pic"
             android:scaleType="centerCrop"
-            android:src="@drawable/sample_profile_picture" /> <!--Profile Picture-->
+            android:background="@color/mke_dark_blue" /> <!--Profile Picture-->
         <EditText
             android:id="@+id/first_name"
             android:layout_width="wrap_content"
@@ -24,8 +24,9 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="18dp"
             android:layout_marginTop="150dp"
-            android:text="@string/first_name"
+            android:text=""
             android:textAlignment="center"
+            android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ-."
             android:textColor="@android:color/white"
             android:textSize="30sp"
             android:textStyle="bold" /> <!--Profile Name-->
@@ -36,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/profile_bg"
+            android:layout_below="@+id/profile_ebg"
             android:orientation="vertical"
             android:id="@+id/linearLayout">
 
@@ -55,7 +56,8 @@
                 android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/bio"
+                android:text=""
+                android:maxLength="1000"
                 android:textAlignment="center" /> <!--biography-->
 
             <Switch
@@ -68,7 +70,7 @@
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
+            <!--
             <TextView
                 android:id="@+id/contact_info"
                 android:layout_width="match_parent"
@@ -77,13 +79,15 @@
                 android:text="@string/contact_information"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textStyle="bold" /> <!--Section Title: Contact Information-->
+                android:textStyle="bold" /> -->
+            <!--Section Title: Contact Information-->
 
             <EditText
                 android:id="@+id/email_addr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/email_addr"
+                android:digits="abcdefghijklmnopqrstuvwxyz.ABCDEFGHIJKLMNOPQRSTUVWXYZ@0123456789"
+                android:text=""
                 android:textAlignment="center" /> <!--email address-->
 
             <Switch
@@ -99,7 +103,7 @@
                 android:textStyle="bold"
                 tools:checked="true" />
 
-            <TextView
+             <!--<TextView
                 android:id="@+id/shared_events"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -107,11 +111,12 @@
                 android:text="@string/events_i_am_attending"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textStyle="bold" /> <!--Section Title: Events I am Attending-->
+                android:textStyle="bold" /> -->
+                <!--Section Title: Events I am Attending-->
 
             <!--List of Event Names-->
             <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
-
+            <!--
             <TextView
                 android:id="@+id/sampleEv1"
                 android:layout_width="match_parent"
@@ -179,7 +184,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="..."
-                android:textAlignment="center" />
+                android:textAlignment="center" /> -->
+
+            <Switch
+                android:id="@+id/tog_host_events"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:showText="true"
+                android:splitTrack="false"
+                android:text="Share Events Hosting on Profile"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:checked="true" />
+
+            <!--
+            <TextView
+                android:id="@+id/shared_host_events"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:text="@string/events_i_am_attending"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold" /> -->
+            <!--Section Title: Events I am Hosting-->
+
+            <!--List of Event Names-->
+            <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
 
             <!-- the sections below allow user to update (non-displayable) information such as
              middle initial, last name, age, and address -->
@@ -207,21 +240,19 @@
                     android:text="@string/middle_initial"
                     android:textAlignment="center"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold" /><!--Section Title: Middle Initial-->
 
                 <EditText
                     android:id="@+id/middle_init"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="middleInitial"
-                    android:textAlignment="center" />
+                    android:text=""
+                    android:maxLength="1"
+                    android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ-"
+                    android:textAlignment="center" /><!--middle initial-->
 
             </LinearLayout>
-
-            <!--Section Title: Middle Initial-->
-
-            <!--middle initial-->
 
             <!--Section Title: Last Name-->
 
@@ -247,7 +278,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="lastName"
+                    android:text=""
+                    android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ-"
                     android:textAlignment="center" />
             </LinearLayout>
 
@@ -276,7 +308,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="1000"
+                    android:text=""
+                    android:digits="0123456789"
+                    android:maxLength="3"
                     android:textAlignment="center" />
             </LinearLayout>
 
@@ -305,7 +339,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="homeAddress"
+                    android:text=""
+                    android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,"
                     android:textAlignment="center" />
 
             </LinearLayout>
@@ -315,7 +350,7 @@
 
         </LinearLayout>
 
-        <Button
+        <!--<Button
             android:id="@+id/save_button"
             style="@android:style/Widget.Button.Inset"
             android:layout_width="wrap_content"
@@ -323,9 +358,9 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:onClick="save_btn_on_click"
-            android:text="@string/save" />
+            android:text="@string/save" />-->
 
-        <Button
+        <!--<Button
             android:id="@+id/edit_photo"
             style="@android:style/Widget.Button.Inset"
             android:layout_width="wrap_content"
@@ -333,7 +368,32 @@
             android:layout_alignParentEnd="true"
             android:layout_alignTop="@+id/first_name"
             android:onClick="edit_pic_on_click"
-            android:text="@string/edit_photo" />
+            android:text="@string/edit_photo" /> -->
+
+
+        <ImageButton
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:onClick="save_btn_on_click"
+            android:padding="15dp"
+            android:src="@mipmap/ic_save_profile" />
+
+        <ImageButton
+            android:id="@+id/edit_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/linearLayout"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:onClick="edit_pic_on_click"
+            android:padding="15dp"
+            android:background="@android:color/transparent"
+            android:src="@mipmap/ic_edit_pic" />
 
     </RelativeLayout>
 </ScrollView>

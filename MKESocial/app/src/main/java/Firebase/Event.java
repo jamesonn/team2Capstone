@@ -170,6 +170,8 @@ public class Event implements Databasable{
 
         return result;
     }
+
+
     //GETTERS & SETTERS
     public String getTitle() {
         return title;
@@ -178,6 +180,7 @@ public class Event implements Databasable{
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     public String getDescription() {
         return description;
@@ -279,6 +282,5 @@ public class Event implements Databasable{
     public void setAttendeesUids(List<String> attendeesUids) {
         this.attendeesUids = attendeesUids;
     }
-
 
 }

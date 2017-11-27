@@ -1,9 +1,11 @@
 package team2.mkesocial.Activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
@@ -48,6 +50,8 @@ public class SearchActivity extends AppCompatActivity
     private Date _filterStartDate;
     private Date _filterEndDate;
     private Toast _searchActivityToast;
+    private Button _openEventButton;
+    private String _selectedEventTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +61,13 @@ public class SearchActivity extends AppCompatActivity
         _searchView = (SearchView)findViewById(R.id.searchView);
         _searchFilter = (Spinner)findViewById(R.id.searchFilter);
         _searchResults = (ListView)findViewById(R.id.searchResults);
+        _searchResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view,int position, long id)
+                {
+                    _selectedEventTitle = _searchResults.getItemAtPosition(position).toString();
+                    Log.d("SELECTED", _selectedEventTitle);
+                }}
+            );
 
         _searchTextField = (TextView)_searchView.findViewById(
                 getResources().getIdentifier("android:id/search_src_text", null, null));
@@ -72,11 +83,29 @@ public class SearchActivity extends AppCompatActivity
         _searchView.setIconified(false);
         _searchFilter.setOnItemSelectedListener(this);
 
+        _openEventButton = (Button)findViewById(R.id.open_event_button);
+        _openEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("test", "Clicked");
+                inspectEvent();
+            }
+        });
+
         if (savedInstanceState != null) {
             DateFilterFragment dff = (DateFilterFragment)getSupportFragmentManager().findFragmentByTag(TAG);
             if (dff != null) {
                 dff.setListener(this);
             }
+        }
+    }
+
+    private void inspectEvent(){
+        if(_selectedEventTitle != null){
+            Intent goToEventPage = new Intent(this, EventActivity.class);
+            goToEventPage.putExtra("EVENT_TITLE",_selectedEventTitle);
+            _selectedEventTitle = null;
+            startActivity(goToEventPage);
         }
     }
 

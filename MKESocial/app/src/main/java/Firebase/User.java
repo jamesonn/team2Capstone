@@ -29,8 +29,11 @@ import team2.mkesocial.Activities.BaseActivity;
 @IgnoreExtraProperties
 public class User implements Databasable{
 
-    private String name, email, age, bio;
+    private String name, email, age, bio, lname, initm; //info fields
     private String address;
+    private String eattend, ehost, etog; //display those email and/or events on profile page or not "true" or "false"
+    private String attendEid, hostEid; //string of ids, separated by a space
+    private String img; //holds URI
     // store which events a User is Attending and created/hosting
     private List<String> eventIDsAttending, eventIDsHosting;
 
@@ -40,10 +43,8 @@ public class User implements Databasable{
 
     //FIREBASE DB "users" node reference
     final private static DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
-    final private static DatabaseReference userAttendingEventDatabase = FirebaseDatabase.getInstance()
-            .getReference(DB_USER_EVENTS_ATTENDING_NODE_NAME);
-    final private static DatabaseReference userHostEventDatabase = FirebaseDatabase.getInstance()
-            .getReference(DB_USER_EVENTS_HOSTING_NODE_NAME);
+    final private static DatabaseReference userAttendingEventDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_EVENTS_ATTENDING_NODE_NAME);
+    final private static DatabaseReference userHostEventDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_EVENTS_HOSTING_NODE_NAME);
 
     private static final String TAG = User.class.getSimpleName();
 
@@ -59,6 +60,14 @@ public class User implements Databasable{
         setAge("");
         setBio("");
         setAddress("");
+        setLname("");
+        setInitm("");
+        setEattend("true");
+        setEhost("true");
+        setEtog("true");
+        setImg("");
+        setAttendEid("");
+        setHostEid("");
         // push new user to DB
         eventIDsAttending = new ArrayList<String>();
         eventIDsHosting = new ArrayList<String>();
@@ -76,6 +85,13 @@ public class User implements Databasable{
         setEmail(email);
         setAge("");
         setBio("");
+        setInitm("");
+        setLname("");
+        setEattend("true");
+        setEhost("true");
+        setEtog("true");
+        setAttendEid("");
+        setHostEid("");
         setAddress(address);
         // push new user to DB
         eventIDsAttending = new ArrayList<String>();
@@ -89,7 +105,15 @@ public class User implements Databasable{
         result.put("email", getEmail());
         result.put("age", getAge());
         result.put("bio", getBio());
-        result.put("address", address);
+        result.put("lname", getLname());
+        result.put("initm", getInitm());
+        result.put("eattend", getEattend());
+        result.put("ehost", getEhost());
+        result.put("etog", getEtog());
+        result.put("address", getAddress());
+        result.put("attendEid", getAttendEid());
+        result.put("hostEid", getHostEid());
+        result.put("img", getImg());
         result.put("eventIDsAttending", getEventIDsAttending());
         result.put("eventIDsHosting", getEventIDsHosting());
 
@@ -111,6 +135,7 @@ public class User implements Databasable{
      */
     public void attendEvent(String eventId)
     {
+        attendEid+=" "+eventId;
         eventIDsAttending.add(eventId);
         userAttendingEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
 
@@ -118,6 +143,7 @@ public class User implements Databasable{
 
     public void hostEvent(String eventId)
     {
+        hostEid+=" "+eventId;
         eventIDsHosting.add(eventId);
         userHostEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
     }
@@ -188,9 +214,41 @@ public class User implements Databasable{
         this.bio = bio;
     }
 
+    public String getLname(){return lname;}
+
+    public void setLname(String lname){this.lname=lname;}
+
+    public String getInitm(){return initm;}
+
+    public void setInitm(String initm){this.initm=initm;}
+
+    public String getEattend(){return eattend;}
+
+    public void setEattend(String eattend){this.eattend=eattend;}
+
+    public String getEtog(){return etog;}
+
+    public void setEtog(String etog){this.etog=etog;}
+
+    public String getEhost(){return ehost;}
+
+    public void setEhost(String ehost){this.ehost=ehost;}
+
     public String getAddress() {
         return address;
     }
+
+    public String getAttendEid(){return attendEid;}
+
+    public void setAttendEid(String attendEid){this.attendEid=attendEid;}
+
+    public String getHostEid(){return hostEid;}
+
+    public void setHostEid(String hostEid){this.hostEid=hostEid;}
+
+    public String getImg(){return img;}
+
+    public void setImg(String img){this.img=img;}
 
     @Exclude
     public void setAddress(String address) {

@@ -61,12 +61,12 @@
             android:inputType="date"
             style="@style/linearLayoutItems"/>
 
-        <EditText
-            android:id="@+id/edit_location"
-            android:ems="10"
-            android:hint="Location"
-            android:inputType="textPostalAddress"
-            style="@style/linearLayoutItems"/>
+        <fragment
+            android:id="@+id/place_autocomplete_fragment"
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+            style="@style/linearLayoutItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/edit_suggested_age"

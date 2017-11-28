@@ -63,7 +63,7 @@ public class CreateEventActivity extends BaseActivity {
 
     private EditText titleField, descriptionField, startDateField, endDateField, startTimeField,
         endTimeField, suggestedAgeField, costField;
-    private Button createButton;
+    private Button cancelButton, createButton;
     private FirebaseDatabase mFirebaseDatabase;
     private Calendar startCalendar, endCalendar, myTime;
     private MultiAutoCompleteTextView tagsField;
@@ -87,6 +87,7 @@ public class CreateEventActivity extends BaseActivity {
         suggestedAgeField = (EditText) findViewById(R.id.edit_suggested_age);
         costField = (EditText) findViewById(R.id.edit_cost);
         tagsField = (MultiAutoCompleteTextView) findViewById(R.id.edit_tags);
+        cancelButton = (Button) findViewById(R.id.button_cancel);
         createButton = (Button) findViewById(R.id.button_create);
 
         //put all the edit text references in an array for easy verification later
@@ -208,7 +209,7 @@ public class CreateEventActivity extends BaseActivity {
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         startCalendar.set(year, month, dayOfMonth);
                         startDateField.setText(sdf.format(startCalendar.getTime()));
-                        if(startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()) {
+                        if(startCalendar.getTimeInMillis() >= endCalendar.getTimeInMillis()) {
                             endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
                             endDateField.setText(sdf.format(endCalendar.getTime()));
                         }
@@ -283,10 +284,17 @@ public class CreateEventActivity extends BaseActivity {
             }
         });
 
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed(); //simulate back pressed
+                //startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
+            }
+        });
+
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if(submitEvent())
                     startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
             }

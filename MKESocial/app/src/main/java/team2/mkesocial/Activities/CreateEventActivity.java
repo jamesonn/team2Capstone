@@ -1,7 +1,9 @@
 package team2.mkesocial.Activities;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -418,6 +420,22 @@ public class CreateEventActivity extends BaseActivity {
         } else {
             createButton.setVisibility(View.GONE);
         }
+    }
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+            .setIcon(R.mipmap.ic_warning)
+            .setTitle("Back Confirmation")
+            .setMessage("Are you sure you want to go back without saving?")
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            })
+            .setNegativeButton("No", null)
+            .show();
     }
 
 

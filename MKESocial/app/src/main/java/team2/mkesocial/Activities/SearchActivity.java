@@ -49,7 +49,6 @@ public class SearchActivity extends AppCompatActivity
     private Date _filterStartDate;
     private Date _filterEndDate;
     private Toast _searchActivityToast;
-    private String _selectedEventTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +62,7 @@ public class SearchActivity extends AppCompatActivity
                 public void onItemClick(AdapterView<?> parent, View view,int position, long id)
                 {
                     Event selectedEvent = (Event)_searchResults.getItemAtPosition(position);
-                    _selectedEventTitle = selectedEvent.getTitle();
-                    inspectEvent();
+                    inspectEvent(selectedEvent.getEventId());
                 }}
             );
 
@@ -90,11 +88,10 @@ public class SearchActivity extends AppCompatActivity
         }
     }
 
-    private void inspectEvent(){
-        if(_selectedEventTitle != null){
+    private void inspectEvent(String eid) {
+        if (eid != null) {
             Intent goToEventPage = new Intent(this, EventActivity.class);
-            goToEventPage.putExtra("EVENT_TITLE",_selectedEventTitle);
-            _selectedEventTitle = null;
+            goToEventPage.putExtra("EVENT_ID", eid);
             startActivity(goToEventPage);
         }
     }

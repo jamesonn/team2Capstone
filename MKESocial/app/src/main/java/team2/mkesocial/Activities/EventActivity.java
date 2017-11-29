@@ -15,12 +15,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -33,7 +29,7 @@ public class EventActivity extends Activity implements ValueEventListener {
 
     private FirebaseDatabase _database;
     private Query _dataQuery;
-    private String _eventTitle;
+    private String _eventId;
     private TextView title, description, date, startTime, endTime, location, hostUid, suggestedAge, rating, cost;
     private String[] _keys = { "title=", "description=", "date=", "startTime=", "endTime=", "location=", "hostUid=", "suggestedAge=", "rating=", "cost="};
 
@@ -54,28 +50,21 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         _database = FirebaseDatabase.getInstance();
 
-        _eventTitle = getIntent().getStringExtra("EVENT_TITLE");
+        _eventId = getIntent().getStringExtra("EVENT_ID");
 
-        _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).orderByChild("title").equalTo(_eventTitle);
-        _dataQuery.addChildEventListener(new ChildEventListener() {
-                                             @Override
-                                             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                                 populateEventData(dataSnapshot.toString());
-                                             }
+        _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).child(_eventId).orderByKey();
+        _dataQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                populateEventData(dataSnapshot.toString());
+            }
 
-                                             @Override
-                                             public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                                             @Override
-                                             public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                                             @Override
-                                             public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-                                             @Override
-                                             public void onCancelled(DatabaseError databaseError) {}
-                                         });
-                Log.d("QUERY RESULTS", _dataQuery.toString());
+            }
+        });
+        Log.d("QUERY RESULTS", _dataQuery.toString());
     }
 
     private void populateEventData(String data){

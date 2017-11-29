@@ -29,7 +29,7 @@ import team2.mkesocial.DateFilterFragment;
 import team2.mkesocial.R;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
 
-public class SearchActivity extends AppCompatActivity
+public class SearchActivity extends BaseActivity
         implements SearchView.OnQueryTextListener,
         ValueEventListener,
         AdapterView.OnItemSelectedListener,
@@ -85,14 +85,6 @@ public class SearchActivity extends AppCompatActivity
             if (dff != null) {
                 dff.setListener(this);
             }
-        }
-    }
-
-    private void inspectEvent(String eid) {
-        if (eid != null) {
-            Intent goToEventPage = new Intent(this, EventActivity.class);
-            goToEventPage.putExtra("EVENT_ID", eid);
-            startActivity(goToEventPage);
         }
     }
 

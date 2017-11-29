@@ -5,6 +5,7 @@ package team2.mkesocial.Activities;
  */
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
 //TODO
@@ -42,6 +43,14 @@ public class BaseActivity extends AppCompatActivity {
        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
+
+    protected void inspectEvent(String eid) {
+        if (eid != null) {
+            Intent goToEventPage = new Intent(this, EventActivity.class);
+            goToEventPage.putExtra("EVENT_ID", eid);
+            startActivity(goToEventPage);
+        }
+    }
 
 
 }

@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import Firebase.Event;
+import team2.mkesocial.R;
+
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 

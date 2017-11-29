@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -22,7 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import Firebase.Event;
-import team2.mkesocial.EventAdapter;
+import team2.mkesocial.Adapters.EventAdapter;
 import team2.mkesocial.EventDecorator;
 import team2.mkesocial.R;
 import team2.mkesocial.WeekendDecorator;
@@ -59,6 +61,14 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
 
         _eventAdapter = new EventAdapter(this, _events);
         _eventList.setAdapter(_eventAdapter);
+
+        _eventList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event)_eventList.getItemAtPosition(position);
+                inspectEvent(selectedEvent.getEventId());
+            }
+        });
     }
 
     @Override
@@ -100,7 +110,7 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         try {
-                            Event event = dataSnapshot.getValue(Event.class);
+                            Event event = Event.fromSnapshot(dataSnapshot);
 
                             if (event != null) {
                                 Log.d(TAG, event.getTitle());

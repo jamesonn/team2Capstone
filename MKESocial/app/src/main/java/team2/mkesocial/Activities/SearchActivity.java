@@ -5,10 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.ListView;
-import android.widget.ArrayAdapter;
 import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -29,8 +27,9 @@ import Firebase.Event;
 import Firebase.Tag;
 import team2.mkesocial.DateFilterFragment;
 import team2.mkesocial.R;
+import team2.mkesocial.Adapters.SimpleEventAdapter;
 
-public class SearchActivity extends AppCompatActivity
+public class SearchActivity extends BaseActivity
         implements SearchView.OnQueryTextListener,
         ValueEventListener,
         AdapterView.OnItemSelectedListener,
@@ -42,16 +41,14 @@ public class SearchActivity extends AppCompatActivity
     private TextView _searchTextField;
     private Spinner _searchFilter;
     private ListView _searchResults;
-    private ArrayList<String> _eventList;
-    private ArrayAdapter<String> _resultsAdapter;
+    private ArrayList<Event> _eventList;
+    private SimpleEventAdapter _resultsAdapter;
     private FirebaseDatabase _database;
     private Query _dataQuery;
     private String _queryString;
     private Date _filterStartDate;
     private Date _filterEndDate;
     private Toast _searchActivityToast;
-    private Button _openEventButton;
-    private String _selectedEventTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +61,8 @@ public class SearchActivity extends AppCompatActivity
         _searchResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,int position, long id)
                 {
-                    _selectedEventTitle = _searchResults.getItemAtPosition(position).toString();
-                    Log.d("SELECTED", _selectedEventTitle);
+                    Event selectedEvent = (Event)_searchResults.getItemAtPosition(position);
+                    inspectEvent(selectedEvent.getEventId());
                 }}
             );
 
@@ -75,7 +72,7 @@ public class SearchActivity extends AppCompatActivity
         _searchView.setOnQueryTextListener(this);
 
         _eventList = new ArrayList<>();
-        _resultsAdapter = new ArrayAdapter<>(this, R.layout.list_item_searchresult, _eventList);
+        _resultsAdapter = new SimpleEventAdapter(this, _eventList);
         _searchResults.setAdapter(_resultsAdapter);
 
         _database = FirebaseDatabase.getInstance();
@@ -83,29 +80,11 @@ public class SearchActivity extends AppCompatActivity
         _searchView.setIconified(false);
         _searchFilter.setOnItemSelectedListener(this);
 
-        _openEventButton = (Button)findViewById(R.id.open_event_button);
-        _openEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("test", "Clicked");
-                inspectEvent();
-            }
-        });
-
         if (savedInstanceState != null) {
             DateFilterFragment dff = (DateFilterFragment)getSupportFragmentManager().findFragmentByTag(TAG);
             if (dff != null) {
                 dff.setListener(this);
             }
-        }
-    }
-
-    private void inspectEvent(){
-        if(_selectedEventTitle != null){
-            Intent goToEventPage = new Intent(this, EventActivity.class);
-            goToEventPage.putExtra("EVENT_TITLE",_selectedEventTitle);
-            _selectedEventTitle = null;
-            startActivity(goToEventPage);
         }
     }
 
@@ -130,8 +109,10 @@ public class SearchActivity extends AppCompatActivity
     @Override
     public boolean onQueryTextChange(String newText)
     {
-        if (newText.equals(""))
+        if (newText.equals("")) {
             _resultsAdapter.clear();
+            _resultsAdapter.notifyDataSetChanged();
+        }
         return false;
     }
 
@@ -141,7 +122,7 @@ public class SearchActivity extends AppCompatActivity
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             try {
                 boolean shouldAdd = false;
-                Event event = snapshot.getValue(Event.class);
+                Event event = Event.fromSnapshot(snapshot);
 
                 switch (_searchFilter.getSelectedItemPosition())
                 {
@@ -169,11 +150,12 @@ public class SearchActivity extends AppCompatActivity
                 }
 
                 if (shouldAdd) {
-                    _resultsAdapter.add(event.getTitle());
+                    _resultsAdapter.add(event);
                     if (_searchActivityToast != null) {
                         _searchActivityToast.cancel();
                         _searchActivityToast = null;
                     }
+                    _resultsAdapter.notifyDataSetChanged();
                 }
 
                 if (event != null)

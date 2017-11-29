@@ -15,12 +15,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -33,7 +29,7 @@ public class EventActivity extends Activity implements ValueEventListener {
 
     private FirebaseDatabase _database;
     private Query _dataQuery;
-    private String _eventTitle;
+    private String _eventId;
     private TextView title, description, date, startTime, endTime, location, hostUid, suggestedAge, rating, cost;
     private String[] _keys = { "title=", "description=", "date=", "startTime=", "endTime=", "location=", "hostUid=", "suggestedAge=", "rating=", "cost="};
 
@@ -54,94 +50,46 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         _database = FirebaseDatabase.getInstance();
 
-        _eventTitle = getIntent().getStringExtra("EVENT_TITLE");
+        _eventId = getIntent().getStringExtra("EVENT_ID");
 
-        _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).orderByChild("title").equalTo(_eventTitle);
-        _dataQuery.addChildEventListener(new ChildEventListener() {
-                                             @Override
-                                             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                                 populateEventData(dataSnapshot.toString());
-                                             }
+        _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).child(_eventId).orderByKey();
+        _dataQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                populateEventData(dataSnapshot);
+            }
 
-                                             @Override
-                                             public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                                             @Override
-                                             public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                                             @Override
-                                             public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-                                             @Override
-                                             public void onCancelled(DatabaseError databaseError) {}
-                                         });
-                Log.d("QUERY RESULTS", _dataQuery.toString());
+            }
+        });
+        Log.d("QUERY RESULTS", _dataQuery.toString());
     }
 
-    private void populateEventData(String data){
-        for (String key : _keys) {
-            SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:MM:SS");
-            SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
-            String value = null;
-            Pattern p = Pattern.compile("(?<="+key+").*?(?=, )");
-            Matcher matcher = p.matcher(data.toString());
-            if (matcher.find()) {
-                try{
-                    value = matcher.group(0);
-                }catch(Exception e){
+    private void populateEventData(DataSnapshot data){
+        Event event = Event.fromSnapshot(data);
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:MM:SS");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
-                }
-                if(value != null && !value.equals("-1")){
-                    if(key.contains("title")){
-                        title.setText(value);
-                    }else if(key.contains("description")){
-                        description.setText(value);
-                    }else if(key.contains("date")){
-                        Date eventDate = new Date();
-                        eventDate.setTime(Long.parseLong(value));
-                        date.setText(dateFormatter.format(eventDate));
-                    }else if(key.contains("startTime")){
-                        Date date = new Date();
-                        date.setTime(Long.parseLong(value));
-                        startTime.setText(timeFormatter.format(date));
-                    }else if(key.contains("endTime")){
-                        Date date = new Date();
-                        date.setTime(Long.parseLong(value));
-                        endTime.setText((timeFormatter.format(date)));
-                    }else if(key.contains("location")){
-                        Geocoder geocoder;
-                        List<Address> addresses = null;
-                        geocoder = new Geocoder(this, Locale.getDefault());
+        title.setText(event.getTitle());
+        description.setText(event.getDescription());
+        date.setText(dateFormatter.format(event.getDate().getTime()));
+        startTime.setText(timeFormatter.format(event.getStartTime().getTime()));
+        endTime.setText(timeFormatter.format(event.getEndTime().getTime()));
+        location.setText(event.getLocation().getAddressLine(0));
 
-                        String[] locationData = value.split(";");
-                        try {
-                            addresses = geocoder.getFromLocation(Double.parseDouble(locationData[1]), Double.parseDouble(locationData[2]), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-                        }catch(IOException e){
-                            Log.d("failed","failed");
-                        }
-                        if(addresses != null) {
-                            Log.d("address",addresses.toString());
-                         //   String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                           // String city = addresses.get(0).getLocality();
-                           // String state = addresses.get(0).getAdminArea();
-                           // String country = addresses.get(0).getCountryName();
-                            //String postalCode = addresses.get(0).getPostalCode();
-                            //String knownName = addresses.get(0).getFeatureName();
-                        }
-                        //TODO have real locations stored
-                        location.setText("Address: "+locationData[0]);
-                    }else if(key.contains("hostUid")){
-                        //hostUid.setText(value);
-                    }else if(key.contains("suggestedAge")){
-                        suggestedAge.setText(value);
-                    }else if(key.contains("rating")){
-                        rating.setText(value);
-                    }else if(key.contains("cost")){
-                        cost.setText(value);
-                    }
-                }
-            }
-        }
+        int ageData = event.getSuggestedAge();
+        if (ageData != -1)
+            suggestedAge.setText(Integer.toString(ageData));
+
+        int ratingData = event.getRating();
+        if (ratingData != -1)
+            rating.setText(Integer.toString(ratingData));
+
+        double costData = event.getCost();
+        if (costData != -1.0f)
+            cost.setText(String.format("%.2f", costData));
     }
 
     @Override

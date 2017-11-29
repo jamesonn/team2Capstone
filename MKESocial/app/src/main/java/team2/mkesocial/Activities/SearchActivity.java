@@ -131,7 +131,7 @@ public class SearchActivity extends AppCompatActivity
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             try {
                 boolean shouldAdd = false;
-                Event event = snapshot.getValue(Event.class);
+                Event event = Event.fromSnapshot(snapshot);
 
                 switch (_searchFilter.getSelectedItemPosition())
                 {

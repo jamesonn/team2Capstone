@@ -1,6 +1,7 @@
 package Firebase;
 
 
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.Exclude;
 
@@ -33,6 +34,7 @@ public class Event implements Databasable{
     private List<Tag> tags;
     //TODO link to other users https://developer.android.com/training/app-links/deep-linking.html
     private List<String> attendeesUids;
+    private String eid;
 
 
     public Event() {
@@ -281,6 +283,18 @@ public class Event implements Databasable{
 
     public void setAttendeesUids(List<String> attendeesUids) {
         this.attendeesUids = attendeesUids;
+    }
+
+    public String getEventId() { return eid; }
+
+    @Exclude
+    private void setEventId(String id) { eid = id; }
+
+    public static Event fromSnapshot(DataSnapshot snapshot)
+    {
+        Event event = snapshot.getValue(Event.class);
+        event.setEventId(snapshot.getKey());
+        return event;
     }
 
 }

@@ -109,8 +109,10 @@ public class SearchActivity extends BaseActivity
     @Override
     public boolean onQueryTextChange(String newText)
     {
-        if (newText.equals(""))
+        if (newText.equals("")) {
             _resultsAdapter.clear();
+            _resultsAdapter.notifyDataSetChanged();
+        }
         return false;
     }
 
@@ -153,6 +155,7 @@ public class SearchActivity extends BaseActivity
                         _searchActivityToast.cancel();
                         _searchActivityToast = null;
                     }
+                    _resultsAdapter.notifyDataSetChanged();
                 }
 
                 if (event != null)

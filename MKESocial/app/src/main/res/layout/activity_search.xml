@@ -51,12 +51,4 @@
         android:layout_marginTop="5dp"
         android:padding="10dp" />
 
-    <Button
-        android:id="@+id/open_event_button"
-        style="@android:style/Widget.Button.Inset"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Open Event" />
-
 </android.widget.RelativeLayout>

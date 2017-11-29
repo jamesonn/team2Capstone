@@ -50,7 +50,6 @@ public class SearchActivity extends AppCompatActivity
     private Date _filterStartDate;
     private Date _filterEndDate;
     private Toast _searchActivityToast;
-    private Button _openEventButton;
     private String _selectedEventTitle;
 
     @Override
@@ -65,7 +64,7 @@ public class SearchActivity extends AppCompatActivity
                 public void onItemClick(AdapterView<?> parent, View view,int position, long id)
                 {
                     _selectedEventTitle = _searchResults.getItemAtPosition(position).toString();
-                    Log.d("SELECTED", _selectedEventTitle);
+                    inspectEvent();
                 }}
             );
 
@@ -82,15 +81,6 @@ public class SearchActivity extends AppCompatActivity
 
         _searchView.setIconified(false);
         _searchFilter.setOnItemSelectedListener(this);
-
-        _openEventButton = (Button)findViewById(R.id.open_event_button);
-        _openEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("test", "Clicked");
-                inspectEvent();
-            }
-        });
 
         if (savedInstanceState != null) {
             DateFilterFragment dff = (DateFilterFragment)getSupportFragmentManager().findFragmentByTag(TAG);

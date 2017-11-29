@@ -116,7 +116,7 @@ public class EventActivity extends Activity implements ValueEventListener {
                         String[] locationData = value.split(";");
                         try {
                             addresses = geocoder.getFromLocation(Double.parseDouble(locationData[1]), Double.parseDouble(locationData[2]), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-                        }catch(IOException e){
+                        }catch(Exception e){
                             Log.d("failed","failed");
                         }
                         if(addresses != null) {

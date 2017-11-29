@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.SearchView;
 import android.widget.ListView;
-import android.widget.ArrayAdapter;
 import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,7 +27,7 @@ import Firebase.Event;
 import Firebase.Tag;
 import team2.mkesocial.DateFilterFragment;
 import team2.mkesocial.R;
-import team2.mkesocial.SimpleEventAdapter;
+import team2.mkesocial.Adapters.SimpleEventAdapter;
 
 public class SearchActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener,

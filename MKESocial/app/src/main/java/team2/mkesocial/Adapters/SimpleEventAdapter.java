@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import Firebase.Event;
+import team2.mkesocial.R;
 
 public class SimpleEventAdapter extends BaseAdapter {
     private Context _context;
@@ -47,7 +48,7 @@ public class SimpleEventAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get view for event item
         TextView eventItem = (TextView)_inflater.inflate(R.layout.list_item_searchresult, parent, false);
-        
+
         Event e = (Event)getItem(position);
         eventItem.setText(e.getTitle());
 

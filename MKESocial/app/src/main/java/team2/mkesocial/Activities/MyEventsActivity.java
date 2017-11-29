@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import Firebase.Event;
-import team2.mkesocial.EventAdapter;
+import team2.mkesocial.Adapters.EventAdapter;
 import team2.mkesocial.EventDecorator;
 import team2.mkesocial.R;
 import team2.mkesocial.WeekendDecorator;

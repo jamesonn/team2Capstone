@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
@@ -29,6 +28,7 @@ import Firebase.Event;
 import Firebase.Tag;
 import team2.mkesocial.DateFilterFragment;
 import team2.mkesocial.R;
+import team2.mkesocial.SimpleEventAdapter;
 
 public class SearchActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener,
@@ -42,8 +42,8 @@ public class SearchActivity extends AppCompatActivity
     private TextView _searchTextField;
     private Spinner _searchFilter;
     private ListView _searchResults;
-    private ArrayList<String> _eventList;
-    private ArrayAdapter<String> _resultsAdapter;
+    private ArrayList<Event> _eventList;
+    private SimpleEventAdapter _resultsAdapter;
     private FirebaseDatabase _database;
     private Query _dataQuery;
     private String _queryString;
@@ -63,7 +63,8 @@ public class SearchActivity extends AppCompatActivity
         _searchResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,int position, long id)
                 {
-                    _selectedEventTitle = _searchResults.getItemAtPosition(position).toString();
+                    Event selectedEvent = (Event)_searchResults.getItemAtPosition(position);
+                    _selectedEventTitle = selectedEvent.getTitle();
                     inspectEvent();
                 }}
             );
@@ -74,7 +75,7 @@ public class SearchActivity extends AppCompatActivity
         _searchView.setOnQueryTextListener(this);
 
         _eventList = new ArrayList<>();
-        _resultsAdapter = new ArrayAdapter<>(this, R.layout.list_item_searchresult, _eventList);
+        _resultsAdapter = new SimpleEventAdapter(this, _eventList);
         _searchResults.setAdapter(_resultsAdapter);
 
         _database = FirebaseDatabase.getInstance();
@@ -159,7 +160,7 @@ public class SearchActivity extends AppCompatActivity
                 }
 
                 if (shouldAdd) {
-                    _resultsAdapter.add(event.getTitle());
+                    _resultsAdapter.add(event);
                     if (_searchActivityToast != null) {
                         _searchActivityToast.cancel();
                         _searchActivityToast = null;

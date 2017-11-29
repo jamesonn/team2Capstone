@@ -7,10 +7,11 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -30,17 +31,18 @@ import java.util.Date;
 import Firebase.Event;
 import Firebase.Tag;
 import Firebase.User;
+import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
 
-public class FeedActivity extends AppCompatActivity
+public class FeedActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         ValueEventListener {
 
     private FirebaseDatabase _database;
     private Query _dataQuery;
     private ListView _eventResults;
-    private ArrayAdapter<String> _resultsAdapter;
-    private ArrayList<String> _eventList;
+    private SimpleEventAdapter _resultsAdapter;
+    private ArrayList<Event> _eventList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +65,19 @@ public class FeedActivity extends AppCompatActivity
         _database = FirebaseDatabase.getInstance();
 
         _eventList = new ArrayList<>();
-        _resultsAdapter = new ArrayAdapter<>(this, R.layout.list_item_searchresult, _eventList);
+        _resultsAdapter = new SimpleEventAdapter(this, _eventList);
         _eventResults.setAdapter(_resultsAdapter);
 
         _dataQuery = _database.getReference(Event.DB_EVENTS_NODE_NAME).orderByChild("title");
         _dataQuery.addValueEventListener(this);
 
-
+        _eventResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event)_eventResults.getItemAtPosition(position);
+                inspectEvent(selectedEvent.getEventId());
+            }
+        });
     }
 
     @Override
@@ -155,10 +163,11 @@ public class FeedActivity extends AppCompatActivity
     {
         _resultsAdapter.clear();
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-            Event event = snapshot.getValue(Event.class);
+            Event event = Event.fromSnapshot(snapshot);
             if (event.getTitle() != null) {
-                _resultsAdapter.add(event.getTitle());
+                _resultsAdapter.add(event);
             }
         }
+        _resultsAdapter.notifyDataSetChanged();
     }
 }

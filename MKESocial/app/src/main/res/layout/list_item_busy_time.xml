@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/startTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/fromLabel"
+        android:layout_alignBottom="@+id/fromLabel"
+        android:layout_marginStart="29dp"
+        android:layout_toEndOf="@+id/fromLabel"
+        android:text="12/01/2017 12:00 PM"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/fromLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="5dp"
+        android:text="From:"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/toLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/fromLabel"
+        android:layout_below="@+id/fromLabel"
+        android:layout_marginTop="5dp"
+        android:text="To:"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/endTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/toLabel"
+        android:layout_alignBottom="@+id/toLabel"
+        android:layout_alignStart="@+id/startTimeText"
+        android:text="12/01/2017 12:00 PM"
+        android:textSize="18sp" />
+</android.widget.RelativeLayout>

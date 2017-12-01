@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -22,19 +23,24 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
+import Firebase.BusyTime;
 import Firebase.Event;
 import team2.mkesocial.Adapters.EventAdapter;
+import team2.mkesocial.Fragments.BusyTimeFragment;
 import team2.mkesocial.EventDecorator;
 import team2.mkesocial.R;
 import team2.mkesocial.WeekendDecorator;
 
-public class MyEventsActivity extends BaseActivity implements OnDateSelectedListener, ValueEventListener {
+public class MyEventsActivity extends BaseActivity
+        implements OnDateSelectedListener, ValueEventListener, BusyTimeFragment.BusyTimeListener {
 
     private final String TAG = "My Events";
 
     private MaterialCalendarView _calendarView;
     private ListView _eventList;
+    private Button _busyTimeButton;
     private ArrayList<CalendarDay> _markedDays = new ArrayList<>();
     private ArrayList<Event> _events = new ArrayList<>();
     private HashMap<CalendarDay, HashSet<Event>> _eventMap = new HashMap<>();
@@ -49,6 +55,7 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
 
         _calendarView = (MaterialCalendarView)findViewById(R.id.calendarView);
         _eventList = (ListView)findViewById(R.id.eventList);
+        _busyTimeButton = (Button)findViewById(R.id.busyTimeButton);
 
         _database = FirebaseDatabase.getInstance();
         _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("attendEid");
@@ -67,6 +74,13 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event)_eventList.getItemAtPosition(position);
                 inspectEvent(selectedEvent.getEventId());
+            }
+        });
+
+        _busyTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BusyTimeFragment.create(MyEventsActivity.this, getUid()).show(getSupportFragmentManager(), TAG);
             }
         });
     }
@@ -148,5 +162,10 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
     @Override
     public void onCancelled(DatabaseError databaseError) {
 
+    }
+
+    @Override
+    public void OnBusyTimePositive(List<BusyTime> busyTimes) {
+        Log.d(TAG, busyTimes.toString());
     }
 }

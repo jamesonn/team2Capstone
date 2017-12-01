@@ -111,17 +111,24 @@
     <string name="action_settings">Settings</string>
 
     <string name="date_format">MM/dd/yy</string>
+    <string name="time_format">h:mm a</string>
 
     <string name="search_activity">Searching...</string>
     <string name="search_results_format">%1$d Event%2$s Found</string>
     <string name="search_empty_results">No Events Found</string>
 
+    <string name="ok_button_text">OK</string>
+    <string name="cancel_button_text">Cancel</string>
     <string name="fragment_date_filter_message">Select a date range:</string>
-    <string name="fragment_date_filter_positive">OK</string>
-    <string name="fragment_date_filter_negative">Cancel</string>
     <string name="fragment_date_filter_range_error">End date must be the same or later than start date!</string>
+
     <string name="events_i_am_hosting">Events I am Hosting</string>
     <string name="share_events_attending_on_profile">Share Events Attending on Profile</string>
     <string name="share_events_hosting_on_profile">Share Events Hosting on Profile</string>
     <string name="search_for_your_home_address">Search for your home address</string>
+    
+    <string name="fragment_busy_time_message">Select a busy time to edit it:</string>
+
+    <string name="fragment_date_time_select_message">Select start and end times:</string>
+    <string name="fragment_date_time_select_range_error">End time must be later than start time!</string>
 </resources>

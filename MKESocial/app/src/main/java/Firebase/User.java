@@ -32,19 +32,14 @@ public class User implements Databasable{
     private String name, email, age, bio, lname, initm; //info fields
     private String address;
     private String eattend, ehost, etog; //display those email and/or events on profile page or not "true" or "false"
-    private String attendEid, hostEid; //string of ids, separated by a space
-    private String img; //holds URI
-    // store which events a User is Attending and created/hosting
-    private List<String> eventIDsAttending, eventIDsHosting;
+    private String attend, host; //layout eventID:eventName eventID:eventName
+    private String img; //holds URL of image on firebase storage
+    private String uid; //to help with viewing other profiles
 
-    //TODO https://firebase.google.com/docs/storage/android/start
-    //storing user profile photo
-    //private SomePictureType _photo
+
 
     //FIREBASE DB "users" node reference
     final private static DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
-    final private static DatabaseReference userAttendingEventDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_EVENTS_ATTENDING_NODE_NAME);
-    final private static DatabaseReference userHostEventDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_EVENTS_HOSTING_NODE_NAME);
 
     private static final String TAG = User.class.getSimpleName();
 
@@ -55,22 +50,19 @@ public class User implements Databasable{
     public User(FirebaseUser fbUser)
     {
         //grab Firebase Authentication to fill in user info
-        setName(fbUser.getDisplayName());
-        setEmail(fbUser.getEmail());
-        setAge("");
-        setBio("");
         setAddress("");
-        setLname("");
-        setInitm("");
+        setAge("");
+        setAttendEid("");
+        setBio("");
         setEattend("true");
         setEhost("true");
+        setEmail(fbUser.getEmail());
         setEtog("true");
-        setImg("");
-        setAttendEid("");
         setHostEid("");
-        // push new user to DB
-        eventIDsAttending = new ArrayList<String>();
-        eventIDsHosting = new ArrayList<String>();
+        setImg("");
+        setInitm("");
+        setLname("");
+        setName(fbUser.getDisplayName());
 
     }
 
@@ -81,21 +73,20 @@ public class User implements Databasable{
      * @param address
      */
     public User(String name, String email, String address) {
-        setName(name);
-        setEmail(email);
+        setAddress(address);
         setAge("");
+        setAttendEid("");
         setBio("");
-        setInitm("");
-        setLname("");
         setEattend("true");
         setEhost("true");
+        setEmail(email);
         setEtog("true");
-        setAttendEid("");
         setHostEid("");
-        setAddress(address);
-        // push new user to DB
-        eventIDsAttending = new ArrayList<String>();
-        eventIDsHosting = new ArrayList<String>();
+        setImg("");
+        setInitm("");
+        setLname("");
+        setName(name);
+
 
     }
     @Exclude
@@ -114,38 +105,8 @@ public class User implements Databasable{
         result.put("attendEid", getAttendEid());
         result.put("hostEid", getHostEid());
         result.put("img", getImg());
-        result.put("eventIDsAttending", getEventIDsAttending());
-        result.put("eventIDsHosting", getEventIDsHosting());
 
         return result;
-    }
-
-    private Address parseAddress(String addr)
-    {
-        Address address = new Address(Locale.getDefault());
-        address.setAddressLine(0, addr);
-        return address;
-    }
-
-    /**
-     * Adds event ID to user's event's attending list
-     *  and resets the user's "Events attending" node containing the IDs of what events
-     *      the user is attending
-     * @param eventId
-     */
-    public void attendEvent(String eventId)
-    {
-        attendEid+=" "+eventId;
-        eventIDsAttending.add(eventId);
-        userAttendingEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
-
-    }
-
-    public void hostEvent(String eventId)
-    {
-        hostEid+=" "+eventId;
-        eventIDsHosting.add(eventId);
-        userHostEventDatabase.child(BaseActivity.getUid()).setValue(getEventIDsAttending().toString());
     }
 
     /**
@@ -238,13 +199,62 @@ public class User implements Databasable{
         return address;
     }
 
-    public String getAttendEid(){return attendEid;}
+    public String getAttendEid(){return attend;}
 
-    public void setAttendEid(String attendEid){this.attendEid=attendEid;}
+    public void setAttendEid(String attend){this.attend=attend;}
 
-    public String getHostEid(){return hostEid;}
+    public String getHostEid(){return host;}
 
-    public void setHostEid(String hostEid){this.hostEid=hostEid;}
+    public void setHostEid(String host){this.host=host;}
+
+    //ToDo: Fix the below
+    public String parseEventAttendIDs(String temp){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = temp.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length-1;++i){
+            //Parse again, so names will be at the odd even values: 0 2 4 6 ...
+            if((i%2)==0){parsed+=parsing[i]+" ";}
+        }
+        //id id id ....
+        return parsed.toString();
+    }
+
+    public String parseEventAttendNames(String temp){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
+        String parsed = "";;
+        String[] parsing = temp.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length-1;++i){
+            //Parse again, so names will be at the odd i values: 1 3 5 ...
+            if((i%2)!=0){parsed+=parsing[i]+" ";}
+        }
+        //name name name ....
+        return parsed.toString();
+    }
+
+    public String parseEventHostIDs(String temp){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = temp.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length-1;++i){
+            //Parse again, so names will be at the odd even values: 0 2 4 6 ...
+            if((i%2)==0){parsed+=parsing[i]+" ";}
+        }
+        //id id id ....
+        return parsed;
+    }
+
+    public String parseEventHostNames(String temp){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = temp.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length-1;++i){
+            //Parse again, so names will be at the odd i values: 1 3 5 ...
+            if((i%2)!=0){parsed+=parsing[i]+" ";}
+        }
+        //name name name ....
+        return parsed;
+    }
 
     public String getImg(){return img;}
 
@@ -255,10 +265,42 @@ public class User implements Databasable{
         this.address = address;
     }
 
-    public List<String> getEventIDsAttending() {
-        return eventIDsAttending;
+    public String getFullAddress(){
+        String fullAddress;//0000 Street Name, City, State Zip, Country LatLng:(0,0)
+        fullAddress = address.substring(0, address.indexOf("("));//0000 Street Name, City, State Zip, Country LatLng:
+        String[] addr = fullAddress.split(",");//0000 Street Name| City| State Zip| Country LatLng:
+        String getCountry = addr[3];
+        String[] sCountry = getCountry.split(" ");// |Country|LatLng:
+        //0000 Street Name
+        //City State Zip
+        //Country
+        return addr[0]+"\n"+addr[1].substring(1)+addr[2]+"\n"+sCountry[1];
     }
 
-    public List<String> getEventIDsHosting() { return eventIDsHosting;}
+    public Double getLat(){
+        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
+        String toSplit = address.substring(address.indexOf("(") + 1, address.lastIndexOf(")"));
+        String[] getLatLng = toSplit.split(",");
+        return Double.parseDouble(getLatLng[0]);
+    }
+
+    public Double getLng(){
+        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
+        String toSplit = address.substring(address.indexOf("(") + 1, address.lastIndexOf(")"));
+        String[] getLatLng = toSplit.split(",");
+        return Double.parseDouble(getLatLng[1]);
+    }
+
+    public String getUserId() { return uid; }
+
+    @Exclude
+    private void setUserId(String id) { uid = id; }
+
+    public static User fromSnapshot(DataSnapshot snapshot)
+    {
+        User user = snapshot.getValue(User.class);
+        user.setUserId(snapshot.getKey());
+        return user;
+    }
 
 }

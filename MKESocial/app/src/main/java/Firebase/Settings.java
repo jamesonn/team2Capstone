@@ -25,8 +25,9 @@ public class Settings {
     final public static String DB_NOTIFICATIONS_ENABLED = "notificationsEnabled";
     final public static String DB_PRIVATE_PROFILE = "privateProfile";
     final public static String DB_THEME = "theme";
+    final public static String DB_FULL_NAME = "displayFirstLastName";
     //private Theme _theme;
-    private static String notificationEnabled, privateProfile, theme;
+    private static String notificationEnabled, privateProfile, theme, fullName;
     //DB user setting ref
     final private static DatabaseReference settingsDBReference = FirebaseDatabase.getInstance()
             .getReference(Databasable.DB_USER_SETTINGS_NODE_NAME).child(BaseActivity.getUid());
@@ -43,6 +44,7 @@ public class Settings {
         result.put(DB_NOTIFICATIONS_ENABLED, getNotificationEnabled2());
         result.put(DB_PRIVATE_PROFILE, getPrivateProfile2());
         result.put(DB_THEME, getTheme2());
+        result.put(DB_FULL_NAME, getFullName2());
 
         return result;
     }
@@ -126,6 +128,16 @@ public class Settings {
     public void setTheme(String theme) {
         Settings.theme = theme;
     }
+
+
+    //ToDO: (in a way it is EXTRA)
+    //Idea: Allow user to determine if he wants FirstName + LastName to be shown publicly .. by default only shows firstName publicly
+
+    @Exclude
+    public static String getFullName2(){return fullName;}
+    public String getFullName(){return fullName;}
+
+    public void setFullName(String fullName){Settings.fullName=fullName;}
 
 
 }

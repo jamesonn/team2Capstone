@@ -77,7 +77,7 @@ public class EventActivity extends Activity implements ValueEventListener {
         date.setText(dateFormatter.format(event.getDate().getTime()));
         startTime.setText(timeFormatter.format(event.getStartTime().getTime()));
         endTime.setText(timeFormatter.format(event.getEndTime().getTime()));
-        location.setText(event.getLocation().getAddressLine(0));
+        location.setText(event.getFullAddress());
 
         int ageData = event.getSuggestedAge();
         if (ageData != -1)

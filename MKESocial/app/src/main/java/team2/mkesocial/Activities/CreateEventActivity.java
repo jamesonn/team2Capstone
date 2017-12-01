@@ -18,23 +18,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.AutocompletePrediction;
-import com.google.android.gms.location.places.AutocompletePredictionBuffer;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.firebase.database.ValueEventListener;
 
 
 import Firebase.Event;
@@ -49,6 +41,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Calendar;
 import java.util.Map;
+
+import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
+import static Firebase.Databasable.DB_USERS_NODE_NAME;
 
 /**
 import com.google.android.gms.location.places.GeoDataClient;
@@ -68,6 +63,10 @@ public class CreateEventActivity extends BaseActivity {
     private Calendar startCalendar, endCalendar, myTime;
     private MultiAutoCompleteTextView tagsField;
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
+
+    private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
+    private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
+
 
     private PlaceAutocompleteFragment autocompleteFragment;
     private Place placePicked;
@@ -94,9 +93,6 @@ public class CreateEventActivity extends BaseActivity {
         objectList.add(titleField); objectList.add(descriptionField); objectList.add(startDateField);
         objectList.add(endDateField);objectList.add(startTimeField);objectList.add(endTimeField);
         objectList.add(suggestedAgeField);objectList.add(costField);objectList.add(tagsField);
-
-        // get reference to 'users' node
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
 
 
         // tags
@@ -321,8 +317,7 @@ public class CreateEventActivity extends BaseActivity {
     }
 
 
-    private boolean submitEvent()
-    {
+    private boolean submitEvent() {
         //collect filled out info
         final String title = titleField.getText().toString();
         final String description = descriptionField.getText().toString();
@@ -330,11 +325,11 @@ public class CreateEventActivity extends BaseActivity {
         final String startTime = startTimeField.getText().toString();
         final String endTime = endTimeField.getText().toString();
         String location = "";
-        final String suggestedAge =  suggestedAgeField.getText().toString();
+        final String suggestedAge = suggestedAgeField.getText().toString();
         final String cost = costField.getText().toString();
         final String tags = tagsField.getText().toString();
 
-       // Title is required
+        // Title is required
         if (TextUtils.isEmpty(title)) {
             titleField.setError(REQUIRED);
             return false;
@@ -364,12 +359,12 @@ public class CreateEventActivity extends BaseActivity {
             endTimeField.setError(REQUIRED);
             return false;
         }//TODO on location deleted check
-        if(placePicked == null || placePicked.getAddress().toString().isEmpty()) {
+        if (placePicked == null || placePicked.getAddress().toString().isEmpty()) {
             autocompleteFragment.setHint("Please add a location before creating event");
             return false;
 
-        }else
-            location = placePicked.getAddress().toString();
+        } else
+            location = placePicked.getAddress().toString()+" "+placePicked.getLatLng();
         // Tag(s) are required
         if (TextUtils.isEmpty(tags)) {
             tagsField.setError(REQUIRED);
@@ -377,8 +372,8 @@ public class CreateEventActivity extends BaseActivity {
         }
 
         // Check if any fields are in error
-        for(EditText x: objectList){
-            if(x.getError() != null) {
+        for (EditText x : objectList) {
+            if (x.getError() != null) {
                 createButton.setError("One or more fields are invalid");
                 return false;
             }
@@ -388,8 +383,7 @@ public class CreateEventActivity extends BaseActivity {
 
         // 1) Push event and get a unique Event ID
         // Push an empty node with a unique key under 'events' node in JSON
-        final String eventId = mFirebaseDatabase.getReference(Event.DB_EVENT_LOCATIONS_NODE_NAME)
-                .child("events").push().getKey();
+        final String eventId = eventDatabase.child("events").push().getKey();
 
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
@@ -397,30 +391,22 @@ public class CreateEventActivity extends BaseActivity {
         Event newEvent = new Event(title, description, date, startTime, endTime, location,
                 userId, suggestedAge, "", cost, tags);
         // Add event obj to database under its event ID
-        mFirebaseDatabase.getReference(User.DB_EVENTS_NODE_NAME).child(eventId).setValue(newEvent.toMap());
+        eventDatabase.child(eventId).setValue(newEvent.toMap());
 
+        userDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = User.fromSnapshot(dataSnapshot);
+                //you can only Host events when you create an event
+               if(user.getHostEid().isEmpty()){userDatabase.child(userId).child("hostEid").setValue(eventId+":"+title+":");}
+               else{userDatabase.child(userId).child("hostEid").setValue(user.getHostEid() + eventId+":"+title+":");}
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
 
-        //putting new node in "user-events-hosting" with unique ID
-        String hostEventId = mFirebaseDatabase.getReference(User.DB_USER_EVENTS_HOSTING_NODE_NAME).child(userId).push().getKey();
-        mFirebaseDatabase.getReference(User.DB_USER_EVENTS_HOSTING_NODE_NAME).child(userId).child(hostEventId).setValue(eventId);
-
-        //add event's ID under it's location under 'event-locations' database node
-
-        //check if the node related to this location already exists, otherwise add it
-        if(mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).getRoot() == null)
-        {
-            Map<String, Object> locationUpdates = new HashMap<>();
-            locationUpdates.put("/" + location, "");
-            // add the new child location under 'event-locations' node
-            mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).updateChildren(locationUpdates);
-        }
-        //finally, store the
-        String eventLocID = mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).push().getKey();
-        mFirebaseDatabase.getReference(User.DB_EVENT_LOCATIONS_NODE_NAME).child(location).child(eventLocID).setValue(eventId);
         return true;
     }
-
-
 
     private void setEditingEnabled(boolean enabled) {
         if (enabled) {

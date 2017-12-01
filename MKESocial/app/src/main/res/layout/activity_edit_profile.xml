@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--Editable Profile Layout-->
+<!--add scrolling so that users can scroll if needed-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"> <!--add scrolling so that users can scroll if needed-->
+    android:layout_height="match_parent">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <!--Layout for profile page-->
+        <!--Profile Picture-->
         <ImageView
             android:id="@+id/profile_ebg"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:contentDescription="@string/profile_pic"
             android:scaleType="centerCrop"
-            android:background="@color/mke_dark_blue" /> <!--Profile Picture-->
+            android:background="@color/mke_dark_blue" />
+        <!--First Name-->
         <EditText
             android:id="@+id/first_name"
             android:layout_width="wrap_content"
@@ -29,8 +32,7 @@
             android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ-."
             android:textColor="@android:color/white"
             android:textSize="30sp"
-            android:textStyle="bold" /> <!--Profile Name-->
-        <!--user's first name is stored in first_name -->
+            android:textStyle="bold" />
 
         <!--NOTE: the items below are optional on a profile. Users can choose to not show them-->
         <LinearLayout
@@ -41,6 +43,7 @@
             android:orientation="vertical"
             android:id="@+id/linearLayout">
 
+            <!--Section Title: About Me-->
             <TextView
                 android:id="@+id/about_me"
                 android:layout_width="match_parent"
@@ -49,8 +52,9 @@
                 android:text="@string/about_me"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textStyle="bold" /> <!--Section Title: About Me-->
+                android:textStyle="bold" />
 
+            <!--biography-->
             <EditText
                 android:id="@+id/about_me_bio"
                 android:layout_width="250dp"
@@ -58,8 +62,8 @@
                 android:layout_gravity="center"
                 android:text=""
                 android:maxLength="1000"
-                android:textAlignment="center" /> <!--biography-->
-
+                android:textAlignment="center" />
+            <!--email toggle-->
             <Switch
                 android:id="@+id/tog_email"
                 android:layout_width="match_parent"
@@ -70,18 +74,7 @@
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-            <!--
-            <TextView
-                android:id="@+id/contact_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:text="@string/contact_information"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                android:textStyle="bold" /> -->
-            <!--Section Title: Contact Information-->
-
+            <!--email address-->
             <EditText
                 android:id="@+id/email_addr"
                 android:layout_width="match_parent"
@@ -89,7 +82,7 @@
                 android:digits="abcdefghijklmnopqrstuvwxyz.ABCDEFGHIJKLMNOPQRSTUVWXYZ@0123456789"
                 android:text=""
                 android:textAlignment="center" /> <!--email address-->
-
+            <!--attending events toggle-->
             <Switch
                 android:id="@+id/tog_events"
                 android:layout_width="match_parent"
@@ -97,95 +90,13 @@
                 android:checked="true"
                 android:showText="true"
                 android:splitTrack="false"
-                android:text="Share Events Attending on Profile"
+                android:text="@string/share_events_attending_on_profile"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 tools:checked="true" />
 
-             <!--<TextView
-                android:id="@+id/shared_events"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:text="@string/events_i_am_attending"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                android:textStyle="bold" /> -->
-                <!--Section Title: Events I am Attending-->
-
-            <!--List of Event Names-->
-            <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
-            <!--
-            <TextView
-                android:id="@+id/sampleEv1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 1"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 2"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 3"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 4"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 5"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 6"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 7"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv8"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 8"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv9"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event 9"
-                android:textAlignment="center" />
-
-            <TextView
-                android:id="@+id/sampleEv10"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:editable="false"
-                android:text="Event 10"
-                android:textAlignment="center" />
-            <TextView
-                android:id="@+id/sampleEv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="..."
-                android:textAlignment="center" /> -->
-
+            <!--hosting events toggle-->
             <Switch
                 android:id="@+id/tog_host_events"
                 android:layout_width="match_parent"
@@ -193,29 +104,15 @@
                 android:checked="true"
                 android:showText="true"
                 android:splitTrack="false"
-                android:text="Share Events Hosting on Profile"
+                android:text="@string/share_events_hosting_on_profile"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 tools:checked="true" />
 
-            <!--
-            <TextView
-                android:id="@+id/shared_host_events"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:text="@string/events_i_am_attending"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                android:textStyle="bold" /> -->
-            <!--Section Title: Events I am Hosting-->
-
-            <!--List of Event Names-->
-            <!--Users should be able to click on event name and it takes them to the specified event page of that event name-->
-
             <!-- the sections below allow user to update (non-displayable) information such as
              middle initial, last name, age, and address -->
+            <!--Section Title: Other Information-->
             <TextView
                 android:id="@+id/other_info"
                 android:layout_width="match_parent"
@@ -224,13 +121,13 @@
                 android:text="@string/other_info"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textStyle="bold" /> <!--Section Title: Other Information-->
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
-
+                <!--Section Title: Middle Initial-->
                 <TextView
                     android:id="@+id/mid_init"
                     android:layout_width="match_parent"
@@ -240,8 +137,8 @@
                     android:text="@string/middle_initial"
                     android:textAlignment="center"
                     android:textSize="18sp"
-                    android:textStyle="bold" /><!--Section Title: Middle Initial-->
-
+                    android:textStyle="bold" />
+                <!--middle initial-->
                 <EditText
                     android:id="@+id/middle_init"
                     android:layout_width="match_parent"
@@ -250,18 +147,16 @@
                     android:text=""
                     android:maxLength="1"
                     android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ-"
-                    android:textAlignment="center" /><!--middle initial-->
+                    android:textAlignment="center" />
 
             </LinearLayout>
-
-            <!--Section Title: Last Name-->
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="horizontal">
-
+                <!--Section Title: Last Name-->
                 <TextView
                     android:id="@+id/last_name"
                     android:layout_width="match_parent"
@@ -272,7 +167,7 @@
                     android:textAlignment="center"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
+                <!--last name-->
                 <EditText
                     android:id="@+id/last_nam"
                     android:layout_width="match_parent"
@@ -283,15 +178,11 @@
                     android:textAlignment="center" />
             </LinearLayout>
 
-            <!--last name-->
-
-            <!--Section Title: Age-->
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
-
+                <!--Section Title: Age-->
                 <TextView
                     android:id="@+id/age"
                     android:layout_width="match_parent"
@@ -302,7 +193,7 @@
                     android:textAlignment="center"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
+                <!--age (years)-->
                 <EditText
                     android:id="@+id/age_year"
                     android:layout_width="match_parent"
@@ -314,63 +205,33 @@
                     android:textAlignment="center" />
             </LinearLayout>
 
-            <!--age (years)-->
-
-            <!--Section Title: Home Address-->
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
-
+                android:orientation="vertical">
+                <!--Section Title: Home Address-->
                 <TextView
                     android:id="@+id/home_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="20dp"
+                    android:layout_gravity="bottom"
                     android:text="@string/home_address"
                     android:textAlignment="center"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text=""
-                    android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,"
-                    android:textAlignment="center" />
-
+                <!--home address-->
+                 <fragment
+                        android:id="@+id/addr_autocomplete_fragment"
+                        class="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/search_for_your_home_address" />
             </LinearLayout>
 
-            <!--home address-->
-
-
         </LinearLayout>
-
-        <!--<Button
-            android:id="@+id/save_button"
-            style="@android:style/Widget.Button.Inset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:onClick="save_btn_on_click"
-            android:text="@string/save" />-->
-
-        <!--<Button
-            android:id="@+id/edit_photo"
-            style="@android:style/Widget.Button.Inset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/first_name"
-            android:onClick="edit_pic_on_click"
-            android:text="@string/edit_photo" /> -->
-
-
+        <!--save button-->
         <ImageButton
             android:id="@+id/save_button"
             android:layout_width="wrap_content"
@@ -382,7 +243,7 @@
             android:onClick="save_btn_on_click"
             android:padding="15dp"
             android:src="@mipmap/ic_save_profile" />
-
+        <!--add photo button-->
         <ImageButton
             android:id="@+id/edit_photo"
             android:layout_width="wrap_content"

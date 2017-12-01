@@ -207,49 +207,25 @@ public class User implements Databasable{
 
     public void setHostEid(String host){this.host=host;}
 
-    //ToDo: Fix the below
-    public String parseEventAttendIDs(String temp){
-        //id:name:id:name:id:name...  <-- layout of information stored at String host
+
+    public String parseIDs (String temp){
+        //id:name:id:name:id:name...  <-- layout of information stored at String temp
         String parsed = "";
         String[] parsing = temp.split(":");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length-1;++i){
-            //Parse again, so names will be at the odd even values: 0 2 4 6 ...
+            //Parse again, so names will be at the even i values
             if((i%2)==0){parsed+=parsing[i]+" ";}
-        }
-        //id id id ....
-        return parsed.toString();
-    }
-
-    public String parseEventAttendNames(String temp){
-        //id:name:id:name:id:name...  <-- layout of information stored at String host
-        String parsed = "";;
-        String[] parsing = temp.split(":");//id|name|id|name|id|name...
-        for(int i=0; i<parsing.length-1;++i){
-            //Parse again, so names will be at the odd i values: 1 3 5 ...
-            if((i%2)!=0){parsed+=parsing[i]+" ";}
         }
         //name name name ....
-        return parsed.toString();
-    }
-
-    public String parseEventHostIDs(String temp){
-        //id:name:id:name:id:name...  <-- layout of information stored at String host
-        String parsed = "";
-        String[] parsing = temp.split(":");//id|name|id|name|id|name...
-        for(int i=0; i<parsing.length-1;++i){
-            //Parse again, so names will be at the odd even values: 0 2 4 6 ...
-            if((i%2)==0){parsed+=parsing[i]+" ";}
-        }
-        //id id id ....
         return parsed;
     }
 
-    public String parseEventHostNames(String temp){
-        //id:name:id:name:id:name...  <-- layout of information stored at String host
+    public String parseNames(String temp){
+        //id:name:id:name:id:name...  <-- layout of information stored at String temp
         String parsed = "";
         String[] parsing = temp.split(":");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length-1;++i){
-            //Parse again, so names will be at the odd i values: 1 3 5 ...
+            //Parse again, so names will be at the odd i values
             if((i%2)!=0){parsed+=parsing[i]+" ";}
         }
         //name name name ....

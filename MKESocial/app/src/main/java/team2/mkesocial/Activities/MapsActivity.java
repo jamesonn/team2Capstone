@@ -1,5 +1,6 @@
 package team2.mkesocial.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
@@ -34,7 +35,6 @@ import static Firebase.Databasable.DB_USER_SETTINGS_NODE_NAME;
 import static team2.mkesocial.Activities.BaseActivity.getUid;
 
 
-
 /**
  * Created by IaOng on 10/23/2017.
  */
@@ -46,33 +46,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
     private DatabaseReference userSettingsDB = FirebaseDatabase.getInstance().getReference(DB_USER_SETTINGS_NODE_NAME);
 
-    LatLng start, curent;
-    String start_title, current_title = "Current Position", home;
-
+    LatLng start, current;
+    String start_title, current_title, home;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = User.fromSnapshot(dataSnapshot);
-                if (user != null) {
-                    if (user.getAddress().equals("")) {//If User didn't specify their Home Address
-                        start = new LatLng(43.074982, -87.881344);
-                        start_title = "UWM-Student Union";
-                        home = "2200 E Kenwood Blvd, Milwaukee, WI 53211, USA";
-                    } else {//Home Address
-                        start = new LatLng(user.getLat(), user.getLng());
-                        start_title = "Home";
-                        home = user.getFullAddress();
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                    if(childSnap.getKey().equals(getUid())) { //if the child node's uid = current uid because we ONLY display current uid info on myProfile page
+                        User info = childSnap.getValue(User.class);//now able retrieve all info of the fields of that node
+
+                        if(info!=null) {
+                            if(info.getAddress().equals("")) {//If User didn't specify their Home Address
+                                start = new LatLng(43.074982, -87.881344);
+                                start_title = "UWM-Student Union";
+                                home = "2200 E Kenwood Blvd, Milwaukee, WI 53211, USA";
+                            }
+                            else{//Home Address
+                                start = new LatLng(info.getLat(), info.getLng());
+                                start_title="Home";
+                                home = info.getFullAddress();
+                            }
+                        }
                     }
                 }
             }
-
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
+            public void onCancelled(DatabaseError databaseError){}
         });
 
         setContentView(R.layout.activity_maps);
@@ -80,7 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -93,47 +95,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        //HUE_ORANGE -- Event
-        //HUE_BLUE  -- Home Address (or the Default UWM-Union)
-        //HUE_AZURE -- Current Location
-
-        MarkerOptions startM, currentM, event;
+        // Special, starting location marker will be in color blue
+        // Add a start marker at UWM and move the camera to center on that coordinate
+        MarkerOptions startM, currentM;
         startM = new MarkerOptions().position(start).title(start_title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         mMap.addMarker(startM);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 11));
 
 
-        // All other (aka the "events) marker will be in red
-        //ToDo: For loop to pull and add all event markers user has agreed to attend
-        LatLng testing = new LatLng(43.074459, -87.880597);
-        String test_loc = "Zipcar-Kenwood United Methodist Church";
-        mMap.addMarker(new MarkerOptions().position(testing).title(test_loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+
+
+        //mMap.addMarker(new MarkerOptions().position(testing).title(test_loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        //HUE_ORANGE
+        //HUE_BLUE
+        //HUE_AZURE
 
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
             @Override
             public void onInfoWindowClick(Marker m) {
-                if (m.getTitle().equals("Home") || m.getTitle().equals("UWM-Student Union")) {
+                if (m.getTitle().equals("Home")||m.getTitle().equals("UWM-Student Union")){
                     // get a reference to the already created main layout
                     RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_m);
 
                     // inflate the layout of the popup window
                     LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                     View popupView = inflater.inflate(R.layout.pop_up, null);
-
-                    TextView text = (TextView) popupView.findViewById(R.id.pop);
+                    TextView text = (TextView)popupView.findViewById(R.id.pop);
                     text.setText(home);
 
                     // create the popup window
                     int width = LinearLayout.LayoutParams.MATCH_PARENT;
                     int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-
                     boolean focusable = true; // lets taps outside the popup also dismiss it
                     final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
                     // show the popup window
                     popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
-
                     // dismiss the popup window when touched
                     popupView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
@@ -145,5 +144,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+
     }
 }

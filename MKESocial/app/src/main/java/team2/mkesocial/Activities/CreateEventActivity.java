@@ -402,8 +402,7 @@ public class CreateEventActivity extends BaseActivity {
                else{userDatabase.child(userId).child("hostEid").setValue(user.getHostEid() + eventId+":"+title+":");}
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
 
         return true;

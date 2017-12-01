@@ -71,7 +71,7 @@ private EditText pro_email, pro_bio, pro_fName, pro_lName, pro_mInit, pro_age;
 private Switch email_toggle, attend_toggle, host_toggle;
 boolean see_email=true, see_attend=true, see_host=true, addrC=false, picChange=false;
 private LinearLayout events_attend_layout, events_host_layout;
-private String[] aID, hID, attendEv, hostEv;
+private String aNames, hNames;
 
 private PlaceAutocompleteFragment autocompleteFragment;
 private Place placePicked;
@@ -285,6 +285,11 @@ private void quickUpdatePA() {
         public void onDataChange(DataSnapshot dataSnapshot) {
             User user = User.fromSnapshot(dataSnapshot);
 
+
+            aNames = user.parseNames(user.getHostEid());
+            System.out.println("=======================VALUE OF aNames: "+aNames);
+            populateHost(aNames);
+
             Glide.with(getApplicationContext()).load(user.getImg()).into(npic);
 
             //Set text fields
@@ -293,16 +298,6 @@ private void quickUpdatePA() {
             profile_fName.setText(user.getName());
 
             //Populate the events (Owner of Profile always sees them!)
-            //ToDo:
-            String attendNames = user.parseEventAttendNames(user.getAttendEid());
-            attendEv = attendNames.split(" ");
-            String hostNames = user.parseEventHostNames(user.getHostEid());
-
-            System.out.println("attendNAMES ==========================="+attendNames);
-            System.out.println("HOST NAMES ==========================="+hostNames);
-            hostEv = hostNames.split(" ");
-            populateAttend();
-            populateHost();
         }
         @Override
         public void onCancelled(DatabaseError databaseError) {}
@@ -310,13 +305,14 @@ private void quickUpdatePA() {
 }
 
 
-private void populateAttend(){
+private void populateAttend(String names){
 
-    if(attendEv!=null) {
-        for (int i = 0; i < attendEv.length - 1; ++i) {
+    String[] sep = names.split(" ");
+    if(sep!=null) {
+        for (int i = 0; i < sep.length - 1; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            eventsL.setText(attendEv[i]);
+            eventsL.setText(sep[i]);
             eventsL.setTextSize(20);
             eventsL.setTextColor(0xff424242);
             eventsL.setAllCaps(false);
@@ -329,15 +325,14 @@ private void populateAttend(){
     }
 }
 
-private void populateHost(){
-    if(hostEv!=null) {
-        for (int i = 0; i < hostEv.length - 1; ++i) {
-            System.out.println("I GOT INSIDE THE HOST LOOP!!");
-            System.out.println("====================TITLE" + hostEv[i]);
+private void populateHost(String names){
 
+    String[] sep = names.split(" ");
+    if(sep!=null) {
+        for (int i = 0; i < sep.length - 1; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            eventsL.setText(hostEv[i]);
+            eventsL.setText(sep[i]);
             eventsL.setTextSize(20);
             eventsL.setTextColor(0xff424242);
             eventsL.setAllCaps(false);

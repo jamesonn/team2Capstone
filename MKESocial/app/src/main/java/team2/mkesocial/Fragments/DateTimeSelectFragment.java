@@ -35,6 +35,7 @@ public class DateTimeSelectFragment extends AppCompatDialogFragment {
     private Calendar _endTime = Calendar.getInstance();
 
     private DateTimeSelectListener _listener;
+    private boolean _isNew = true;
     private boolean _deleteVisible = true;
 
     public interface DateTimeSelectListener
@@ -52,6 +53,7 @@ public class DateTimeSelectFragment extends AppCompatDialogFragment {
         if (end != null)
             fragment.setEndTime(end);
 
+        fragment.setIsNew(isNew);
         fragment.setDeleteVisible(!isNew);
 
         return fragment;
@@ -68,6 +70,8 @@ public class DateTimeSelectFragment extends AppCompatDialogFragment {
     private void setEndTime(Date end) {
         _endTime.setTime(end);
     }
+
+    private void setIsNew(boolean state) { _isNew = state; }
 
     private void setDeleteVisible(boolean state) {
         _deleteVisible = state;
@@ -91,10 +95,19 @@ public class DateTimeSelectFragment extends AppCompatDialogFragment {
         if (!_deleteVisible)
             _deleteButton.setVisibility(View.GONE);
 
+        if (_startTime.get(Calendar.MINUTE) <= 30) {
+            _startTime.set(Calendar.MINUTE, 30);
+        } else {
+            _startTime.add(Calendar.HOUR_OF_DAY, 1);
+            _startTime.set(Calendar.MINUTE, _startTime.getActualMinimum(Calendar.MINUTE));
+        }
         _startTime.set(Calendar.SECOND, _startTime.getActualMinimum(Calendar.SECOND));
         _startTime.set(Calendar.MILLISECOND, _startTime.getActualMinimum(Calendar.MILLISECOND));
-        _endTime.set(Calendar.SECOND, _endTime.getActualMinimum(Calendar.SECOND));
-        _endTime.set(Calendar.MILLISECOND, _endTime.getActualMinimum(Calendar.MILLISECOND));
+
+        if (_isNew) {
+            _endTime = (Calendar) _startTime.clone();
+            _endTime.add(Calendar.HOUR_OF_DAY, 1);
+        }
 
         final SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.date_format), Locale.getDefault());
         final SimpleDateFormat timeFormat = new SimpleDateFormat(getString(R.string.time_format), Locale.getDefault());

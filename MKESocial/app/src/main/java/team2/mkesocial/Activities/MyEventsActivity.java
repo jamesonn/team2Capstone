@@ -19,14 +19,17 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import Firebase.BusyTime;
 import Firebase.Event;
+import Firebase.User;
 import team2.mkesocial.Adapters.EventAdapter;
 import team2.mkesocial.Fragments.BusyTimeFragment;
 import team2.mkesocial.EventDecorator;
@@ -41,12 +44,16 @@ public class MyEventsActivity extends BaseActivity
     private MaterialCalendarView _calendarView;
     private ListView _eventList;
     private Button _busyTimeButton;
+
     private ArrayList<CalendarDay> _markedDays = new ArrayList<>();
+    private ArrayList<CalendarDay> _busyDays = new ArrayList<>();
     private ArrayList<Event> _events = new ArrayList<>();
     private HashMap<CalendarDay, HashSet<Event>> _eventMap = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<BusyTime>> _busyMap = new HashMap<>();
     private EventAdapter _eventAdapter;
     private FirebaseDatabase _database;
     private Query _dataRef;
+    private Query _busyRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +67,53 @@ public class MyEventsActivity extends BaseActivity
         _database = FirebaseDatabase.getInstance();
         _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("attendEid");
         _dataRef.addValueEventListener(this);
+
+        _busyRef = _database.getReference(User.DB_USERS_NODE_NAME).child(getUid()).child("busyTimes");
+        _busyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                _busyDays.clear();
+                _busyMap.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    BusyTime time = snapshot.getValue(BusyTime.class);
+                    GregorianCalendar startDate = new GregorianCalendar();
+                    GregorianCalendar endDate = new GregorianCalendar();
+
+                    startDate.setTime(time.getStartTimeAsDate());
+                    endDate.setTime(time.getEndTimeAsDate());
+
+                    CalendarDay day = CalendarDay.from(startDate.getTime());
+                    _busyDays.add(day);
+                    if (_busyMap.containsKey(day)) {
+                        _busyMap.get(day).add(time);
+                    } else {
+                        HashSet<BusyTime> busySet = new HashSet<>();
+                        busySet.add(time);
+                        _busyMap.put(day, busySet);
+                    }
+
+                    while (endDate.get(Calendar.DAY_OF_YEAR) != startDate.get(Calendar.DAY_OF_YEAR)) {
+                        startDate.add(Calendar.DAY_OF_YEAR, 1);
+                        day = CalendarDay.from(startDate.getTime());
+                        _busyDays.add(day);
+                        if (_busyMap.containsKey(day)) {
+                            _busyMap.get(day).add(time);
+                        } else {
+                            HashSet<BusyTime> busySet = new HashSet<>();
+                            busySet.add(time);
+                            _busyMap.put(day, busySet);
+                        }
+                    }
+
+                    redrawDecorators();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         _calendarView.addDecorators(new WeekendDecorator(),
                                     new EventDecorator(Color.RED, _markedDays));
@@ -98,14 +152,57 @@ public class MyEventsActivity extends BaseActivity
         if (eventSet != null)
             _events.addAll(eventSet);
 
+        HashSet<BusyTime> busySet = _busyMap.get(date);
+        if (busySet != null) {
+            for (BusyTime time : busySet) {
+                Event busyEvent = new Event();
+                GregorianCalendar start = new GregorianCalendar();
+                GregorianCalendar end = new GregorianCalendar();
+                start.setTime(time.getStartTimeAsDate());
+                end.setTime(time.getEndTimeAsDate());
+
+                // Adjust times for overlapping days
+                if (date.getDate().compareTo(cloneDateNoTime(start).getTime()) > 0) {
+                    start.set(Calendar.HOUR, start.getActualMinimum(Calendar.HOUR));
+                    start.set(Calendar.HOUR_OF_DAY, start.getActualMinimum(Calendar.HOUR_OF_DAY));
+                    start.set(Calendar.MINUTE, start.getActualMinimum(Calendar.MINUTE));
+                }
+                if (date.getDate().compareTo(cloneDateNoTime(end).getTime()) < 0) {
+                    end.set(Calendar.HOUR, end.getActualMaximum(Calendar.HOUR));
+                    end.set(Calendar.HOUR_OF_DAY, end.getActualMaximum(Calendar.HOUR_OF_DAY));
+                    end.set(Calendar.MINUTE, end.getActualMaximum(Calendar.MINUTE));
+                }
+
+                busyEvent.setTitle("Busy");
+                busyEvent.setStartTime(start);
+                busyEvent.setEndTime(end);
+
+                _events.add(busyEvent);
+            }
+        }
+
         Collections.sort(_events, new Comparator<Event>() {
             @Override
             public int compare(Event event1, Event event2) {
-                return event2.getStartTime().compareTo(event1.getStartTime());
+                return event1.getStartTime().compareTo(event2.getStartTime());
             }
         });
 
         _eventAdapter.notifyDataSetChanged();
+    }
+
+    // Clone calendar object with no time data set
+    private static Calendar cloneDateNoTime(Calendar date) {
+        Calendar newDate = (Calendar)date.clone();
+        newDate.clear(Calendar.HOUR);
+        newDate.clear(Calendar.HOUR_OF_DAY);
+        newDate.clear(Calendar.MINUTE);
+        newDate.clear(Calendar.SECOND);
+        newDate.clear(Calendar.MILLISECOND);
+        newDate.clear(Calendar.DST_OFFSET);
+        newDate.clear(Calendar.ZONE_OFFSET);
+        newDate.clear(Calendar.AM_PM);
+        return newDate;
     }
 
     @Override
@@ -115,8 +212,6 @@ public class MyEventsActivity extends BaseActivity
 
             String[] eventIds = dataSnapshot.getValue().toString().split(" ");
             _markedDays.clear();
-            _calendarView.removeDecorators();
-            _calendarView.addDecorator(new WeekendDecorator());
             _eventMap.clear();
             for (String eid : eventIds){
                 Query q = _database.getReference(Event.DB_EVENTS_NODE_NAME).child(eid).orderByKey();
@@ -138,13 +233,13 @@ public class MyEventsActivity extends BaseActivity
                                     eventSet.add(event);
                                     _eventMap.put(day, eventSet);
                                 }
-
-                                _calendarView.addDecorator(new EventDecorator(Color.RED, _markedDays));
                             }
                         } catch (Exception e) {
                             Log.d(TAG, "Exception:" + e.toString());
                             e.printStackTrace();
                         }
+
+                        redrawDecorators();
                     }
 
                     @Override
@@ -167,5 +262,14 @@ public class MyEventsActivity extends BaseActivity
     @Override
     public void OnBusyTimePositive(List<BusyTime> busyTimes) {
         Log.d(TAG, busyTimes.toString());
+    }
+
+    // TODO: This could be more efficient if we didn't keep recreating the decorators
+    private void redrawDecorators() {
+        _calendarView.removeDecorators();
+
+        _calendarView.addDecorator(new WeekendDecorator());
+        _calendarView.addDecorator(new EventDecorator(Color.GREEN, _markedDays));
+        _calendarView.addDecorator(new EventDecorator(Color.RED, _busyDays));
     }
 }

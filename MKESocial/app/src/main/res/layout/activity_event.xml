@@ -1,103 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="32dp"
+            android:paddingEnd="32dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:paddingTop="24dp">
+
+
+            <TextView
+                android:id="@+id/event_title"
+                style="@style/linearLayoutItems"
+                android:ems="10"
+                android:textSize="30sp" />
+
+            <TextView
+                android:ems="10"
+                android:text="Description:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_description"
+                android:ems="10"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Date:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_date"
+                android:ems="10"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Start Time:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_start_time"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="End Time:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_end_time"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Location:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_location"
+                android:ems="10"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Suggest Age:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_suggested_age"
+                android:ems="10"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Cost:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_cost"
+                android:ems="10"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Rating:"
+                style="@style/linearLayoutItems"/>
+
+            <TextView
+                android:id="@+id/event_rating"
+                android:ems="10"
+                style="@style/linearLayoutItems"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingBottom="32dp"
-        android:paddingEnd="32dp"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingTop="24dp">
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:clickable="true"
+        android:backgroundTint="@color/edit_icon_color"
+        app:srcCompat="@mipmap/ic_edit_profile" />
 
-        <TextView
-            android:id="@+id/event_title"
-            style="@style/linearLayoutItems"
-            android:ems="10"
-            android:textSize="30sp" />
-
-        <TextView
-            android:ems="10"
-            android:text="Description:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_description"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="Date:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_date"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="Start Time:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_start_time"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="End Time:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_end_time"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="Location:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_location"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="Suggest Age:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_suggested_age"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="Cost:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_cost"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:ems="10"
-            android:text="Rating:"
-            style="@style/linearLayoutItems"/>
-
-        <TextView
-            android:id="@+id/event_rating"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
-
-    </LinearLayout>
-
-</ScrollView>
+</RelativeLayout>

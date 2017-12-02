@@ -3,6 +3,7 @@ package team2.mkesocial.Activities;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.graphics.Color;
+import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -261,5 +262,13 @@ public class MyEventsActivity extends BaseActivity
         _calendarView.addDecorator(new WeekendDecorator());
         _calendarView.addDecorator(new EventDecorator(Color.GREEN, _markedDays.keySet()));
         _calendarView.addDecorator(new EventDecorator(Color.RED, _busyDays.keySet()));
+
+        HashSet<CalendarDay> combined = new HashSet<>();
+        for (CalendarDay day : _markedDays.keySet()) {
+            if (_busyDays.containsKey(day))
+                combined.add(day);
+        }
+        final int brown = ColorUtils.blendARGB(Color.GREEN, Color.RED, 0.5f);
+        _calendarView.addDecorator(new EventDecorator(brown, combined));
     }
 }

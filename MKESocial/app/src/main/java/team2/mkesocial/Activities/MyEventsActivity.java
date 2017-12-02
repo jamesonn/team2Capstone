@@ -83,26 +83,12 @@ public class MyEventsActivity extends BaseActivity
                     endDate.setTime(time.getEndTimeAsDate());
 
                     CalendarDay day = CalendarDay.from(startDate.getTime());
-                    _busyDays.add(day);
-                    if (_busyMap.containsKey(day)) {
-                        _busyMap.get(day).add(time);
-                    } else {
-                        HashSet<BusyTime> busySet = new HashSet<>();
-                        busySet.add(time);
-                        _busyMap.put(day, busySet);
-                    }
+                    addBusyDay(day, time);
 
                     while (endDate.get(Calendar.DAY_OF_YEAR) != startDate.get(Calendar.DAY_OF_YEAR)) {
                         startDate.add(Calendar.DAY_OF_YEAR, 1);
                         day = CalendarDay.from(startDate.getTime());
-                        _busyDays.add(day);
-                        if (_busyMap.containsKey(day)) {
-                            _busyMap.get(day).add(time);
-                        } else {
-                            HashSet<BusyTime> busySet = new HashSet<>();
-                            busySet.add(time);
-                            _busyMap.put(day, busySet);
-                        }
+                        addBusyDay(day, time);
                     }
 
                     redrawDecorators();
@@ -262,6 +248,17 @@ public class MyEventsActivity extends BaseActivity
     @Override
     public void OnBusyTimePositive(List<BusyTime> busyTimes) {
         Log.d(TAG, busyTimes.toString());
+    }
+
+    private void addBusyDay(CalendarDay day, BusyTime time) {
+        _busyDays.add(day);
+        if (_busyMap.containsKey(day)) {
+            _busyMap.get(day).add(time);
+        } else {
+            HashSet<BusyTime> busySet = new HashSet<>();
+            busySet.add(time);
+            _busyMap.put(day, busySet);
+        }
     }
 
     // TODO: This could be more efficient if we didn't keep recreating the decorators

@@ -45,11 +45,9 @@ public class MyEventsActivity extends BaseActivity
     private ListView _eventList;
     private Button _busyTimeButton;
 
-    private ArrayList<CalendarDay> _markedDays = new ArrayList<>();
-    private ArrayList<CalendarDay> _busyDays = new ArrayList<>();
     private ArrayList<Event> _events = new ArrayList<>();
-    private HashMap<CalendarDay, HashSet<Event>> _eventMap = new HashMap<>();
-    private HashMap<CalendarDay, HashSet<BusyTime>> _busyMap = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<Event>> _markedDays = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<BusyTime>> _busyDays = new HashMap<>();
     private EventAdapter _eventAdapter;
     private FirebaseDatabase _database;
     private Query _dataRef;
@@ -73,7 +71,6 @@ public class MyEventsActivity extends BaseActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 _busyDays.clear();
-                _busyMap.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BusyTime time = snapshot.getValue(BusyTime.class);
                     GregorianCalendar startDate = new GregorianCalendar();
@@ -101,8 +98,7 @@ public class MyEventsActivity extends BaseActivity
             }
         });
 
-        _calendarView.addDecorators(new WeekendDecorator(),
-                                    new EventDecorator(Color.RED, _markedDays));
+        _calendarView.addDecorator(new WeekendDecorator());
 
         _calendarView.setOnDateChangedListener(this);
 
@@ -134,11 +130,11 @@ public class MyEventsActivity extends BaseActivity
 
         _events.clear();
 
-        HashSet eventSet = _eventMap.get(date);
+        HashSet eventSet = _markedDays.get(date);
         if (eventSet != null)
             _events.addAll(eventSet);
 
-        HashSet<BusyTime> busySet = _busyMap.get(date);
+        HashSet<BusyTime> busySet = _busyDays.get(date);
         if (busySet != null) {
             for (BusyTime time : busySet) {
                 Event busyEvent = new Event();
@@ -198,7 +194,6 @@ public class MyEventsActivity extends BaseActivity
 
             String[] eventIds = dataSnapshot.getValue().toString().split(" ");
             _markedDays.clear();
-            _eventMap.clear();
             for (String eid : eventIds){
                 Query q = _database.getReference(Event.DB_EVENTS_NODE_NAME).child(eid).orderByKey();
                 q.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -211,13 +206,12 @@ public class MyEventsActivity extends BaseActivity
                                 Log.d(TAG, event.getTitle());
 
                                 CalendarDay day = CalendarDay.from(event.getDate().getTime());
-                                _markedDays.add(day);
-                                if (_eventMap.containsKey(day)) {
-                                    _eventMap.get(day).add(event);
+                                if (_markedDays.containsKey(day)) {
+                                    _markedDays.get(day).add(event);
                                 } else {
                                     HashSet<Event> eventSet = new HashSet<>();
                                     eventSet.add(event);
-                                    _eventMap.put(day, eventSet);
+                                    _markedDays.put(day, eventSet);
                                 }
                             }
                         } catch (Exception e) {
@@ -251,13 +245,12 @@ public class MyEventsActivity extends BaseActivity
     }
 
     private void addBusyDay(CalendarDay day, BusyTime time) {
-        _busyDays.add(day);
-        if (_busyMap.containsKey(day)) {
-            _busyMap.get(day).add(time);
+        if (_busyDays.containsKey(day)) {
+            _busyDays.get(day).add(time);
         } else {
             HashSet<BusyTime> busySet = new HashSet<>();
             busySet.add(time);
-            _busyMap.put(day, busySet);
+            _busyDays.put(day, busySet);
         }
     }
 
@@ -266,7 +259,7 @@ public class MyEventsActivity extends BaseActivity
         _calendarView.removeDecorators();
 
         _calendarView.addDecorator(new WeekendDecorator());
-        _calendarView.addDecorator(new EventDecorator(Color.GREEN, _markedDays));
-        _calendarView.addDecorator(new EventDecorator(Color.RED, _busyDays));
+        _calendarView.addDecorator(new EventDecorator(Color.GREEN, _markedDays.keySet()));
+        _calendarView.addDecorator(new EventDecorator(Color.RED, _busyDays.keySet()));
     }
 }

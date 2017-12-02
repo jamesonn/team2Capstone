@@ -11,7 +11,9 @@ public class Tag {
     private static String[] _suggestTags = {"outdoors", "family-friendly", "kid-friendly","alcohol",
             "entertainment","music", "18+", "sports", "indoor", "private", "public", "large", "small",
             "lake", "downtown", "tour", "all-day", "free", "cheap", "$$$", "$$", "$", "adult",
-            "theater", "water", "winter", "fall", "spring", "summer"}; //TODO add more suggested tag values
+            "theater", "water", "winter", "fall", "spring", "summer", "anime", "art", "geek", "vegan",
+            "food", "fun", "code", "camp", "museum", "graphics", "fashion", "contest", "prize", "VIP", "donation",
+            "concert", "live-action", "dicussion", "debate"}; //TODO add more suggested tag values
     private String name;
 
 

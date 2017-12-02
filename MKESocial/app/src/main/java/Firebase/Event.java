@@ -5,7 +5,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.Exclude;
 
-import android.location.Address;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -33,7 +32,7 @@ public class Event implements Databasable{
     private double cost;
     private List<Tag> tags;
     //TODO link to other users https://developer.android.com/training/app-links/deep-linking.html
-    private List<String> attendeesUids;
+    private String attendees; //layout attendeesID:attendeesName attendeesID:attendeesName
     private String eid;
 
 
@@ -41,7 +40,7 @@ public class Event implements Databasable{
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
     public Event(String title, String description, GregorianCalendar date,
-                 GregorianCalendar startTime, GregorianCalendar endTime, Address location,
+                 GregorianCalendar startTime, GregorianCalendar endTime, String location,
                  String hostUid, int suggestedAge, int rating, double cost, List<Tag> tags) {
         setTitle(title);
         setDescription(description);
@@ -64,7 +63,7 @@ public class Event implements Databasable{
         setDate(parseDate(date));
         setStartTime(parseTime(startTime));
         setEndTime(parseTime(endTime));
-        setLocation(parseLocation(location));
+        setLocation(location);
         setHostUid(hostUid);
         setSuggestedAge(parseInt(suggestedAge));
         setRating(parseInt(rating));
@@ -100,26 +99,6 @@ public class Event implements Databasable{
             if(Character.digit(s.charAt(i),radix) < 0) return false;
         }
         return true;
-    }
-    private Address parseLocation(String loc)
-    {
-        Address location = new Address(Locale.getDefault());
-        double latitude = 0.0, longitude = 0.0;
-        String addr = loc;
-        String[] coords = loc.split(";", 3);
-        try {
-            addr = coords[0];
-            latitude = Double.parseDouble(coords[1]);
-            longitude = Double.parseDouble(coords[2]);
-        }
-        catch (Exception e) {
-            Log.w(TAG, "Location not converted: "+ loc);
-        }
-
-        location.setAddressLine(0, addr);
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
-        return location;
     }
 
     private GregorianCalendar parseDate(String cDate)
@@ -163,12 +142,13 @@ public class Event implements Databasable{
         result.put("date", date);
         result.put("startTime", startTime);
         result.put("endTime", endTime);
-        result.put("location", location);
+        result.put("location", getLocation());
         result.put("hostUid", getHostUid());
         result.put("suggestedAge", getSuggestedAge());
         result.put("rating", getRating());
         result.put("cost", getCost());
         result.put("tags", getTags());
+        result.put("attendees", getAttendees());
 
         return result;
     }
@@ -182,7 +162,6 @@ public class Event implements Databasable{
     public void setTitle(String title) {
         this.title = title;
     }
-
 
     public String getDescription() {
         return description;
@@ -225,16 +204,25 @@ public class Event implements Databasable{
         this.endTime = endTime.getTimeInMillis();
     }
 
-    public Address getLocation() {
-        return parseLocation(location);
+    public String getLocation() {
+        return location;
     }
 
     @Exclude
-    public void setLocation(Address location) {
-        String addr = location.getAddressLine(0);
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        this.location = String.format("%s;%f;%f", addr, latitude, longitude);
+    public void setLocation(String location) {
+        this.location=location;
+    }
+
+    public String getFullAddress(){
+        String fullAddress;//0000 Street Name, City, State Zip, Country LatLng:(0,0)
+        fullAddress = location.substring(0, location.indexOf("("));//0000 Street Name, City, State Zip, Country LatLng:
+        String[] addr = fullAddress.split(",");//0000 Street Name| City| State Zip| Country LatLng:
+        String getCountry = addr[3];
+        String[] sCountry = getCountry.split(" ");// |Country|LatLng:
+        //0000 Street Name
+        // City State Zip
+        // Country
+        return addr[0]+"\n"+addr[1].substring(1)+addr[2]+"\n"+sCountry[1];
     }
 
     public String getHostUid() {
@@ -277,13 +265,9 @@ public class Event implements Databasable{
         this.tags = tags;
     }
 
-    public List<String> getAttendeesUids() {
-        return attendeesUids;
-    }
+    public String getAttendees(){return this.attendees;}
 
-    public void setAttendeesUids(List<String> attendeesUids) {
-        this.attendeesUids = attendeesUids;
-    }
+    public void setAttendes(String attendees){this.attendees=attendees;}
 
     public String getEventId() { return eid; }
 

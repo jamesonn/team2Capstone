@@ -120,4 +120,8 @@
     <string name="fragment_date_filter_positive">OK</string>
     <string name="fragment_date_filter_negative">Cancel</string>
     <string name="fragment_date_filter_range_error">End date must be the same or later than start date!</string>
+    <string name="events_i_am_hosting">Events I am Hosting</string>
+    <string name="share_events_attending_on_profile">Share Events Attending on Profile</string>
+    <string name="share_events_hosting_on_profile">Share Events Hosting on Profile</string>
+    <string name="search_for_your_home_address">Search for your home address</string>
 </resources>

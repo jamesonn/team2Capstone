@@ -285,10 +285,8 @@ private void quickUpdatePA() {
         public void onDataChange(DataSnapshot dataSnapshot) {
             User user = User.fromSnapshot(dataSnapshot);
 
-
-            aNames = user.parseNames(user.getHostEid());
-            System.out.println("=======================VALUE OF aNames: "+aNames);
-            populateHost(aNames);
+            populateAttend(user.parseEventAttendNames());
+            populateHost(user.parseEventHostNames());
 
             Glide.with(getApplicationContext()).load(user.getImg()).into(npic);
 
@@ -307,9 +305,9 @@ private void quickUpdatePA() {
 
 private void populateAttend(String names){
 
-    String[] sep = names.split(" ");
+    String[] sep = names.split("`");
     if(sep!=null) {
-        for (int i = 0; i < sep.length - 1; ++i) {
+        for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             eventsL.setText(sep[i]);
@@ -327,9 +325,9 @@ private void populateAttend(String names){
 
 private void populateHost(String names){
 
-    String[] sep = names.split(" ");
+    String[] sep = names.split("`");
     if(sep!=null) {
-        for (int i = 0; i < sep.length - 1; ++i) {
+        for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             eventsL.setText(sep[i]);

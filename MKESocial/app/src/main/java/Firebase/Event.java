@@ -214,15 +214,17 @@ public class Event implements Databasable{
     }
 
     public String getFullAddress(){
-        String fullAddress;//0000 Street Name, City, State Zip, Country LatLng:(0,0)
-        fullAddress = location.substring(0, location.indexOf("("));//0000 Street Name, City, State Zip, Country LatLng:
-        String[] addr = fullAddress.split(",");//0000 Street Name| City| State Zip| Country LatLng:
-        String getCountry = addr[3];
-        String[] sCountry = getCountry.split(" ");// |Country|LatLng:
-        //0000 Street Name
-        // City State Zip
-        // Country
-        return addr[0]+"\n"+addr[1].substring(1)+addr[2]+"\n"+sCountry[1];
+        String fullAddress;//0000 Street Name, City, State Zip, Country:LatLng:(0,0)
+                           //City, State Zip, Country:LatLng:(0,0)
+                           //State Zip, Country:LatLng:(0,0)
+        fullAddress = location.substring(0, location.indexOf(":"));
+        String[] addr = fullAddress.split(",");
+        //for loop to append the stuff together and then return it
+        String firstPart = " ";
+        for(int i=0;i<addr.length;++i){
+            firstPart+=addr[i]+"\n";
+        }
+        return firstPart;
     }
 
     public String getHostUid() {

@@ -227,27 +227,51 @@ public class User implements Databasable{
     public void setHostEid(String host){this.host=host;}
 
 
-    public String parseIDs (String temp){
-        //id:name:id:name:id:name...  <-- layout of information stored at String temp
+    public String parseEventAttendNames(){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = temp.split(":");//id|name|id|name|id|name...
-        for(int i=0; i<parsing.length-1;++i){
-            //Parse again, so names will be at the even i values
-            if((i%2)==0){parsed+=parsing[i]+" ";}
+        String[] parsing = attend.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length;++i){
+            //names will be at the odd i values: 1 3 5 ...
+            if((i%2)==1){parsed+=parsing[i]+"`";}
         }
-        //name name name ....
+        //name:name:name ....
         return parsed;
     }
 
-    public String parseNames(String temp){
-        //id:name:id:name:id:name...  <-- layout of information stored at String temp
+    public String parseEventAttendIDs(){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = temp.split(":");//id|name|id|name|id|name...
-        for(int i=0; i<parsing.length-1;++i){
-            //Parse again, so names will be at the odd i values
-            if((i%2)!=0){parsed+=parsing[i]+" ";}
+        String[] parsing = attend.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length;++i){
+            //ids will be at the even values: 0 2 4 ...
+            if((i%2)==0){parsed+=parsing[i]+"`";}
         }
-        //name name name ....
+        //id:id:id ....
+        return parsed;
+    }
+
+    public String parseEventHostNames(){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = host.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length;++i){
+            //names will be at the odd i values: 1 3 5 ...
+            if((i%2)==1){parsed+=parsing[i]+"`";}
+        }
+        //name:name:name ....
+        return parsed;
+    }
+
+    public String parseEventHostIDs(){
+        //id:name:id:name:id:name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = host.split(":");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length;++i){
+            //ids will be at the even values: 0 2 4 ...
+            if((i%2)==0){parsed+=parsing[i]+"`";}
+        }
+        //id:id:id ....
         return parsed;
     }
 
@@ -261,15 +285,17 @@ public class User implements Databasable{
     }
 
     public String getFullAddress(){
-        String fullAddress;//0000 Street Name, City, State Zip, Country LatLng:(0,0)
-        fullAddress = address.substring(0, address.indexOf("("));//0000 Street Name, City, State Zip, Country LatLng:
-        String[] addr = fullAddress.split(",");//0000 Street Name| City| State Zip| Country LatLng:
-        String getCountry = addr[3];
-        String[] sCountry = getCountry.split(" ");// |Country|LatLng:
-        //0000 Street Name
-        //City State Zip
-        //Country
-        return addr[0]+"\n"+addr[1].substring(1)+addr[2]+"\n"+sCountry[1];
+        String fullAddress;//0000 Street Name, City, State Zip, Country:LatLng:(0,0)
+        //City, State Zip, Country:LatLng:(0,0)
+        //State Zip, Country:LatLng:(0,0)
+        fullAddress = address.substring(0, address.indexOf(":"));
+        String[] addr = fullAddress.split(",");
+        //for loop to append the stuff together and then return it
+        String firstPart = " ";
+        for(int i=0;i<addr.length;++i){
+            firstPart+=addr[i]+"\n";
+        }
+        return firstPart;
     }
 
     public Double getLat(){

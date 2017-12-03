@@ -103,7 +103,7 @@ public class EventActivity extends Activity implements ValueEventListener {
 
     private void populateEventData(DataSnapshot data){
         Event event = Event.fromSnapshot(data);
-        SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:MM:SS");
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:mm a");
         SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
         title.setText(event.getTitle());

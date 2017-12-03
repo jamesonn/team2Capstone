@@ -261,7 +261,7 @@ public void save_btn_on_click(View v){
         profile_email.setText(email);
 
         //Handle changes to Address on Fragment
-        if(addrC){userDatabase.child(getUid()).child("address").setValue(placePicked.getAddress().toString()+" "+placePicked.getLatLng().toString());}
+        if(addrC){userDatabase.child(getUid()).child("address").setValue(placePicked.getAddress().toString()+":"+placePicked.getLatLng().toString());}
         getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.addr_autocomplete_fragment)).commit();
         quickUpdatePA();
     }
@@ -285,10 +285,8 @@ private void quickUpdatePA() {
         public void onDataChange(DataSnapshot dataSnapshot) {
             User user = User.fromSnapshot(dataSnapshot);
 
-
-            aNames = user.parseNames(user.getHostEid());
-            System.out.println("=======================VALUE OF aNames: "+aNames);
-            populateHost(aNames);
+            populateAttend(user.parseEventAttendNames());
+            populateHost(user.parseEventHostNames());
 
             Glide.with(getApplicationContext()).load(user.getImg()).into(npic);
 
@@ -307,9 +305,9 @@ private void quickUpdatePA() {
 
 private void populateAttend(String names){
 
-    String[] sep = names.split(" ");
+    String[] sep = names.split("`");
     if(sep!=null) {
-        for (int i = 0; i < sep.length - 1; ++i) {
+        for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             eventsL.setText(sep[i]);
@@ -327,9 +325,9 @@ private void populateAttend(String names){
 
 private void populateHost(String names){
 
-    String[] sep = names.split(" ");
+    String[] sep = names.split("`");
     if(sep!=null) {
-        for (int i = 0; i < sep.length - 1; ++i) {
+        for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             eventsL.setText(sep[i]);

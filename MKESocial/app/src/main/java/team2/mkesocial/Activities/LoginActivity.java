@@ -34,9 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView signUp;
     private Button login;
     private EditText userName, password;
-    private CheckBox rememberMe;
     private static FirebaseAuth mAuth;
-    public ProgressDialog mProgressDialog;
     public static GoogleSignInClient mGoogleSignInClient;
 
     private void signUp(String email, String password) {
@@ -45,15 +43,20 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(LoginActivity.this, "Sign Up Complete",
-                                    Toast.LENGTH_SHORT).show();
+                            user.sendEmailVerification()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(LoginActivity.this, "Verification Email Sent", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
                         } else {
                             // If sign in fails, display a message to the user.
 
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginActivity.this, "Sign-Up failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -74,16 +77,21 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
 
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(LoginActivity.this, "Sign In Successful",
-                                    Toast.LENGTH_SHORT).show();
-                            // add User to our firebase database once the login is successful
-                            new User(mAuth.getCurrentUser()).add();
 
-                            logMeRightIn();
+                            if(user.isEmailVerified()) {
+                                Toast.makeText(LoginActivity.this, "Sign In Successful",
+                                        Toast.LENGTH_SHORT).show();
+                                // add User to our firebase database once the login is successful
+                                new User(mAuth.getCurrentUser()).add();
+                                logMeRightIn();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Please verify your email",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
 
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginActivity.this, "Sign In failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

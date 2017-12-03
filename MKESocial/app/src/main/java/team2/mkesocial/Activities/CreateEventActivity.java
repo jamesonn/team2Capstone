@@ -398,8 +398,8 @@ public class CreateEventActivity extends BaseActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = User.fromSnapshot(dataSnapshot);
                 //you can only Host events when you create an event
-               if(user.getHostEid().isEmpty()){userDatabase.child(userId).child("hostEid").setValue(eventId+":"+title+":");}
-               else{userDatabase.child(userId).child("hostEid").setValue(user.getHostEid() + eventId+":"+title+":");}
+               if(user.getHostEid().isEmpty()){userDatabase.child(userId).child("hostEid").setValue(eventId+"`"+title+"`");}
+               else{userDatabase.child(userId).child("hostEid").setValue(user.getHostEid() + eventId+"`"+title+"`");}
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}

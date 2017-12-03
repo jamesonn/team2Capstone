@@ -107,8 +107,8 @@ public class CreateEventActivity extends BaseActivity {
         endCalendar = Calendar.getInstance();
         // Standard Time Display
         myTime = Calendar.getInstance();
-        String  myFormat = "MM/dd/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
 
         final DatePickerDialog.OnDateSetListener startDate = new DatePickerDialog.OnDateSetListener() {
@@ -149,7 +149,7 @@ public class CreateEventActivity extends BaseActivity {
                 mTimePicker = new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        Calendar c = Calendar.getInstance();
+                        Calendar startTime = Calendar.getInstance();
                         startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         startTime.set(Calendar.MINUTE, minute);
                         int hour = hourOfDay % 12;
@@ -204,10 +204,10 @@ public class CreateEventActivity extends BaseActivity {
                     @Override
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         startCalendar.set(year, month, dayOfMonth);
-                        startDateField.setText(sdf.format(startCalendar.getTime()));
+                        startDateField.setText(dateFormatter.format(startCalendar.getTime()));
                         if(startCalendar.getTimeInMillis() >= endCalendar.getTimeInMillis()) {
                             endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
-                            endDateField.setText(sdf.format(endCalendar.getTime()));
+                            endDateField.setText(dateFormatter.format(endCalendar.getTime()));
                         }
                     }
                 };
@@ -228,7 +228,7 @@ public class CreateEventActivity extends BaseActivity {
                     @Override
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         endCalendar.set(year, month, dayOfMonth);
-                        endDateField.setText(sdf.format(endCalendar.getTime()));
+                        endDateField.setText(dateFormatter.format(endCalendar.getTime()));
                         Log.d("Date", "Year=" + year + " Month=" + (month + 1) + " day=" + dayOfMonth);
                     }
                 };
@@ -323,7 +323,8 @@ public class CreateEventActivity extends BaseActivity {
         //collect filled out info
         final String title = titleField.getText().toString();
         final String description = descriptionField.getText().toString();
-        final String date = startDateField.getText().toString();
+        final String startDate = startDateField.getText().toString();
+        final String endDate = endDateField.getText().toString();
         final String startTime = startTimeField.getText().toString();
         final String endTime = endTimeField.getText().toString();
         String location = "";
@@ -342,12 +343,12 @@ public class CreateEventActivity extends BaseActivity {
             return false;
         }
         // Start Date is required
-        if (TextUtils.isEmpty(date)) {
+        if (TextUtils.isEmpty(startDate)) {
             startDateField.setError(REQUIRED);
             return false;
         }
         // End Date is required
-        if (TextUtils.isEmpty(date)) {
+        if (TextUtils.isEmpty(endDate)) {
             endDateField.setError(REQUIRED);
             return false;
         }
@@ -390,7 +391,7 @@ public class CreateEventActivity extends BaseActivity {
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
         final String userId = getUid();
-        Event newEvent = new Event(title, description, date, startTime, endTime, location,
+        Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
                 userId, suggestedAge, "", cost, tags);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());

@@ -205,7 +205,7 @@ public class MyEventsActivity extends BaseActivity
                             if (event != null) {
                                 Log.d(TAG, event.getTitle());
 
-                                CalendarDay day = CalendarDay.from(event.getDate().getTime());
+                                CalendarDay day = CalendarDay.from(event.getStartDate().getTime());
                                 if (_markedDays.containsKey(day)) {
                                     _markedDays.get(day).add(event);
                                 } else {

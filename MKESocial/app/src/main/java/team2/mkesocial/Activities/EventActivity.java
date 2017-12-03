@@ -108,10 +108,14 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         title.setText(event.getTitle());
         description.setText(event.getDescription());
-        startDate.setText(dateFormatter.format(event.getStartDate()));
-        endDate.setText(dateFormatter.format(event.getStartDate()));
+        try {
+            //TODO WIll fix later
+            //startDate.setText(dateFormatter.parse(event.getStartDate().toString()).toString());
+            //endDate.setText(dateFormatter.parse(event.getEndDate()));
+
         startTime.setText(timeFormatter.format(event.getStartTime()));
         endTime.setText(timeFormatter.format(event.getEndTime()));
+        }catch(Exception e){}
         location.setText(event.getFullAddress());
 
         // gotta store the actual location to be able to restore location
@@ -173,8 +177,6 @@ public class EventActivity extends Activity implements ValueEventListener {
         // TODO input validation
         while(fullLocation.isEmpty())
             Toast.makeText(getApplicationContext(), "Waiting for DB to retrieve location", Toast.LENGTH_LONG).show();
-        String time1 = startTime.getText().toString();
-        String time2 = endTime.getText().toString();
         Event newEvent = new Event(title.getText().toString(), description.getText().toString(),
                 startDate.getText().toString(), endDate.getText().toString(), startTime.getText().toString(),
                 endTime.getText().toString(), fullLocation,

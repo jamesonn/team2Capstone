@@ -50,6 +50,7 @@ public class User implements Databasable{
 
     public User(FirebaseUser fbUser)
     {
+        //grab Firebase Authentication to fill in user info
         setAddress("");
         setAge("");
         setAttendEid("");
@@ -68,7 +69,6 @@ public class User implements Databasable{
 
     public User(GoogleSignInAccount googleUser)
     {
-        //grab Firebase Authentication to fill in user info
         setAddress("");
         setAge("");
         setAttendEid("");
@@ -82,7 +82,6 @@ public class User implements Databasable{
         setInitm("");
         setLname("");
         setName(googleUser.getDisplayName());
-
     }
 
     /**

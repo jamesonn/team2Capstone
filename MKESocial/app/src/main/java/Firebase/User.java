@@ -1,5 +1,6 @@
 package Firebase;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -49,7 +50,6 @@ public class User implements Databasable{
 
     public User(FirebaseUser fbUser)
     {
-        //grab Firebase Authentication to fill in user info
         setAddress("");
         setAge("");
         setAttendEid("");
@@ -63,6 +63,25 @@ public class User implements Databasable{
         setInitm("");
         setLname("");
         setName(fbUser.getDisplayName());
+
+    }
+
+    public User(GoogleSignInAccount googleUser)
+    {
+        //grab Firebase Authentication to fill in user info
+        setAddress("");
+        setAge("");
+        setAttendEid("");
+        setBio("");
+        setEattend("true");
+        setEhost("true");
+        setEmail(googleUser.getEmail());
+        setEtog("true");
+        setHostEid("");
+        setImg("");
+        setInitm("");
+        setLname("");
+        setName(googleUser.getDisplayName());
 
     }
 

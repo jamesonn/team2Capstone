@@ -291,8 +291,10 @@ public class CreateEventActivity extends BaseActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(submitEvent())
+                if(submitEvent()) {
+                    finish();
                     startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
+                }
             }
         });
 

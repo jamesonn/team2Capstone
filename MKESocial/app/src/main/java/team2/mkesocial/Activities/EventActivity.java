@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -37,7 +38,7 @@ public class EventActivity extends Activity implements ValueEventListener {
     private FirebaseDatabase _database;
     private Query _dataQuery;
     private String _eventId;
-    private EditText title, description, date, startTime, endTime, location, hostUid, suggestedAge, rating, cost;
+    private EditText title, description, startDate, endDate, startTime, endTime, location, hostUid, suggestedAge, rating, cost;
     private Button editButton, deleteButton;
     private String[] _keys = { "title=", "description=", "date=", "startTime=", "endTime=", "location=", "hostUid=", "suggestedAge=", "rating=", "cost="};
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
@@ -51,7 +52,8 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         title = (EditText)findViewById(R.id.event_title);
         description = (EditText)findViewById(R.id.event_description);
-        date = (EditText)findViewById(R.id.event_date);
+        startDate = (EditText)findViewById(R.id.event_start_date);
+        endDate = (EditText)findViewById(R.id.event_end_date);
         startTime = (EditText)findViewById(R.id.event_start_time);
         endTime = (EditText)findViewById(R.id.event_end_time);
         location = (EditText)findViewById(R.id.event_location);
@@ -83,8 +85,8 @@ public class EventActivity extends Activity implements ValueEventListener {
         // Edit field disabled
 
         //put all the edit text references in an array for easy access
-        objectList.add(title); objectList.add(description); objectList.add(date);
-        objectList.add(startTime);objectList.add(endTime);objectList.add(location);
+        objectList.add(title); objectList.add(description); objectList.add(startDate);
+        objectList.add(endDate); objectList.add(startTime);objectList.add(endTime);objectList.add(location);
         objectList.add(suggestedAge);objectList.add(rating);objectList.add(cost);
 
         //are we editing?
@@ -106,9 +108,10 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         title.setText(event.getTitle());
         description.setText(event.getDescription());
-        date.setText(dateFormatter.format(event.getDate().getTime()));
-        startTime.setText(timeFormatter.format(event.getStartTime().getTime()));
-        endTime.setText(timeFormatter.format(event.getEndTime().getTime()));
+        startDate.setText(dateFormatter.format(event.getStartDate()));
+        endDate.setText(dateFormatter.format(event.getStartDate()));
+        startTime.setText(timeFormatter.format(event.getStartTime()));
+        endTime.setText(timeFormatter.format(event.getEndTime()));
         location.setText(event.getFullAddress());
 
         // gotta store the actual location to be able to restore location
@@ -172,7 +175,8 @@ public class EventActivity extends Activity implements ValueEventListener {
             Toast.makeText(getApplicationContext(), "Waiting for DB to retrieve location", Toast.LENGTH_LONG).show();
         String time1 = startTime.getText().toString();
         String time2 = endTime.getText().toString();
-        Event newEvent = new Event(title.getText().toString(), description.getText().toString(), date.getText().toString(), startTime.getText().toString(),
+        Event newEvent = new Event(title.getText().toString(), description.getText().toString(),
+                startDate.getText().toString(), endDate.getText().toString(), startTime.getText().toString(),
                 endTime.getText().toString(), fullLocation,
                 BaseActivity.getUid(), suggestedAge.getText().toString(), "", cost.getText().toString(), "");
         // Add event obj to database under its event ID

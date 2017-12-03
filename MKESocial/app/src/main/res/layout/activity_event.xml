@@ -56,11 +56,21 @@
 
             <TextView
                 android:ems="10"
-                android:text="Date:"
+                android:text="Start Date:"
                 style="@style/uneditableEditText"/>
 
             <EditText
-                android:id="@+id/event_date"
+                android:id="@+id/event_start_date"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
+
+            <TextView
+                android:ems="10"
+                android:text="End Date:"
+                style="@style/uneditableEditText"/>
+
+            <EditText
+                android:id="@+id/event_end_date"
                 android:ems="10"
                 style="@style/uneditableEditText"/>
 

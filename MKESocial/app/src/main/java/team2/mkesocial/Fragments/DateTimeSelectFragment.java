@@ -95,11 +95,13 @@ public class DateTimeSelectFragment extends AppCompatDialogFragment {
         if (!_deleteVisible)
             _deleteButton.setVisibility(View.GONE);
 
-        if (_startTime.get(Calendar.MINUTE) <= 30) {
-            _startTime.set(Calendar.MINUTE, 30);
-        } else {
-            _startTime.add(Calendar.HOUR_OF_DAY, 1);
-            _startTime.set(Calendar.MINUTE, _startTime.getActualMinimum(Calendar.MINUTE));
+        if (_isNew) {
+            if (_startTime.get(Calendar.MINUTE) <= 30) {
+                _startTime.set(Calendar.MINUTE, 30);
+            } else {
+                _startTime.add(Calendar.HOUR_OF_DAY, 1);
+                _startTime.set(Calendar.MINUTE, _startTime.getActualMinimum(Calendar.MINUTE));
+            }
         }
         _startTime.set(Calendar.SECOND, _startTime.getActualMinimum(Calendar.SECOND));
         _startTime.set(Calendar.MILLISECOND, _startTime.getActualMinimum(Calendar.MILLISECOND));

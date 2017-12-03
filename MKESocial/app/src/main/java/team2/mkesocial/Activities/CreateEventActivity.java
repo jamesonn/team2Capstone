@@ -364,7 +364,7 @@ public class CreateEventActivity extends BaseActivity {
             return false;
 
         } else
-            location = placePicked.getAddress().toString()+" "+placePicked.getLatLng();
+            location = placePicked.getAddress().toString()+":"+placePicked.getLatLng();
         // Tag(s) are required
         if (TextUtils.isEmpty(tags)) {
             tagsField.setError(REQUIRED);

@@ -2,10 +2,10 @@
 
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
     <Button
         android:id="@+id/button_delete"
@@ -37,14 +37,6 @@
                 android:focusableInTouchMode="true"
                 android:layout_width="0px"
                 android:layout_height="0px"/>
-
-            <!-- :nextFocusUp and :nextFocusLeft have been set to the id of this component
-            to prevent the dummy from receiving focus again -->
-            <AutoCompleteTextView android:id="@+id/autotext"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:nextFocusUp="@id/autotext"
-                android:nextFocusLeft="@id/autotext"/>
 
             <EditText
                 android:id="@+id/event_title"

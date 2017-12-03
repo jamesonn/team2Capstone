@@ -80,6 +80,23 @@ public class EventActivity extends Activity implements ValueEventListener {
         Log.d("QUERY RESULTS", _dataQuery.toString());
 
 
+        // Edit field disabled
+
+        //put all the edit text references in an array for easy access
+        objectList.add(title); objectList.add(description); objectList.add(date);
+        objectList.add(startTime);objectList.add(endTime);objectList.add(location);
+        objectList.add(suggestedAge);objectList.add(rating);objectList.add(cost);
+
+        //are we editing?
+        editing = getIntent().getExtras().getBoolean("editing");
+
+        for(EditText e: objectList) {
+            if (editing)
+                e.setEnabled(true);
+            else {
+                e.setEnabled(false);
+            }
+        }
     }
 
     private void populateEventData(DataSnapshot data){
@@ -153,35 +170,20 @@ public class EventActivity extends Activity implements ValueEventListener {
         // TODO input validation
         while(fullLocation.isEmpty())
             Toast.makeText(getApplicationContext(), "Waiting for DB to retrieve location", Toast.LENGTH_LONG).show();
+        String time1 = startTime.getText().toString();
+        String time2 = endTime.getText().toString();
         Event newEvent = new Event(title.getText().toString(), description.getText().toString(), date.getText().toString(), startTime.getText().toString(),
                 endTime.getText().toString(), fullLocation,
                 BaseActivity.getUid(), suggestedAge.getText().toString(), "", cost.getText().toString(), "");
         // Add event obj to database under its event ID
         FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(_eventId).updateChildren(newEvent.toMap());
-
         finish();
-        startActivity(getIntent().putExtra("editing", false));
 
     }
 
     private void editingEvent()
     {
 
-        //put all the edit text references in an array for easy access
-        objectList.add(title); objectList.add(description); objectList.add(date);
-        objectList.add(startTime);objectList.add(endTime);objectList.add(location);
-        objectList.add(suggestedAge);objectList.add(rating);objectList.add(cost);
-
-        //are we editing?
-        editing = getIntent().getExtras().getBoolean("editing");
-
-        for(EditText e: objectList) {
-            if (editing)
-                e.setEnabled(true);
-            else {
-                e.setEnabled(false);
-            }
-        }
         // Change the edit button to say save
         if(editing){
             editButton.setText("Save");

@@ -261,7 +261,7 @@ public void save_btn_on_click(View v){
         profile_email.setText(email);
 
         //Handle changes to Address on Fragment
-        if(addrC){userDatabase.child(getUid()).child("address").setValue(placePicked.getAddress().toString()+" "+placePicked.getLatLng().toString());}
+        if(addrC){userDatabase.child(getUid()).child("address").setValue(placePicked.getAddress().toString()+":"+placePicked.getLatLng().toString());}
         getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.addr_autocomplete_fragment)).commit();
         quickUpdatePA();
     }

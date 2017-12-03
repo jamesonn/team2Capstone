@@ -88,9 +88,8 @@ public class MyEventsActivity extends BaseActivity
                         day = CalendarDay.from(startDate.getTime());
                         addBusyDay(day, time);
                     }
-
-                    redrawDecorators();
                 }
+                redrawDecorators();
             }
 
             @Override
@@ -98,8 +97,6 @@ public class MyEventsActivity extends BaseActivity
 
             }
         });
-
-        _calendarView.addDecorator(new WeekendDecorator());
 
         _calendarView.setOnDateChangedListener(this);
 
@@ -120,6 +117,8 @@ public class MyEventsActivity extends BaseActivity
                 BusyTimeFragment.create(MyEventsActivity.this, getUid()).show(getSupportFragmentManager(), TAG);
             }
         });
+
+        redrawDecorators();
     }
 
     @Override
@@ -255,20 +254,17 @@ public class MyEventsActivity extends BaseActivity
         }
     }
 
-    // TODO: This could be more efficient if we didn't keep recreating the decorators
     private void redrawDecorators() {
+        EventDecorator attendDecorator = new EventDecorator(Color.GREEN, _markedDays.keySet());
+        EventDecorator busyDecorator = new EventDecorator(Color.RED, _busyDays.keySet());
+
+        HashSet<CalendarDay> attendBusySet = new HashSet<>(_busyDays.keySet());
+        attendBusySet.retainAll(_markedDays.keySet());
+
+        int combinedColor = ColorUtils.blendARGB(attendDecorator.getColor(), busyDecorator.getColor(), 0.5f);
+        EventDecorator attendBusyDecorator = new EventDecorator(combinedColor, attendBusySet);
+
         _calendarView.removeDecorators();
-
-        _calendarView.addDecorator(new WeekendDecorator());
-        _calendarView.addDecorator(new EventDecorator(Color.GREEN, _markedDays.keySet()));
-        _calendarView.addDecorator(new EventDecorator(Color.RED, _busyDays.keySet()));
-
-        HashSet<CalendarDay> combined = new HashSet<>();
-        for (CalendarDay day : _markedDays.keySet()) {
-            if (_busyDays.containsKey(day))
-                combined.add(day);
-        }
-        final int brown = ColorUtils.blendARGB(Color.GREEN, Color.RED, 0.5f);
-        _calendarView.addDecorator(new EventDecorator(brown, combined));
+        _calendarView.addDecorators(new WeekendDecorator(), attendDecorator, busyDecorator, attendBusyDecorator);
     }
 }

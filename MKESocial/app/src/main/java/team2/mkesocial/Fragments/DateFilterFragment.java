@@ -1,4 +1,4 @@
-package team2.mkesocial;
+package team2.mkesocial.Fragments;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+
+import team2.mkesocial.R;
 
 public class DateFilterFragment extends AppCompatDialogFragment {
     private TextView _startDateField;
@@ -119,13 +121,13 @@ public class DateFilterFragment extends AppCompatDialogFragment {
             }
         });
 
-        builder.setPositiveButton(R.string.fragment_date_filter_positive, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.ok_button_text, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
             }
         });
-        builder.setNegativeButton(R.string.fragment_date_filter_negative, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel_button_text, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

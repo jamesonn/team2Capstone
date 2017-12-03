@@ -375,7 +375,6 @@ public class CreateEventActivity extends BaseActivity {
         for (EditText x : objectList) {
             if (x.getError() != null) {
                 createButton.setError("One or more fields are invalid");
-                Toast.makeText(getApplicationContext(), "Check"+x.getText(), Toast.LENGTH_LONG).show();
                 return false;
             }
         }
@@ -399,11 +398,11 @@ public class CreateEventActivity extends BaseActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = User.fromSnapshot(dataSnapshot);
                 //you can only Host events when you create an event
-               if(user.getHostEid().isEmpty())
+               if(user.getHostEid() == null)
                {
                    userDatabase.child(userId).child("hostEid").setValue(eventId+":"+title+":");
                }
-               else{
+               else {
                    userDatabase.child(userId).child("hostEid").setValue(user.getHostEid() + eventId+":"+title+":");
                }
             }

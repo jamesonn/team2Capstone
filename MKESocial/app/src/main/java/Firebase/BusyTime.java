@@ -53,4 +53,14 @@ public class BusyTime {
 
         return result;
     }
+
+    @Exclude @Override
+    public boolean equals(Object obj) {
+        BusyTime other = (BusyTime)obj;
+
+        if (other == null || getClass() != other.getClass())
+            return false;
+
+        return this.startTime == other.startTime && this.endTime == other.endTime;
+    }
 }

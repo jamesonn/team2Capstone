@@ -128,6 +128,7 @@
     <string name="search_for_your_home_address">Search for your home address</string>
     
     <string name="fragment_busy_time_message">Select a busy time to edit it:</string>
+    <string name="fragment_busy_time_dupe_error">Busy time already exists</string>
 
     <string name="fragment_date_time_select_message">Select start and end times:</string>
     <string name="fragment_date_time_select_range_error">End time must be later than start time!</string>

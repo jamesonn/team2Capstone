@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -132,7 +133,12 @@ public class BusyTimeFragment extends AppCompatDialogFragment
             _selectedBusyTime = null;
         } else {
             BusyTime time = new BusyTime(startTime, endTime);
-            _busyTimes.add(time);
+            if (_busyTimes.contains(time)) {
+                Toast.makeText(getContext(), getString(R.string.fragment_busy_time_dupe_error),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                _busyTimes.add(time);
+            }
         }
         _busyAdapter.notifyDataSetChanged();
     }

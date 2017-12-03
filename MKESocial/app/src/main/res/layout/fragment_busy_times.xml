@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.widget.RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ListView
+    <team2.mkesocial.MaxHeightListView
         android:id="@+id/busyTimeList"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="5dp"></ListView>
+        android:layout_marginTop="5dp"
+        app:maxHeight="200dp" />
 
     <Button
         android:id="@+id/addTimeButton"

@@ -24,6 +24,7 @@ import java.util.List;
 import Firebase.BusyTime;
 import Firebase.Databasable;
 import team2.mkesocial.Adapters.BusyTimeAdapter;
+import team2.mkesocial.MaxHeightListView;
 import team2.mkesocial.R;
 
 
@@ -31,7 +32,7 @@ public class BusyTimeFragment extends AppCompatDialogFragment
         implements DateTimeSelectFragment.DateTimeSelectListener, ValueEventListener {
     private final String TAG = BusyTimeFragment.class.getSimpleName();
 
-    private ListView _busyTimeList;
+    private MaxHeightListView _busyTimeList;
     private Button _addTimeButton;
 
     private BusyTimeAdapter _busyAdapter;
@@ -75,7 +76,7 @@ public class BusyTimeFragment extends AppCompatDialogFragment
         View view = inflater.inflate(R.layout.fragment_busy_times, null);
         builder.setView(view);
 
-        _busyTimeList = (ListView)view.findViewById(R.id.busyTimeList);
+        _busyTimeList = (MaxHeightListView)view.findViewById(R.id.busyTimeList);
         _addTimeButton = (Button)view.findViewById(R.id.addTimeButton);
 
         _busyAdapter = new BusyTimeAdapter(getContext(), _busyTimes);

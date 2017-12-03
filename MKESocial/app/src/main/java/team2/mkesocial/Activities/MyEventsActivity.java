@@ -3,9 +3,11 @@ package team2.mkesocial.Activities;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.graphics.Color;
+import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -18,29 +20,39 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
+import Firebase.BusyTime;
 import Firebase.Event;
+import Firebase.User;
 import team2.mkesocial.Adapters.EventAdapter;
+import team2.mkesocial.Fragments.BusyTimeFragment;
 import team2.mkesocial.EventDecorator;
 import team2.mkesocial.R;
 import team2.mkesocial.WeekendDecorator;
 
-public class MyEventsActivity extends BaseActivity implements OnDateSelectedListener, ValueEventListener {
+public class MyEventsActivity extends BaseActivity
+        implements OnDateSelectedListener, ValueEventListener, BusyTimeFragment.BusyTimeListener {
 
     private final String TAG = "My Events";
 
     private MaterialCalendarView _calendarView;
     private ListView _eventList;
-    private ArrayList<CalendarDay> _markedDays = new ArrayList<>();
+    private Button _busyTimeButton;
+
     private ArrayList<Event> _events = new ArrayList<>();
-    private HashMap<CalendarDay, HashSet<Event>> _eventMap = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<Event>> _markedDays = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<BusyTime>> _busyDays = new HashMap<>();
     private EventAdapter _eventAdapter;
     private FirebaseDatabase _database;
     private Query _dataRef;
+    private Query _busyRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +61,42 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
 
         _calendarView = (MaterialCalendarView)findViewById(R.id.calendarView);
         _eventList = (ListView)findViewById(R.id.eventList);
+        _busyTimeButton = (Button)findViewById(R.id.busyTimeButton);
 
         _database = FirebaseDatabase.getInstance();
         _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("attendEid");
         _dataRef.addValueEventListener(this);
 
-        _calendarView.addDecorators(new WeekendDecorator(),
-                                    new EventDecorator(Color.RED, _markedDays));
+        _busyRef = _database.getReference(User.DB_USERS_NODE_NAME).child(getUid()).child("busyTimes");
+        _busyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                _busyDays.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    BusyTime time = snapshot.getValue(BusyTime.class);
+                    GregorianCalendar startDate = new GregorianCalendar();
+                    GregorianCalendar endDate = new GregorianCalendar();
+
+                    startDate.setTime(time.getStartTimeAsDate());
+                    endDate.setTime(time.getEndTimeAsDate());
+
+                    CalendarDay day = CalendarDay.from(startDate.getTime());
+                    addBusyDay(day, time);
+
+                    while (endDate.get(Calendar.DAY_OF_YEAR) != startDate.get(Calendar.DAY_OF_YEAR)) {
+                        startDate.add(Calendar.DAY_OF_YEAR, 1);
+                        day = CalendarDay.from(startDate.getTime());
+                        addBusyDay(day, time);
+                    }
+                }
+                redrawDecorators();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         _calendarView.setOnDateChangedListener(this);
 
@@ -69,6 +110,15 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
                 inspectEvent(selectedEvent.getEventId());
             }
         });
+
+        _busyTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BusyTimeFragment.create(MyEventsActivity.this, getUid()).show(getSupportFragmentManager(), TAG);
+            }
+        });
+
+        redrawDecorators();
     }
 
     @Override
@@ -80,18 +130,61 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
 
         _events.clear();
 
-        HashSet eventSet = _eventMap.get(date);
+        HashSet eventSet = _markedDays.get(date);
         if (eventSet != null)
             _events.addAll(eventSet);
+
+        HashSet<BusyTime> busySet = _busyDays.get(date);
+        if (busySet != null) {
+            for (BusyTime time : busySet) {
+                Event busyEvent = new Event();
+                GregorianCalendar start = new GregorianCalendar();
+                GregorianCalendar end = new GregorianCalendar();
+                start.setTime(time.getStartTimeAsDate());
+                end.setTime(time.getEndTimeAsDate());
+
+                // Adjust times for overlapping days
+                if (date.getDate().compareTo(cloneDateNoTime(start).getTime()) > 0) {
+                    start.set(Calendar.HOUR, start.getActualMinimum(Calendar.HOUR));
+                    start.set(Calendar.HOUR_OF_DAY, start.getActualMinimum(Calendar.HOUR_OF_DAY));
+                    start.set(Calendar.MINUTE, start.getActualMinimum(Calendar.MINUTE));
+                }
+                if (date.getDate().compareTo(cloneDateNoTime(end).getTime()) < 0) {
+                    end.set(Calendar.HOUR, end.getActualMaximum(Calendar.HOUR));
+                    end.set(Calendar.HOUR_OF_DAY, end.getActualMaximum(Calendar.HOUR_OF_DAY));
+                    end.set(Calendar.MINUTE, end.getActualMaximum(Calendar.MINUTE));
+                }
+
+                busyEvent.setTitle("Busy");
+                busyEvent.setStartTime(start);
+                busyEvent.setEndTime(end);
+
+                _events.add(busyEvent);
+            }
+        }
 
         Collections.sort(_events, new Comparator<Event>() {
             @Override
             public int compare(Event event1, Event event2) {
-                return event2.getStartTime().compareTo(event1.getStartTime());
+                return event1.getStartTime().compareTo(event2.getStartTime());
             }
         });
 
         _eventAdapter.notifyDataSetChanged();
+    }
+
+    // Clone calendar object with no time data set
+    private static Calendar cloneDateNoTime(Calendar date) {
+        Calendar newDate = (Calendar)date.clone();
+        newDate.clear(Calendar.HOUR);
+        newDate.clear(Calendar.HOUR_OF_DAY);
+        newDate.clear(Calendar.MINUTE);
+        newDate.clear(Calendar.SECOND);
+        newDate.clear(Calendar.MILLISECOND);
+        newDate.clear(Calendar.DST_OFFSET);
+        newDate.clear(Calendar.ZONE_OFFSET);
+        newDate.clear(Calendar.AM_PM);
+        return newDate;
     }
 
     @Override
@@ -101,9 +194,6 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
 
             String[] eventIds = dataSnapshot.getValue().toString().split(" ");
             _markedDays.clear();
-            _calendarView.removeDecorators();
-            _calendarView.addDecorator(new WeekendDecorator());
-            _eventMap.clear();
             for (String eid : eventIds){
                 Query q = _database.getReference(Event.DB_EVENTS_NODE_NAME).child(eid).orderByKey();
                 q.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -116,21 +206,20 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
                                 Log.d(TAG, event.getTitle());
 
                                 CalendarDay day = CalendarDay.from(event.getDate().getTime());
-                                _markedDays.add(day);
-                                if (_eventMap.containsKey(day)) {
-                                    _eventMap.get(day).add(event);
+                                if (_markedDays.containsKey(day)) {
+                                    _markedDays.get(day).add(event);
                                 } else {
                                     HashSet<Event> eventSet = new HashSet<>();
                                     eventSet.add(event);
-                                    _eventMap.put(day, eventSet);
+                                    _markedDays.put(day, eventSet);
                                 }
-
-                                _calendarView.addDecorator(new EventDecorator(Color.RED, _markedDays));
                             }
                         } catch (Exception e) {
                             Log.d(TAG, "Exception:" + e.toString());
                             e.printStackTrace();
                         }
+
+                        redrawDecorators();
                     }
 
                     @Override
@@ -148,5 +237,34 @@ public class MyEventsActivity extends BaseActivity implements OnDateSelectedList
     @Override
     public void onCancelled(DatabaseError databaseError) {
 
+    }
+
+    @Override
+    public void OnBusyTimePositive(List<BusyTime> busyTimes) {
+        Log.d(TAG, busyTimes.toString());
+    }
+
+    private void addBusyDay(CalendarDay day, BusyTime time) {
+        if (_busyDays.containsKey(day)) {
+            _busyDays.get(day).add(time);
+        } else {
+            HashSet<BusyTime> busySet = new HashSet<>();
+            busySet.add(time);
+            _busyDays.put(day, busySet);
+        }
+    }
+
+    private void redrawDecorators() {
+        EventDecorator attendDecorator = new EventDecorator(Color.GREEN, _markedDays.keySet());
+        EventDecorator busyDecorator = new EventDecorator(Color.RED, _busyDays.keySet());
+
+        HashSet<CalendarDay> attendBusySet = new HashSet<>(_busyDays.keySet());
+        attendBusySet.retainAll(_markedDays.keySet());
+
+        int combinedColor = ColorUtils.blendARGB(attendDecorator.getColor(), busyDecorator.getColor(), 0.5f);
+        EventDecorator attendBusyDecorator = new EventDecorator(combinedColor, attendBusySet);
+
+        _calendarView.removeDecorators();
+        _calendarView.addDecorators(new WeekendDecorator(), attendDecorator, busyDecorator, attendBusyDecorator);
     }
 }

@@ -18,4 +18,13 @@
         android:layout_alignStart="@+id/calendarView"
         android:layout_marginBottom="105dp"
         android:padding="10dp" />
+
+    <Button
+        android:id="@+id/busyTimeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="13dp"
+        android:text="Set Up Busy Times" />
 </android.widget.RelativeLayout>

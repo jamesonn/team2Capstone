@@ -35,7 +35,7 @@ public class User implements Databasable{
     private String attend, host; //layout eventID:eventName eventID:eventName
     private String img; //holds URL of image on firebase storage
     private String uid; //to help with viewing other profiles
-
+	private List<BusyTime> busyTimes;
 
 
     //FIREBASE DB "users" node reference
@@ -86,7 +86,7 @@ public class User implements Databasable{
         setInitm("");
         setLname("");
         setName(name);
-
+		busyTimes = new ArrayList<BusyTime>();
 
     }
     @Exclude
@@ -105,6 +105,7 @@ public class User implements Databasable{
         result.put("attendEid", getAttendEid());
         result.put("hostEid", getHostEid());
         result.put("img", getImg());
+        result.put("busyTimes", getBusyTimes());
 
         return result;
     }
@@ -266,6 +267,8 @@ public class User implements Databasable{
         String[] getLatLng = toSplit.split(",");
         return Double.parseDouble(getLatLng[1]);
     }
+	
+	public List<BusyTime> getBusyTimes() { return busyTimes; }
 
     public String getUserId() { return uid; }
 

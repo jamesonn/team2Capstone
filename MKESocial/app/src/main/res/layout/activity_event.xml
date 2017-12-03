@@ -22,103 +22,108 @@
             android:paddingRight="32dp"
             android:paddingTop="24dp">
 
+            <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+            <LinearLayout
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_width="0px"
+                android:layout_height="0px"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_title"
-                style="@style/linearLayoutItems"
+                style="@style/uneditableEditText"
                 android:ems="10"
                 android:textSize="30sp" />
 
             <TextView
                 android:ems="10"
                 android:text="Description:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_description"
                 android:ems="10"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="Date:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_date"
                 android:ems="10"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="Start Time:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_start_time"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="End Time:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_end_time"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="Location:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_location"
                 android:ems="10"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="Suggest Age:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_suggested_age"
                 android:ems="10"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="Cost:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_cost"
                 android:ems="10"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
             <TextView
                 android:ems="10"
                 android:text="Rating:"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/event_rating"
                 android:ems="10"
-                style="@style/linearLayoutItems"/>
+                style="@style/uneditableEditText"/>
 
         </LinearLayout>
     </ScrollView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton3"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/button_edit"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:clickable="true"
+        android:layout_marginBottom="17dp"
         android:backgroundTint="@color/edit_icon_color"
-        app:srcCompat="@mipmap/ic_edit_profile" />
+        android:text="Edit" />
 
 </RelativeLayout>

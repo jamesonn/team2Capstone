@@ -101,14 +101,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        final GoogleSignInAccount account;
         try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            account = completedTask.getResult(ApiException.class);
             AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
             mAuth.signInWithCredential(credential)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
+                                new User(account).add();
                                 logMeRightIn();
                             } else {
                                 Toast.makeText(LoginActivity.this, "Authentication failed.",

@@ -108,14 +108,10 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         title.setText(event.getTitle());
         description.setText(event.getDescription());
-        try {
-            //TODO WIll fix later
-            //startDate.setText(dateFormatter.parse(event.getStartDate().toString()).toString());
-            //endDate.setText(dateFormatter.parse(event.getEndDate()));
-
-        startTime.setText(timeFormatter.format(event.getStartTime()));
-        endTime.setText(timeFormatter.format(event.getEndTime()));
-        }catch(Exception e){}
+        startDate.setText(dateFormatter.format(event.getStartDate().getTime()));
+        endDate.setText(dateFormatter.format(event.getEndDate().getTime()));
+        startTime.setText(timeFormatter.format(event.getStartTime().getTime()));
+        endTime.setText(timeFormatter.format(event.getEndTime().getTime()));
         location.setText(event.getFullAddress());
 
         // gotta store the actual location to be able to restore location

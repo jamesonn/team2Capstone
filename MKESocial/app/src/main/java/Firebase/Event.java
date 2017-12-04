@@ -25,7 +25,7 @@ public class Event implements Databasable{
     private static final String TAG = Event.class.getSimpleName();
 
     private String title, description;
-    private long date, startTime, endTime;
+    private long startDate, endDate, startTime, endTime;
     private String location;
     private String hostUid;
     private int suggestedAge, rating;
@@ -39,12 +39,13 @@ public class Event implements Databasable{
     public Event() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
-    public Event(String title, String description, GregorianCalendar date,
+    public Event(String title, String description, GregorianCalendar startDate, GregorianCalendar endDate,
                  GregorianCalendar startTime, GregorianCalendar endTime, String location,
                  String hostUid, int suggestedAge, int rating, double cost, List<Tag> tags) {
         setTitle(title);
         setDescription(description);
-        setDate(date);
+        setStartDate(startDate);
+        setEndDate(endDate);
         setStartTime(startTime);
         setEndTime(endTime);
         setLocation(location);
@@ -55,12 +56,13 @@ public class Event implements Databasable{
         setTags(tags);
     }
 
-    public Event(String title, String description, String date, String startTime, String endTime,
-                 String location, String hostUid, String suggestedAge, String rating, String cost,
-                 String tags) {
+    public Event(String title, String description, String startDate, String endDate, String startTime,
+                 String endTime, String location, String hostUid, String suggestedAge, String rating,
+                 String cost, String tags) {
         setTitle(title);
         setDescription(description);
-        setDate(parseDate(date));
+        setStartDate(parseDate(startDate));
+        setEndDate(parseDate(endDate));
         setStartTime(parseTime(startTime));
         setEndTime(parseTime(endTime));
         setLocation(location);
@@ -101,7 +103,7 @@ public class Event implements Databasable{
         return true;
     }
 
-    private GregorianCalendar parseDate(String cDate)
+    public static GregorianCalendar parseDate(String cDate)
     {
         final String myFormat = "MM/dd/yy";
         DateFormat df = new SimpleDateFormat(myFormat, Locale.US);
@@ -117,7 +119,7 @@ public class Event implements Databasable{
         return gDate;
     }
 
-    private GregorianCalendar parseTime(String cTime)
+    public static GregorianCalendar parseTime(String cTime)
     {
         final String displayFormat = "hh:mm a";
         DateFormat df = new SimpleDateFormat(displayFormat);
@@ -139,7 +141,8 @@ public class Event implements Databasable{
         HashMap<String, Object> result = new HashMap<>();
         result.put("title", getTitle());
         result.put("description", getDescription());
-        result.put("date", date);
+        result.put("startDate", startDate);
+        result.put("endDate", endDate);
         result.put("startTime", startTime);
         result.put("endTime", endTime);
         result.put("location", getLocation());
@@ -171,15 +174,26 @@ public class Event implements Databasable{
         this.description = description;
     }
 
-    public GregorianCalendar getDate() {
+    public GregorianCalendar getStartDate() {
         GregorianCalendar gDate = new GregorianCalendar();
-        gDate.setTimeInMillis(date);
+        gDate.setTimeInMillis(startDate);
         return gDate;
     }
 
     @Exclude
-    public void setDate(GregorianCalendar date) {
-        this.date = date.getTimeInMillis();
+    public void setStartDate(GregorianCalendar date) {
+        this.startDate = date.getTimeInMillis();
+    }
+
+    public GregorianCalendar getEndDate() {
+        GregorianCalendar gDate = new GregorianCalendar();
+        gDate.setTimeInMillis(endDate);
+        return gDate;
+    }
+
+    @Exclude
+    public void setEndDate(GregorianCalendar date) {
+        this.endDate = date.getTimeInMillis();
     }
 
     public GregorianCalendar getStartTime() {

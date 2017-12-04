@@ -25,6 +25,16 @@
         <item name="android:layout_height">match_parent</item>
     </style>
 
+    <style name="uneditableEditText">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColorLink">@color/mke_yellow</item>
+        <!--<item name="android:textAlignment"></item>-->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:inputType">none</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
     <style name="iconPadding">
         <item name="android:layout_gravity">bottom</item>
         <item name="android:layout_marginBottom">8dp</item>

@@ -1,103 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/button_delete"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingBottom="32dp"
-        android:paddingEnd="32dp"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingTop="24dp">
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/holo_red_light"
+        android:text="Delete" />
 
-        <TextView
-            android:id="@+id/event_title"
-            style="@style/linearLayoutItems"
-            android:ems="10"
-            android:textSize="30sp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:ems="10"
-            android:text="Description:"
-            style="@style/linearLayoutItems"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="32dp"
+            android:paddingEnd="32dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:paddingTop="24dp">
 
-        <TextView
-            android:id="@+id/event_description"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
+            <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+            <LinearLayout
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_width="0px"
+                android:layout_height="0px"/>
 
-        <TextView
-            android:ems="10"
-            android:text="Date:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_title"
+                style="@style/uneditableEditText"
+                android:ems="10"
+                android:textSize="30sp" />
 
-        <TextView
-            android:id="@+id/event_date"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="Description:"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:ems="10"
-            android:text="Start Time:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_description"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:id="@+id/event_start_time"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="Start Date:"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:ems="10"
-            android:text="End Time:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_start_date"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:id="@+id/event_end_time"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="End Date:"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:ems="10"
-            android:text="Location:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_end_date"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:id="@+id/event_location"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="Start Time:"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:ems="10"
-            android:text="Suggest Age:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_start_time"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:id="@+id/event_suggested_age"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="End Time:"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:ems="10"
-            android:text="Cost:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_end_time"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:id="@+id/event_cost"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="Location:"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:ems="10"
-            android:text="Rating:"
-            style="@style/linearLayoutItems"/>
+            <EditText
+                android:id="@+id/event_location"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
 
-        <TextView
-            android:id="@+id/event_rating"
-            android:ems="10"
-            style="@style/linearLayoutItems"/>
+            <TextView
+                android:ems="10"
+                android:text="Suggest Age:"
+                style="@style/uneditableEditText"/>
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/event_suggested_age"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
 
-</ScrollView>
+            <TextView
+                android:ems="10"
+                android:text="Cost:"
+                style="@style/uneditableEditText"/>
+
+            <EditText
+                android:id="@+id/event_cost"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
+
+            <TextView
+                android:ems="10"
+                android:text="Rating:"
+                style="@style/uneditableEditText"/>
+
+            <EditText
+                android:id="@+id/event_rating"
+                android:ems="10"
+                style="@style/uneditableEditText"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/button_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="17dp"
+        android:backgroundTint="@color/edit_icon_color"
+        android:text="Edit" />
+
+</RelativeLayout>

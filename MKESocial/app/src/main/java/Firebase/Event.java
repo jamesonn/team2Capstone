@@ -241,6 +241,20 @@ public class Event implements Databasable{
         return firstPart;
     }
 
+    public Double getLat(){
+        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
+        String toSplit = location.substring(location.indexOf("(") + 1, location.lastIndexOf(")"));
+        String[] getLatLng = toSplit.split(",");
+        return Double.parseDouble(getLatLng[0]);
+    }
+
+    public Double getLng(){
+        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
+        String toSplit = location.substring(location.indexOf("(") + 1, location.lastIndexOf(")"));
+        String[] getLatLng = toSplit.split(",");
+        return Double.parseDouble(getLatLng[1]);
+    }
+
     public String getHostUid() {
         return hostUid;
     }

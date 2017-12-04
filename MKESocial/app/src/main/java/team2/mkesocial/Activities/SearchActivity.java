@@ -133,7 +133,7 @@ public class SearchActivity extends BaseActivity
                         shouldAdd = desc.contains(_queryString);
                         break;
                     case 2:
-                        Date date = event.getDate().getTime();
+                        Date date = event.getStartDate().getTime();
                         shouldAdd = date.getTime() >= _filterStartDate.getTime() &&
                                 date.getTime() <= _filterEndDate.getTime();
                         break;

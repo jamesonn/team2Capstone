@@ -28,6 +28,13 @@
                 android:layout_marginBottom="12dp"
                 app:srcCompat="@mipmap/ic_title_tt" />
 
+            <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+            <LinearLayout
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_width="0px"
+                android:layout_height="0px"/>
+
             <EditText
                 android:id="@+id/edit_title"
                 style="@style/linearLayoutItems"
@@ -280,7 +287,8 @@
                 android:layout_gravity="right"
                 android:layout_margin="16dp"
                 android:layout_weight="1"
-                android:text="Create Event" />
+                android:text="Create Event"
+                android:background="@color/mke_light_blue"/>
         </GridLayout>
 
     </LinearLayout>

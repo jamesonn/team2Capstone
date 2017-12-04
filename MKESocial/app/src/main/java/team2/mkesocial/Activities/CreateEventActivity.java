@@ -149,7 +149,7 @@ public class CreateEventActivity extends BaseActivity {
                 mTimePicker = new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        Calendar c = Calendar.getInstance();
+                        Calendar startTime = Calendar.getInstance();
                         startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         startTime.set(Calendar.MINUTE, minute);
                         int hour = hourOfDay % 12;
@@ -291,8 +291,10 @@ public class CreateEventActivity extends BaseActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(submitEvent())
+                if(submitEvent()) {
+                    finish();
                     startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
+                }
             }
         });
 
@@ -321,7 +323,8 @@ public class CreateEventActivity extends BaseActivity {
         //collect filled out info
         final String title = titleField.getText().toString();
         final String description = descriptionField.getText().toString();
-        final String date = startDateField.getText().toString();
+        final String startDate = startDateField.getText().toString();
+        final String endDate = endDateField.getText().toString();
         final String startTime = startTimeField.getText().toString();
         final String endTime = endTimeField.getText().toString();
         String location = "";
@@ -340,12 +343,12 @@ public class CreateEventActivity extends BaseActivity {
             return false;
         }
         // Start Date is required
-        if (TextUtils.isEmpty(date)) {
+        if (TextUtils.isEmpty(startDate)) {
             startDateField.setError(REQUIRED);
             return false;
         }
         // End Date is required
-        if (TextUtils.isEmpty(date)) {
+        if (TextUtils.isEmpty(endDate)) {
             endDateField.setError(REQUIRED);
             return false;
         }
@@ -388,7 +391,7 @@ public class CreateEventActivity extends BaseActivity {
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
         final String userId = getUid();
-        Event newEvent = new Event(title, description, date, startTime, endTime, location,
+        Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
                 userId, suggestedAge, "", cost, tags);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());

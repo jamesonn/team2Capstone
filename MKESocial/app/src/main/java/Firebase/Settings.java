@@ -66,23 +66,15 @@ public class Settings {
 
                 Settings userSettings = snapshot.getValue(Settings.class);
 
-                if(userSettings != null){
-                    // run passed function using fetched userSetting Obj
-                    //*****ACCEPT FUNCTION REQUIRES API OF 24 OR GREATER
-                    function_to_run_on_settings_obj.accept(userSettings);
-                    if(update)
-                        userSettings.update();
-
-                } else {
+                if(userSettings == null)
                     //Give user a settings obj
                     userSettings = new Settings();
-                    function_to_run_on_settings_obj.accept(userSettings);
-                    if(update)
-                        userSettings.update();
 
-                    //pass null if unable to run
-                    //function_to_run_on_settings_obj.accept(null);
-                }
+                // run passed function using fetched userSetting Obj
+                //*****ACCEPT FUNCTION REQUIRES API OF 24 OR GREATER
+                function_to_run_on_settings_obj.accept(userSettings);
+                if(update)
+                    userSettings.update();
             }
 
             @Override

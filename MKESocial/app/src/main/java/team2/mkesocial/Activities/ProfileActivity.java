@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,7 +58,7 @@ import static team2.mkesocial.Activities.BaseActivity.getUid;
 * Created by IaOng on 10/15/2017.
 */
 
-public class ProfileActivity extends Activity {
+public class ProfileActivity extends BaseActivity {
 
 
 private ImageView profile_picture, npic;
@@ -71,7 +72,7 @@ private EditText pro_email, pro_bio, pro_fName, pro_lName, pro_mInit, pro_age;
 private Switch email_toggle, attend_toggle, host_toggle;
 boolean see_email=true, see_attend=true, see_host=true, addrC=false, picChange=false;
 private LinearLayout events_attend_layout, events_host_layout;
-private String aNames, hNames;
+private String aIDs, hIDs;
 
 private PlaceAutocompleteFragment autocompleteFragment;
 private Place placePicked;
@@ -285,6 +286,8 @@ private void quickUpdatePA() {
         public void onDataChange(DataSnapshot dataSnapshot) {
             User user = User.fromSnapshot(dataSnapshot);
 
+            aIDs = user.parseEventAttendIDs();
+            hIDs = user.parseEventHostIDs();
             populateAttend(user.parseEventAttendNames());
             populateHost(user.parseEventHostNames());
 
@@ -305,8 +308,9 @@ private void quickUpdatePA() {
 
 private void populateAttend(String names){
 
+    String[] id = aIDs.split("`");
     String[] sep = names.split("`");
-    if(sep!=null) {
+    if(sep.length>=1) {
         for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -318,15 +322,24 @@ private void populateAttend(String names){
             eventsL.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             eventsL.setVisibility(View.VISIBLE);
             eventsL.setId(i);
+            //eventsL.setContentDescription(id[i]);
             events_attend_layout.addView(eventsL);
+
+            eventsL.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String key = eventsL.getContentDescription().toString();
+                    inspectEvent(key);
+                }
+            });
         }
     }
 }
 
 private void populateHost(String names){
-
+    String[] id = hIDs.split("`");
     String[] sep = names.split("`");
-    if(sep!=null) {
+    if(sep.length>=1) {
         for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -338,7 +351,21 @@ private void populateHost(String names){
             eventsL.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             eventsL.setVisibility(View.VISIBLE);
             eventsL.setId(5000 + i);
+            eventsL.setContentDescription(id[i]);
             events_host_layout.addView(eventsL);
+
+            eventsL.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        String key = eventsL.getContentDescription().toString();
+                        inspectEvent(key);
+                    }
+                    catch (Exception e){
+                        //ToDo: Handle prompting user to remove it ;)
+                    }
+                }
+            });
         }
     }
 }

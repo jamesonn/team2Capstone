@@ -127,7 +127,7 @@ public class EventActivity extends Activity implements ValueEventListener {
         //populate image
         if(fetchedEvent.getImage() != null && !fetchedEvent.getImage().isEmpty()) {
 
-            Glide.with(EventActivity.this)
+            Glide.with(getApplicationContext())
                     .load(fetchedEvent.getImage())
                     .into(eventImage);
         }

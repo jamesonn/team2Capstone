@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import Firebase.Event;
+import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.Constants;
 import team2.mkesocial.R;
@@ -84,6 +85,8 @@ private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getRefe
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
+    if(Settings.setDarkTheme())
+        setTheme(R.style.MKEDarkTheme);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_profile);
     quickUpdatePA();

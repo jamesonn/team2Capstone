@@ -33,6 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import Firebase.Event;
+import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.R;
 
@@ -61,6 +62,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

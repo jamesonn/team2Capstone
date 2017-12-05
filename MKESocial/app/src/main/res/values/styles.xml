@@ -48,4 +48,19 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Theme.AppTheme.Light.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" />
+
+    <style name="MKELightTheme" parent="Theme.AppTheme.Light.NoActionBar" >
+        <item name="colorAccent">@color/mke_light_blue</item>
+        <item name="android:colorForeground">@android:color/holo_orange_light</item>
+        <item name="android:navigationBarColor">@android:color/holo_blue_light</item>
+        <item name="android:textColorPrimary">#0091EA</item>
+    </style>
+
+    <style name="MKEDarkTheme" parent="Theme.AppCompat.NoActionBar" >
+        <item name="colorAccent">#FF06101D</item>
+        <item name="android:colorForeground">#FF6D00</item>
+        <item name="android:textColorPrimaryInverse">@color/mke_white_about_back</item>
+    </style>
+
 </resources>

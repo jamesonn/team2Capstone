@@ -22,6 +22,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import Firebase.Event;
+import Firebase.Settings;
 import Firebase.Tag;
 import team2.mkesocial.Fragments.DateFilterFragment;
 import team2.mkesocial.R;
@@ -50,6 +51,8 @@ public class SearchActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 

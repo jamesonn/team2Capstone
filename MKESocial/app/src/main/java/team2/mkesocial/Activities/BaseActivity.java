@@ -16,7 +16,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import Firebase.Settings;
 import Firebase.User;
+import team2.mkesocial.R;
 
 
 public class BaseActivity extends AppCompatActivity {

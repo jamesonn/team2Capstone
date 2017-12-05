@@ -2,6 +2,7 @@
 
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="beforeDescendants"
@@ -13,7 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@android:color/holo_red_light"
+        android:layout_margin="@dimen/nav_header_vertical_spacing"
+        android:backgroundTint="@android:color/holo_red_light"
         android:text="Delete" />
 
     <ScrollView
@@ -30,6 +32,46 @@
             android:paddingLeft="32dp"
             android:paddingRight="32dp"
             android:paddingTop="24dp">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+
+                <ImageView
+                    android:id="@+id/imageView_event"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:adjustViewBounds="true"
+                    android:background="@color/mke_light_blue_transparent"
+                    android:scaleType="centerCrop" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Your image here"
+                    app:srcCompat="@android:drawable/ic_menu_edit" />
+
+                <TextView
+                    android:id="@+id/textView_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Event Image"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+                    android:textColor="@android:color/white"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    android:shadowColor="#000000"
+                    android:shadowRadius="5"/>
+
+
+            </RelativeLayout>
+
 
             <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
             <LinearLayout
@@ -141,7 +183,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="17dp"
+        android:layout_margin="@dimen/nav_header_vertical_spacing"
         android:backgroundTint="@color/edit_icon_color"
         android:text="Edit" />
 

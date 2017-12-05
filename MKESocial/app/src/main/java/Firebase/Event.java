@@ -34,6 +34,7 @@ public class Event implements Databasable{
     //TODO link to other users https://developer.android.com/training/app-links/deep-linking.html
     private String attendees; //layout attendeesID:attendeesName attendeesID:attendeesName
     private String eid;
+    private String image; //holds URL of image on firebase storage
 
 
     public Event() {
@@ -41,7 +42,7 @@ public class Event implements Databasable{
     }
     public Event(String title, String description, GregorianCalendar startDate, GregorianCalendar endDate,
                  GregorianCalendar startTime, GregorianCalendar endTime, String location,
-                 String hostUid, int suggestedAge, int rating, double cost, List<Tag> tags) {
+                 String hostUid, int suggestedAge, int rating, double cost, List<Tag> tags, String img) {
         setTitle(title);
         setDescription(description);
         setStartDate(startDate);
@@ -54,11 +55,12 @@ public class Event implements Databasable{
         setRating(rating);
         setCost(cost);
         setTags(tags);
+        setImage(img);
     }
 
     public Event(String title, String description, String startDate, String endDate, String startTime,
                  String endTime, String location, String hostUid, String suggestedAge, String rating,
-                 String cost, String tags) {
+                 String cost, String tags, String img) {
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
@@ -71,6 +73,24 @@ public class Event implements Databasable{
         setRating(parseInt(rating));
         setCost(parseInt(cost));
         setTags(parseTags(tags));
+        setImage(img);
+    }
+    public Event(String title, String description, String startDate, String endDate, String startTime,
+                 String endTime, String location, String hostUid, String suggestedAge, String rating,
+                 String cost, List<Tag> tags, String img) {
+        setTitle(title);
+        setDescription(description);
+        setStartDate(parseDate(startDate));
+        setEndDate(parseDate(endDate));
+        setStartTime(parseTime(startTime));
+        setEndTime(parseTime(endTime));
+        setLocation(location);
+        setHostUid(hostUid);
+        setSuggestedAge(parseInt(suggestedAge));
+        setRating(parseInt(rating));
+        setCost(parseInt(cost));
+        setTags(tags);
+        setImage(img);
     }
 
     public List<Tag> parseTags(String tags)
@@ -152,7 +172,7 @@ public class Event implements Databasable{
         result.put("cost", getCost());
         result.put("tags", getTags());
         result.put("attendees", getAttendees());
-
+        result.put("image", getImage());
         return result;
     }
 
@@ -303,6 +323,14 @@ public class Event implements Databasable{
 
     @Exclude
     private void setEventId(String id) { eid = id; }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String img) {
+        this.image = img;
+    }
 
     public static Event fromSnapshot(DataSnapshot snapshot)
     {

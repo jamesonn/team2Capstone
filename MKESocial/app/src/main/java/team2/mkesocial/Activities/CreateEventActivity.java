@@ -2,36 +2,56 @@ package team2.mkesocial.Activities;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 
 import Firebase.Event;
 import Firebase.Tag;
 import Firebase.User;
+import team2.mkesocial.Constants;
 import team2.mkesocial.R;
 import Validation.TextValidator;
 
@@ -45,31 +65,31 @@ import java.util.Map;
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
 import static Firebase.Databasable.DB_USERS_NODE_NAME;
 
-/**
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-*/
-
 public class CreateEventActivity extends BaseActivity {
 
     private static final String TAG = CreateEventActivity.class.getSimpleName();
     private static final String REQUIRED = "Required";
+    private static final int IMAGE_PICKER_SELECT = 234;
 
     private EditText titleField, descriptionField, startDateField, endDateField, startTimeField,
         endTimeField, suggestedAgeField, costField;
     private Button cancelButton, createButton;
-    private FirebaseDatabase mFirebaseDatabase;
     private Calendar startCalendar, endCalendar, myTime;
     private MultiAutoCompleteTextView tagsField;
+    private ImageView eventImage;
+    private ImageButton editButton;
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
 
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
+    // Firestore Image DB Ref
+    private StorageReference storageReference  = FirebaseStorage.getInstance().getReference();
 
 
     private PlaceAutocompleteFragment autocompleteFragment;
     private Place placePicked;
+
+    private Uri filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +108,13 @@ public class CreateEventActivity extends BaseActivity {
         tagsField = (MultiAutoCompleteTextView) findViewById(R.id.edit_tags);
         cancelButton = (Button) findViewById(R.id.button_cancel);
         createButton = (Button) findViewById(R.id.button_create);
+        editButton = (ImageButton) findViewById(R.id.imageButton_edit);
+        eventImage = (ImageView)  findViewById(R.id.imageView_event);
 
         //put all the edit text references in an array for easy verification later
         objectList.add(titleField); objectList.add(descriptionField); objectList.add(startDateField);
         objectList.add(endDateField);objectList.add(startTimeField);objectList.add(endTimeField);
         objectList.add(suggestedAgeField);objectList.add(costField);objectList.add(tagsField);
-
 
         // tags
         ArrayAdapter adapter = new
@@ -298,6 +319,16 @@ public class CreateEventActivity extends BaseActivity {
             }
         });
 
+        // Click Edit image to add an image
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/*");
+                startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
+            }
+        });
+
        //edit location fragment auto complete
         autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -316,6 +347,109 @@ public class CreateEventActivity extends BaseActivity {
             }
         });
 
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Check if an image was selected
+        if(data != null){
+           filePath = data.getData();
+            if (resultCode == RESULT_OK) {
+                Uri selectedMediaUri = data.getData();
+                if (selectedMediaUri.toString().contains("image")) {
+                    try {//Update the display values
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                        //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+                        ExifInterface exif = new ExifInterface(getContentResolver().openInputStream(filePath));
+                        //get current rotation...
+                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        //convert to degrees
+                        int rotationInDegrees = exifToDegrees(rotation);
+                        Matrix matrix = new Matrix();
+                        if (rotation != 0f) {
+                            matrix.preRotate(rotationInDegrees);
+                        }
+
+                        // Screen height
+                        DisplayMetrics display = new DisplayMetrics();
+                        getWindowManager().getDefaultDisplay().getMetrics(display);
+                        int screenWidth = display.widthPixels;
+                        int screenHeight = display.heightPixels;
+
+                        Bitmap adjustedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        Bitmap scaledBitmap = resize(adjustedBitmap, bitmap.getWidth(), screenHeight / 3);
+                        //resize the imageView displaying image
+                        android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
+                        layoutParams.width = eventImage.getWidth();
+                        layoutParams.height = scaledBitmap.getHeight();
+                        eventImage.setLayoutParams(layoutParams);
+
+                        eventImage.setImageBitmap(scaledBitmap);
+
+
+                    } catch (Exception e) {
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Incorrect Image format selected", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+    //EVENT IMAGE PART
+    /*************************************
+     * Helper Methods:
+     * setting up image picker
+     * retrieving image
+     * uploading (store new, delete old)
+     * ************************************/
+    //get file extension information from URI info on picture
+   private String getFileExtension(Uri uri) {
+        ContentResolver cR = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+
+    //upload picture to firebase storage and to update storage + database
+    //ToDo Delete old image from firebase when user decides to upload a new picture
+    private void uploadFile(String eventId) {
+        //checking if file is available
+        if (filePath != null) {
+            //displaying progress dialog while image is uploading
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Updating");
+            progressDialog.show();
+
+            //getting the storage reference
+            StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
+
+            //adding the file to reference
+            sRef.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //dismissing the progress dialog
+                            progressDialog.dismiss();
+
+                            //displaying success toast
+                            eventDatabase.child(eventId).child("image").setValue(taskSnapshot.getDownloadUrl().toString());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            //displaying the upload progress
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                            progressDialog.setMessage("Updated " + ((int) progress) + "%...");
+                        }
+                    });
+
+        }
     }
 
 
@@ -384,15 +518,20 @@ public class CreateEventActivity extends BaseActivity {
         // Disable button
         setEditingEnabled(false);
 
+
         // 1) Push event and get a unique Event ID
         // Push an empty node with a unique key under 'events' node in JSON
         final String eventId = eventDatabase.child("events").push().getKey();
+
+        if(filePath != null)
+            uploadFile(eventId);
+
 
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
         final String userId = getUid();
         Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
-                userId, suggestedAge, "", cost, tags);
+                userId, suggestedAge, "", cost, tags, eventId);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());
 
@@ -433,6 +572,34 @@ public class CreateEventActivity extends BaseActivity {
             })
             .setNegativeButton("No", null)
             .show();
+    }
+    //fix rotation issues
+    private static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
+    }
+
+    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > ratioBitmap) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
+        }
     }
 
 

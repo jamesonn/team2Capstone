@@ -2,22 +2,29 @@ package team2.mkesocial.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,10 +47,13 @@ public class EventActivity extends Activity implements ValueEventListener {
     private String _eventId;
     private EditText title, description, startDate, endDate, startTime, endTime, location, hostUid, suggestedAge, rating, cost;
     private Button editButton, deleteButton;
+    private ImageButton editImage;
+    private TextView inputImageText;
+    private ImageView eventImage;
     private String[] _keys = { "title=", "description=", "date=", "startTime=", "endTime=", "location=", "hostUid=", "suggestedAge=", "rating=", "cost="};
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
     private boolean editing = false;
-    private String fullLocation = "";
+    private Event fetchedEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +72,9 @@ public class EventActivity extends Activity implements ValueEventListener {
         cost = (EditText)findViewById(R.id.event_cost);
         editButton = (Button) findViewById(R.id.button_edit);
         deleteButton = (Button) findViewById(R.id.button_delete);
+        editImage = (ImageButton) findViewById(R.id.imageButton_edit);
+        inputImageText = (TextView) findViewById(R.id.textView_image);
+        eventImage = (ImageView) findViewById(R.id.imageView_event);
 
         _database = FirebaseDatabase.getInstance();
 
@@ -81,9 +94,6 @@ public class EventActivity extends Activity implements ValueEventListener {
         });
         Log.d("QUERY RESULTS", _dataQuery.toString());
 
-
-        // Edit field disabled
-
         //put all the edit text references in an array for easy access
         objectList.add(title); objectList.add(description); objectList.add(startDate);
         objectList.add(endDate); objectList.add(startTime);objectList.add(endTime);objectList.add(location);
@@ -102,39 +112,51 @@ public class EventActivity extends Activity implements ValueEventListener {
     }
 
     private void populateEventData(DataSnapshot data){
-        Event event = Event.fromSnapshot(data);
+        fetchedEvent = Event.fromSnapshot(data);
         SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:mm a");
         SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
-        title.setText(event.getTitle());
-        description.setText(event.getDescription());
-        startDate.setText(dateFormatter.format(event.getStartDate().getTime()));
-        endDate.setText(dateFormatter.format(event.getEndDate().getTime()));
-        startTime.setText(timeFormatter.format(event.getStartTime().getTime()));
-        endTime.setText(timeFormatter.format(event.getEndTime().getTime()));
-        location.setText(event.getFullAddress());
+        title.setText(fetchedEvent.getTitle());
+        description.setText(fetchedEvent.getDescription());
+        startDate.setText(dateFormatter.format(fetchedEvent.getStartDate().getTime()));
+        endDate.setText(dateFormatter.format(fetchedEvent.getEndDate().getTime()));
+        startTime.setText(timeFormatter.format(fetchedEvent.getStartTime().getTime()));
+        endTime.setText(timeFormatter.format(fetchedEvent.getEndTime().getTime()));
+        location.setText(fetchedEvent.getFullAddress());
 
-        // gotta store the actual location to be able to restore location
-        fullLocation = event.getLocation();
+        //populate image
+        if(fetchedEvent.getImage() != null && !fetchedEvent.getImage().isEmpty()) {
 
-        int ageData = event.getSuggestedAge();
+            Glide.with(EventActivity.this)
+                    .load(fetchedEvent.getImage())
+                    .into(eventImage);
+        }
+        else {//hide image view
+            android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
+            layoutParams.width = eventImage.getWidth();
+            layoutParams.height = 0;
+            eventImage.setLayoutParams(layoutParams);
+        }
+        int ageData = fetchedEvent.getSuggestedAge();
         if (ageData != -1)
             suggestedAge.setText(Integer.toString(ageData));
 
-        int ratingData = event.getRating();
+        int ratingData = fetchedEvent.getRating();
         if (ratingData != -1)
             rating.setText(Integer.toString(ratingData));
 
-        double costData = event.getCost();
+        double costData = fetchedEvent.getCost();
         if (costData != -1.0f)
             cost.setText(String.format("%.2f", costData));
 
         // If user is the event host, give them an option to edit their event
-        if(event.getHostUid().equals(BaseActivity.getUid()))
+        if(fetchedEvent.getHostUid().equals(BaseActivity.getUid()))
             editingEvent();
         else {//hide buttons
             editButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
+            editImage.setVisibility(View.GONE);
+            inputImageText.setVisibility(View.GONE);
         }
     }
 
@@ -168,18 +190,22 @@ public class EventActivity extends Activity implements ValueEventListener {
      */
     public void saveEvent()
     {
+        while(fetchedEvent == null)
+            Toast.makeText(getApplicationContext(), "Waiting for DB to retrieve event info", Toast.LENGTH_LONG).show();
         // Save changed fields to DB
         // We'll just trust they don't need any input validation at this time ;)
         // TODO input validation
-        while(fullLocation.isEmpty())
-            Toast.makeText(getApplicationContext(), "Waiting for DB to retrieve location", Toast.LENGTH_LONG).show();
         Event newEvent = new Event(title.getText().toString(), description.getText().toString(),
                 startDate.getText().toString(), endDate.getText().toString(), startTime.getText().toString(),
-                endTime.getText().toString(), fullLocation,
-                BaseActivity.getUid(), suggestedAge.getText().toString(), "", cost.getText().toString(), "");
+                endTime.getText().toString(), fetchedEvent.getLocation(),
+                BaseActivity.getUid(), suggestedAge.getText().toString(), "", cost.getText().toString(),
+                fetchedEvent.getTags(), fetchedEvent.getImage());
         // Add event obj to database under its event ID
         FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(_eventId).updateChildren(newEvent.toMap());
+        Intent goBackToThisEventPage = new Intent(this, EventActivity.class);
+        goBackToThisEventPage.putExtra("EVENT_ID", _eventId);
         finish();
+        startActivity(goBackToThisEventPage);
 
     }
 
@@ -209,4 +235,5 @@ public class EventActivity extends Activity implements ValueEventListener {
             }
         });
     }
+
 }

@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Bundle;
+
+import com.google.firebase.auth.FirebaseAuth;
+
+import Firebase.Settings;
 import team2.mkesocial.R;
 
 public class SplashActivity extends Activity {
@@ -12,6 +16,8 @@ public class SplashActivity extends Activity {
 
     @Override
     public void onCreate(Bundle icicle) {
+        if(FirebaseAuth.getInstance().getCurrentUser() != null && Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(icicle);
         setContentView(R.layout.activity_splash);
 

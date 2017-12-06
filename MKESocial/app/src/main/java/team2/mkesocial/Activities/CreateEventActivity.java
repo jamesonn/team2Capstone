@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 
 
 import Firebase.Event;
+import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.R;
@@ -73,6 +74,8 @@ public class CreateEventActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 

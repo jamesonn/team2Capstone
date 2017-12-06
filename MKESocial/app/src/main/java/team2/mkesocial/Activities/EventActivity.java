@@ -36,6 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import Firebase.Event;
+import Firebase.Settings;
 import team2.mkesocial.R;
 
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
@@ -57,6 +58,8 @@ public class EventActivity extends Activity implements ValueEventListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 

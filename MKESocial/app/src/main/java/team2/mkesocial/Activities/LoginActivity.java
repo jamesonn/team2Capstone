@@ -27,6 +27,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import android.app.ProgressDialog;
 
+import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.R;
 

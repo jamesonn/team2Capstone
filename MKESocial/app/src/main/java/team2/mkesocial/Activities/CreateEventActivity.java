@@ -111,7 +111,7 @@ public class CreateEventActivity extends BaseActivity {
         tagsField = (MultiAutoCompleteTextView) findViewById(R.id.edit_tags);
         cancelButton = (Button) findViewById(R.id.button_cancel);
         createButton = (Button) findViewById(R.id.button_create);
-        editButton = (ImageButton) findViewById(R.id.imageButton_edit);
+        editButton = (ImageButton) findViewById(R.id.imageButton_insert_image);
         eventImage = (ImageView)  findViewById(R.id.imageView_event);
 
         //put all the edit text references in an array for easy verification later
@@ -308,7 +308,6 @@ public class CreateEventActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 onBackPressed(); //simulate back pressed
-                //startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
             }
         });
 
@@ -317,7 +316,6 @@ public class CreateEventActivity extends BaseActivity {
             public void onClick(View v) {
                 if(submitEvent()) {
                     finish();
-                    startActivity(new Intent(CreateEventActivity.this, FeedActivity.class));
                 }
             }
         });
@@ -417,9 +415,9 @@ public class CreateEventActivity extends BaseActivity {
         //checking if file is available
         if (filePath != null) {
             //displaying progress dialog while image is uploading
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Updating");
-            progressDialog.show();
+//            final ProgressDialog progressDialog = new ProgressDialog(this);
+//            progressDialog.setTitle("Updating");
+//            progressDialog.show();
 
             //getting the storage reference
             StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
@@ -430,8 +428,7 @@ public class CreateEventActivity extends BaseActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //dismissing the progress dialog
-                            progressDialog.dismiss();
-
+//                            progressDialog.dismiss();
                             //displaying success toast
                             eventDatabase.child(eventId).child("image").setValue(taskSnapshot.getDownloadUrl().toString());
                         }
@@ -439,7 +436,7 @@ public class CreateEventActivity extends BaseActivity {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
                             Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     })
@@ -448,7 +445,7 @@ public class CreateEventActivity extends BaseActivity {
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                             //displaying the upload progress
                             double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                            progressDialog.setMessage("Updated " + ((int) progress) + "%...");
+//                            progressDialog.setMessage("Updated " + ((int) progress) + "%...");
                         }
                     });
 

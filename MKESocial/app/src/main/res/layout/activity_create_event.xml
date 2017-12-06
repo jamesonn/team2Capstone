@@ -36,27 +36,14 @@
                     android:scaleType="centerCrop" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_edit"
+                    android:id="@+id/imageButton_insert_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
                     android:background="@android:color/transparent"
                     android:contentDescription="Your image here"
-                    app:srcCompat="@android:drawable/ic_menu_edit" />
-
-                <TextView
-                    android:id="@+id/textView_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="Event Image"
-                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-                    android:textColor="@android:color/white"
-                    android:textSize="36sp"
-                    android:textStyle="bold"
-                    android:shadowColor="#000000"
-                    android:shadowRadius="5"/>
+                    app:srcCompat="@mipmap/ic_insert_photo_white_24dp" />
 
 
             </RelativeLayout>

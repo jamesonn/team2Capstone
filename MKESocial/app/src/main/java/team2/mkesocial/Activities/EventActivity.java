@@ -2,38 +2,34 @@ package team2.mkesocial.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.location.Address;
-import android.location.Geocoder;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.database.ChildEventListener;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.ErrorWrappingGlideException;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.sql.DataSource;
 
 import Firebase.Event;
 import Firebase.Settings;
@@ -48,10 +44,8 @@ public class EventActivity extends Activity implements ValueEventListener {
     private String _eventId;
     private EditText title, description, startDate, endDate, startTime, endTime, location, hostUid, suggestedAge, rating, cost;
     private Button editButton, deleteButton;
-    private ImageButton editImage;
-    private TextView inputImageText;
+    private ImageButton insertImage;
     private ImageView eventImage;
-    private String[] _keys = { "title=", "description=", "date=", "startTime=", "endTime=", "location=", "hostUid=", "suggestedAge=", "rating=", "cost="};
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
     private boolean editing = false;
     private Event fetchedEvent;
@@ -75,8 +69,7 @@ public class EventActivity extends Activity implements ValueEventListener {
         cost = (EditText)findViewById(R.id.event_cost);
         editButton = (Button) findViewById(R.id.button_edit);
         deleteButton = (Button) findViewById(R.id.button_delete);
-        editImage = (ImageButton) findViewById(R.id.imageButton_edit);
-        inputImageText = (TextView) findViewById(R.id.textView_image);
+        insertImage = (ImageButton) findViewById(R.id.imageButton_insert_image);
         eventImage = (ImageView) findViewById(R.id.imageView_event);
 
         _database = FirebaseDatabase.getInstance();
@@ -129,9 +122,11 @@ public class EventActivity extends Activity implements ValueEventListener {
 
         //populate image
         if(fetchedEvent.getImage() != null && !fetchedEvent.getImage().isEmpty()) {
+            final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress);
 
             Glide.with(getApplicationContext())
                     .load(fetchedEvent.getImage())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(eventImage);
         }
         else {//hide image view
@@ -158,8 +153,7 @@ public class EventActivity extends Activity implements ValueEventListener {
         else {//hide buttons
             editButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
-            editImage.setVisibility(View.GONE);
-            inputImageText.setVisibility(View.GONE);
+            insertImage.setVisibility(View.GONE);
         }
     }
 

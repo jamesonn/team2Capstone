@@ -46,7 +46,7 @@ public class Event implements Databasable{
         setTitle(title);
         setDescription(description);
         setStartDate(startDate);
-        setEndDate(endDate);
+        setEndDate(endDate, startDate);
         setStartTime(startTime);
         setEndTime(endTime);
         setLocation(location);
@@ -64,7 +64,7 @@ public class Event implements Databasable{
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
-        setEndDate(parseDate(endDate));
+        setEndDate(parseDate(endDate), getStartDate());
         setStartTime(parseTime(startTime));
         setEndTime(parseTime(endTime));
         setLocation(location);
@@ -81,7 +81,7 @@ public class Event implements Databasable{
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
-        setEndDate(parseDate(endDate));
+        setEndDate(parseDate(endDate), getStartDate());
         setStartTime(parseTime(startTime));
         setEndTime(parseTime(endTime));
         setLocation(location);
@@ -176,7 +176,6 @@ public class Event implements Databasable{
         return result;
     }
 
-
     //GETTERS & SETTERS
     public String getTitle() {
         return title;
@@ -211,9 +210,16 @@ public class Event implements Databasable{
         return gDate;
     }
 
+    //Need both times to compare to set right
     @Exclude
-    public void setEndDate(GregorianCalendar date) {
-        this.endDate = date.getTimeInMillis();
+    public boolean setEndDate(GregorianCalendar startDate, GregorianCalendar endDate) {
+        if(endDate != null){
+            this.endDate = endDate.getTimeInMillis();
+            if(startDate != null){
+                return startDate.compareTo(endDate) < 0;
+            }
+        }
+        return false;
     }
 
     public GregorianCalendar getStartTime() {

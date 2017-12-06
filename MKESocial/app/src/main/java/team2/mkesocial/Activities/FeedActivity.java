@@ -45,18 +45,14 @@ public class FeedActivity extends BaseActivity
     private SimpleEventAdapter _resultsAdapter;
     private ArrayList<Event> _eventList;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        //init static settings
-        Settings.runMethodOnDBSettingsObj(null, false);
-        if(Settings.setDarkTheme())
-            setTheme(R.style.MKEDarkTheme);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_feed);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_feed);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
-        _eventResults = (ListView)findViewById(R.id.event_results);
+            _eventResults = (ListView)findViewById(R.id.event_results);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -174,5 +170,14 @@ public class FeedActivity extends BaseActivity
             }
         }
         _resultsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onStart() {
+        //init static settings
+        Settings.runMethodOnDBSettingsObj(null, false);
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
+        super.onStart();
     }
 }

@@ -2,6 +2,7 @@ package team2.mkesocial.Activities;
 
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,7 +45,7 @@ public class SettingsActivity extends BaseActivity {
     private static boolean location_enabled = true;
     public boolean getLocationEnabled(){return location_enabled;}
     public void setLocationEnabled(boolean locationEn){location_enabled = locationEn;}
-    private boolean onPageLoad = true;
+    private boolean initialThemeValue = false;
 
     //DB user setting ref
     final private static DatabaseReference settingsDBReference = FirebaseDatabase.getInstance()
@@ -78,6 +79,7 @@ public class SettingsActivity extends BaseActivity {
                 readSettingNotifications.accept(settings, notifications);
         try {
             Settings.runMethodOnDBSettingsObj(readNotifSet, false);
+
         }
         catch(Exception e)
         {
@@ -120,8 +122,6 @@ public class SettingsActivity extends BaseActivity {
 
             }
         });
-
-
         // Notification Settings enable listener
         notifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -146,8 +146,6 @@ public class SettingsActivity extends BaseActivity {
 
             }
         });
-
-
         privateProfile.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 final String checkedState = String.valueOf(isChecked);
@@ -170,10 +168,9 @@ public class SettingsActivity extends BaseActivity {
 
             }
         });
-
-        darkTheme.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                final String checkedState = String.valueOf(isChecked);
+        darkTheme.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View buttonView) {
+                final String checkedState = String.valueOf(darkTheme.isChecked());
                 //lambda to update
                 final BiConsumer<Settings, String> updatePrivateProfileNotifications= (settingsObj, theme_state)
                         -> settingsObj.setTheme(theme_state);
@@ -190,12 +187,7 @@ public class SettingsActivity extends BaseActivity {
                     Toast.makeText(SettingsActivity.this, "Error Saving to DB",
                             Toast.LENGTH_SHORT).show();
                 }
-               /** if(getIntent().getExtras() == null
-                        || !getIntent().getExtras().getBoolean("pageRefreshed"))
-                    refreshSettings();
-                else
-                    getIntent().putExtra("pageRefreshed", false);
-*/
+                refreshSettings();
             }
 
         });
@@ -242,20 +234,20 @@ public class SettingsActivity extends BaseActivity {
     }
     public void refreshSettings()
     {
-        //refresh page
-        Intent refreshPage = new Intent(this, SettingsActivity.class);
-        refreshPage.putExtra("pageRefreshed", true);
-        finish();
-        startActivity(refreshPage);
+        //reset all activities to load new theme
+        finishAffinity();
+        Intent reload = new Intent(this, FeedActivity.class);
+        startActivity(reload);
     }
 
     @Override
     public void onBackPressed() {
-        Intent gotoFeed = new Intent(this, FeedActivity.class);
         finish();
-        startActivity(gotoFeed);
 
     }
+
+
+
 
 
 

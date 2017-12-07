@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import Firebase.Event;
+import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
@@ -46,6 +47,10 @@ public class FeedActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //init static settings
+        Settings.runMethodOnDBSettingsObj(null, false);
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

@@ -1,12 +1,15 @@
 package team2.mkesocial.Activities;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
@@ -41,6 +44,7 @@ public class SettingsActivity extends BaseActivity {
     private static boolean location_enabled = true;
     public boolean getLocationEnabled(){return location_enabled;}
     public void setLocationEnabled(boolean locationEn){location_enabled = locationEn;}
+    private boolean onPageLoad = true;
 
     //DB user setting ref
     final private static DatabaseReference settingsDBReference = FirebaseDatabase.getInstance()
@@ -51,6 +55,8 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -73,7 +79,7 @@ public class SettingsActivity extends BaseActivity {
         try {
             Settings.runMethodOnDBSettingsObj(readNotifSet, false);
         }
-        catch(NullPointerException e)
+        catch(Exception e)
         {
             Toast.makeText(SettingsActivity.this, "Error Fetching DB info",
                     Toast.LENGTH_SHORT).show();
@@ -86,7 +92,7 @@ public class SettingsActivity extends BaseActivity {
         try {
             Settings.runMethodOnDBSettingsObj(readPriv, false);
         }
-        catch(NullPointerException e)
+        catch(Exception e)
         {
             Toast.makeText(SettingsActivity.this, "Error Fetching DB info",
                     Toast.LENGTH_SHORT).show();
@@ -94,21 +100,17 @@ public class SettingsActivity extends BaseActivity {
 
         //Theme
         final BiConsumer<Settings, Switch> readSettingTheme = (settingsObj, notifications)
-                -> darkTheme.setChecked(Boolean.parseBoolean(settingsObj.getPrivateProfile()));
+                -> darkTheme.setChecked(Boolean.parseBoolean(settingsObj.getTheme()));
         final Consumer<Settings> readTheme = settings ->
                 readSettingTheme.accept(settings, notifications);
         try {
             Settings.runMethodOnDBSettingsObj(readTheme, false);
         }
-        catch(NullPointerException e)
+        catch(Exception e)
         {
             Toast.makeText(SettingsActivity.this, "Error Fetching DB info",
                     Toast.LENGTH_SHORT).show();
         }
-
-        //Theme setup
-
-
 
         // Set the switch listeners
         location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
@@ -136,7 +138,7 @@ public class SettingsActivity extends BaseActivity {
                 try {
                     Settings.runMethodOnDBSettingsObj(updateSet, true);
                 }
-                catch(NullPointerException e)
+                catch(Exception e)
                 {
                     Toast.makeText(SettingsActivity.this, "Error Saving to DB",
                             Toast.LENGTH_SHORT).show();
@@ -160,7 +162,7 @@ public class SettingsActivity extends BaseActivity {
                 try {
                     Settings.runMethodOnDBSettingsObj(updateSet, true);
                 }
-                catch(NullPointerException e)
+                catch(Exception e)
                 {
                     Toast.makeText(SettingsActivity.this, "Error Saving to DB",
                             Toast.LENGTH_SHORT).show();
@@ -183,13 +185,19 @@ public class SettingsActivity extends BaseActivity {
                 try {
                     Settings.runMethodOnDBSettingsObj(updateSet, true);
                 }
-                catch(NullPointerException e)
+                catch(Exception e)
                 {
                     Toast.makeText(SettingsActivity.this, "Error Saving to DB",
                             Toast.LENGTH_SHORT).show();
                 }
-
+               /** if(getIntent().getExtras() == null
+                        || !getIntent().getExtras().getBoolean("pageRefreshed"))
+                    refreshSettings();
+                else
+                    getIntent().putExtra("pageRefreshed", false);
+*/
             }
+
         });
 
         // Set the text view listeners
@@ -232,4 +240,23 @@ public class SettingsActivity extends BaseActivity {
 
 
     }
+    public void refreshSettings()
+    {
+        //refresh page
+        Intent refreshPage = new Intent(this, SettingsActivity.class);
+        refreshPage.putExtra("pageRefreshed", true);
+        finish();
+        startActivity(refreshPage);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent gotoFeed = new Intent(this, FeedActivity.class);
+        finish();
+        startActivity(gotoFeed);
+
+    }
+
+
+
 }

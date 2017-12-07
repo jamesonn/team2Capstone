@@ -52,11 +52,13 @@
             android:layout_gravity="center_horizontal" />
     </TableRow>
     <TableRow>
+
         <TextView
             android:id="@+id/signUp"
             android:layout_width="20dip"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Sign up" />
+            android:text="Sign up"
+            android:textColor="@color/cardview_light_background" />
     </TableRow>
 </TableLayout>

@@ -30,6 +30,7 @@ import java.util.List;
 
 import Firebase.BusyTime;
 import Firebase.Event;
+import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.Adapters.EventAdapter;
 import team2.mkesocial.Fragments.BusyTimeFragment;
@@ -56,6 +57,8 @@ public class MyEventsActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_events);
 

@@ -72,7 +72,8 @@ public class Settings {
 
                 // run passed function using fetched userSetting Obj
                 //*****ACCEPT FUNCTION REQUIRES API OF 24 OR GREATER
-                function_to_run_on_settings_obj.accept(userSettings);
+                if(function_to_run_on_settings_obj != null)
+                    function_to_run_on_settings_obj.accept(userSettings);
                 if(update)
                     userSettings.update();
             }
@@ -130,6 +131,13 @@ public class Settings {
     public String getFullName(){return fullName;}
 
     public void setFullName(String fullName){Settings.fullName=fullName;}
+
+    public static boolean setDarkTheme()
+    {
+        return Settings.getTheme2() != null && Boolean.parseBoolean(Settings.getTheme2());
+    }
+
+
 
 
 }

@@ -139,6 +139,7 @@ public class FeedActivity extends BaseActivity
             intent = new Intent(this, AboutActivity.class );
         } else if (id == R.id.nav_log_out) {
             logout();
+            return true;
         }
         startActivity(intent);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

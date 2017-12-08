@@ -14,7 +14,7 @@
             android:layout_gravity="center_horizontal"
             android:textAlignment="center"
             android:ems="10"
-            android:hint="Username"
+            android:hint="Username/Phone Number"
             android:inputType="textPersonName" />
     </TableRow>
     <TableRow>

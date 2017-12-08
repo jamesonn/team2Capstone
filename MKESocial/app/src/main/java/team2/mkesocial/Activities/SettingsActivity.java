@@ -45,7 +45,6 @@ public class SettingsActivity extends BaseActivity {
     private static boolean location_enabled = true;
     public boolean getLocationEnabled(){return location_enabled;}
     public void setLocationEnabled(boolean locationEn){location_enabled = locationEn;}
-    private boolean initialThemeValue = false;
 
     //DB user setting ref
     final private static DatabaseReference settingsDBReference = FirebaseDatabase.getInstance()
@@ -123,10 +122,10 @@ public class SettingsActivity extends BaseActivity {
             }
         });
         // Notification Settings enable listener
-        notifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        notifications.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
 
-                final String checkedState = String.valueOf(isChecked);
+                final String checkedState = String.valueOf(notifications.isChecked());
                 //lambda to update
                 final BiConsumer<Settings, String> updateSettingNotifications= (settingsObj, notification_state)
                         -> settingsObj.setNotificationEnabled(notification_state);
@@ -146,9 +145,9 @@ public class SettingsActivity extends BaseActivity {
 
             }
         });
-        privateProfile.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                final String checkedState = String.valueOf(isChecked);
+        privateProfile.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                final String checkedState = String.valueOf(privateProfile.isChecked());
                 //lambda to update
                 final BiConsumer<Settings, String> updatePrivateProfileNotifications= (settingsObj, notification_state)
                         -> settingsObj.setPrivateProfile(notification_state);

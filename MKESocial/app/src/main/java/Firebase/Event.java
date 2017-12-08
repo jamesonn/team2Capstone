@@ -18,6 +18,10 @@ import java.util.List;
 
 /**
  * Created by cfoxj2 on 10/23/2017.
+ * Has all the input validation here
+ * //TODO input validation for setting event fields
+ * //TODO method call to store the created Event object into DB
+ * Method to store obj in DB too :3
  */
 @IgnoreExtraProperties
 public class Event implements Databasable{
@@ -25,13 +29,12 @@ public class Event implements Databasable{
     private static final String TAG = Event.class.getSimpleName();
 
     private String title, description;
-    private long startDate, endDate, startTime, endTime;
+    private long startDate, endDate, startTime, endTime; //date objects store in UTC
     private String location;
     private String hostUid;
     private int suggestedAge, rating;
-    private double cost;
+    private double cost; //-1 if none
     private List<Tag> tags;
-    //TODO link to other users https://developer.android.com/training/app-links/deep-linking.html
     private String attendees; //layout attendeesID:attendeesName attendeesID:attendeesName
     private String eid;
     private String image; //holds URL of image on firebase storage

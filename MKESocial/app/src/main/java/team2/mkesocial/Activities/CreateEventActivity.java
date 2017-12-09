@@ -49,6 +49,7 @@ import com.google.firebase.storage.UploadTask;
 
 
 import Firebase.Event;
+import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
@@ -86,11 +87,12 @@ public class CreateEventActivity extends BaseActivity {
     // Firestore Image DB Ref
     private StorageReference storageReference  = FirebaseStorage.getInstance().getReference();
 
-
     private PlaceAutocompleteFragment autocompleteFragment;
     private Place placePicked;
 
     private Uri filePath;
+
+    private Event thisEvent = new Event();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,8 +177,14 @@ public class CreateEventActivity extends BaseActivity {
                         startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         startTime.set(Calendar.MINUTE, minute);
                         int hour = hourOfDay % 12;
-                        startTimeField.setText(String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
-                                minute, hourOfDay < 12 ? "am" : "pm"));
+                        String sTime = String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
+                                minute, hourOfDay < 12 ? "am" : "pm");
+                        if(!thisEvent.setStartTime(Event.parseTime(sTime)))
+                            startTimeField.setError("Make sure Start Time is before end time");
+                        else {
+                            startTimeField.setText(sTime);
+                            startTimeField.setError(null);
+                        }
                     }}, hour, minute, false);//No 24 hour time*/
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
@@ -195,19 +203,21 @@ public class CreateEventActivity extends BaseActivity {
                         new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        Calendar datetime = Calendar.getInstance();
-                        datetime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        datetime.set(Calendar.MINUTE, minute);
+                        Calendar endT = Calendar.getInstance();
+                        endT.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        endT.set(Calendar.MINUTE, minute);
+                        int hour = hourOfDay % 12;
+                        String eTime = String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
+                                minute, hourOfDay < 12 ? "am" : "pm");
+
                         //Make sure endtime is after start time
-                        if (datetime.getTimeInMillis() >= startTime.getTimeInMillis()) {
-                            //it's after current
-                            int hour = hourOfDay % 12;
-                            endTimeField.setText(String.format("%02d:%02d %s", hour == 0 ? 12 : hour,
-                                    minute, hourOfDay < 12 ? "am" : "pm"));
-                        } else {
-                            //it's before current'
-                            Toast.makeText(getApplicationContext(), "Invalid Time", Toast.LENGTH_LONG).show();
+                        if (!thisEvent.setEndTime(Event.parseTime(eTime)))
+                            endTimeField.setError("Make sure end time is after start");
+                        else{
+                            endTimeField.setText(eTime);
+                            endTimeField.setError(null);
                         }
+
                     }}, hour, minute, false);//No 24 hour time*/
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
@@ -226,17 +236,32 @@ public class CreateEventActivity extends BaseActivity {
                     @Override
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         startCalendar.set(year, month, dayOfMonth);
-                        startDateField.setText(Event.dateFormat.format(startCalendar.getTime()));
-                        if(startCalendar.getTimeInMillis() >= endCalendar.getTimeInMillis()) {
-                            endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
-                            endDateField.setText(Event.dateFormat.format(endCalendar.getTime()));
-                        }
+
                     }
                 };
                 // Limit Date picker to current dates
                 mDatePicker.getDatePicker().setMinDate(System.currentTimeMillis());
                 mDatePicker.show();
+                // save the date picked
+                mDatePicker.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        String sDate = Event.dateFormat.format(startCalendar.getTime());
 
+                        if(!thisEvent.setStartDate(Event.parseDate(sDate))) {
+                            startDateField.setError("Please set start day to be before end day");
+                        }
+                        else {
+                            startDateField.setText(sDate);
+                            startDateField.setError(null);
+                            // set end date to match start date if it's empty
+                            if(endDateField.getText().toString().isEmpty()) {
+                                endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
+                                endDateField.setText(Event.dateFormat.format(endCalendar.getTime()));
+                            }
+                        }
+                    }
+                });
             }
         });
         //end date listener
@@ -250,13 +275,28 @@ public class CreateEventActivity extends BaseActivity {
                     @Override
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         endCalendar.set(year, month, dayOfMonth);
-                        endDateField.setText(Event.dateFormat.format(endCalendar.getTime()));
-                        Log.d("Date", "Year=" + year + " Month=" + (month + 1) + " day=" + dayOfMonth);
+
                     }
                 };
                 // Limit Date picker to current dates
                 mDatePicker.getDatePicker().setMinDate(startCalendar.getTimeInMillis());
                 mDatePicker.show();
+                // save the date picked
+                mDatePicker.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        String eDate = Event.dateFormat.format(endCalendar.getTime());
+
+                        if(!thisEvent.setEndDate(Event.parseDate(eDate))) {
+                            endDateField.setError("Please set end day to be after the start day");
+                        }
+                        else {
+                            endDateField.setText(eDate);
+                            endDateField.setError(null);
+                        }
+
+                    }
+                });
             }
         });
 
@@ -509,7 +549,7 @@ public class CreateEventActivity extends BaseActivity {
         // Check if any fields are in error
         for (EditText x : objectList) {
             if (x.getError() != null) {
-                createButton.setError("One or more fields are invalid");
+                createButton.setError(x.getId() + " field is invalid");
                 return false;
             }
         }
@@ -529,11 +569,7 @@ public class CreateEventActivity extends BaseActivity {
         // Get user ID to tie event to
         final String userId = getUid();
         Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
-<<<<<<< HEAD
-                userId, suggestedAge, "", cost, tags, eventId);
-=======
-                userId,"", suggestedAge, "", cost, tags);
->>>>>>> origin/master
+                userId,"", suggestedAge, "", cost, tags, eventId);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());
 

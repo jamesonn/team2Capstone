@@ -7,6 +7,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import org.joda.time.DateTimeComparator;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -268,7 +270,7 @@ public class Event implements Databasable{
     @Exclude
     public boolean setEndDate(GregorianCalendar endDate) {
         if(endDate == null || (startDate != 0.0 &&
-                MethodOrphanage.compareDates(endDate, getStartDate()) < 0))
+                MethodOrphanage.compareDates(getStartDate(), endDate) > 0))
             return false;
         this.endDate = endDate.getTimeInMillis();
         return true;
@@ -286,8 +288,9 @@ public class Event implements Databasable{
      */
     @Exclude
     public boolean setStartTime(GregorianCalendar startTime) {
-        if(startTime == null ||
-                (endTime != 0.0) && MethodOrphanage.compareTimes(startTime, getEndTime()) > 1)
+        if(startTime == null
+            // start time is after end, and on the same day
+            || (endTime != 0.0 && (MethodOrphanage.compareTimes(startTime, getEndTime()) > 0 && sameDay())))
             return false;
         this.startTime = startTime.getTimeInMillis();
         return true;
@@ -302,8 +305,10 @@ public class Event implements Databasable{
     @Exclude
     public boolean setEndTime(GregorianCalendar endTime) {
 
-        if(endTime == null ||
-                (startTime != 0.0) && MethodOrphanage.compareTimes(endTime, getStartTime()) > 1)
+        if(endTime == null
+                // end time is before start, and on same day
+                || (startTime != 0.0 && (MethodOrphanage.compareTimes(getStartTime()
+                , endTime) > 0 && sameDay())))
             return false;
         this.endTime = endTime.getTimeInMillis();
         return true;
@@ -422,4 +427,14 @@ public class Event implements Databasable{
                 suggestedAge == other.suggestedAge &&
                 rating == other.rating;
     }
+    public boolean sameDay()
+    {
+        if(getStartDate() == null
+                || getEndDate() == null)
+            return false;
+        DateTimeComparator comparator = DateTimeComparator.getDateOnlyInstance();
+        return comparator.compare(getStartDate(), getEndDate()) == 0;
+    }
+
+
 }

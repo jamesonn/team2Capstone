@@ -181,6 +181,58 @@ public class TestEvent {
 
     }
 
+    @Test
+    public void set_same_time_test()
+    {
+        String baseTime = "10:10 am";
+        GregorianCalendar startTime = Event.parseTime(baseTime);
+        GregorianCalendar endTime = Event.parseTime(baseTime);
+
+        Event event = new Event();
+        assertTrue(event.setStartTime(Event.parseTime(baseTime)));
+        //see if conversions work out
+        assertEquals(startTime.getTimeInMillis(), event.getStartTime().getTimeInMillis());
+
+        //can set both times if they are the same
+        assertTrue(event.setEndTime(endTime));
+        assertTrue(event.setStartTime(startTime));
+        assertTrue(event.setEndTime(endTime));
+        assertTrue(event.setStartTime(startTime));
+    }
+    @Test
+    public void set_different_Times_test()
+    {
+        String baseTime = "08:00 AM";
+        GregorianCalendar startTime = Event.parseTime(baseTime);
+        GregorianCalendar endTime = Event.parseTime(baseTime);
+        Event event = new Event();
+        //can set same day event
+        assertTrue(event.setStartTime(startTime));
+        assertTrue(event.setEndTime(endTime));
+
+        //can't set if start Time is after end
+        startTime = Event.parseTime("08:01 am");
+        assertFalse(event.setStartTime(startTime));
+        assertEquals(event.getFormattedStartTime(), baseTime);
+        startTime = Event.parseTime("09:01 am");
+        assertFalse(event.setStartTime(startTime));
+        assertEquals(event.getFormattedStartTime(), baseTime);
+        startTime = Event.parseTime("08:00 pm");
+        assertFalse(event.setStartTime(startTime));
+        assertEquals(event.getFormattedStartTime(), baseTime);
+
+        //can't set end Time if it's before start
+        endTime = Event.parseTime("07:59 am");
+        assertFalse(event.setEndTime(endTime));
+        assertEquals(event.getFormattedEndTime(), baseTime);
+        endTime = Event.parseTime("06:00 am");
+        assertFalse(event.setEndTime(endTime));
+        assertEquals(event.getFormattedEndTime(), baseTime);
+
+
+    }
+
+
 
 
 }

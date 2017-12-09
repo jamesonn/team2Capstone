@@ -1,5 +1,7 @@
 package Firebase;
 
+import org.joda.time.DateTimeComparator;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -48,15 +50,9 @@ public class MethodOrphanage {
     {
         if(date1 == null || date2 == null) return 0;
         //get rid of time
-        date1.set(Calendar.HOUR, 0);
-        date1.set(Calendar.MINUTE, 0);
-        date1.set(Calendar.SECOND, 0);
-        date2.set(Calendar.HOUR, 0);
-        date2.set(Calendar.MINUTE, 0);
-        date2.set(Calendar.SECOND, 0);
+        DateTimeComparator comparator = DateTimeComparator.getDateOnlyInstance();
+        return comparator.compare(date1, date2);
 
-        int result = date1.compareTo(date2);
-        return result;
 
     }
     /**
@@ -69,16 +65,9 @@ public class MethodOrphanage {
     public static int compareTimes(GregorianCalendar time1, GregorianCalendar time2)
     {
         if(time1 == null || time2 == null) return 0;
-        //get rid of time
-        time1.set(Calendar.DAY_OF_MONTH, 0);
-        time1.set(Calendar.MONTH, 0);
-        time1.set(Calendar.YEAR, 0);
-        time2.set(Calendar.DAY_OF_MONTH, 0);
-        time2.set(Calendar.MONTH, 0);
-        time2.set(Calendar.YEAR, 0);
-
-        int result = time1.compareTo(time2);
-        return result;
+        //get rid of date part
+        DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
+        return comparator.compare(time1, time2);
 
     }
 

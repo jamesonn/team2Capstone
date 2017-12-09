@@ -7,6 +7,14 @@ package team2.mkesocial.Activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 //TODO
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,10 +28,15 @@ import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.R;
 
+import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
+import static Firebase.Databasable.DB_USERS_NODE_NAME;
+
 
 public class BaseActivity extends AppCompatActivity {
 
     private ProgressDialog mProgressDialog;
+    private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
+    private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {
@@ -52,10 +65,6 @@ public class BaseActivity extends AppCompatActivity {
             goToEventPage.putExtra("EVENT_ID", eid);
             startActivity(goToEventPage);
         }
-        else {
-            //ToDo: Handle case where event no longer exist
-            //aka need to remove the event from the user
-        }
     }
 
     protected void inspectUser(String uid) {
@@ -63,10 +72,6 @@ public class BaseActivity extends AppCompatActivity {
             Intent goToProfilePage = new Intent(this, ProfileActivity.class);
             goToProfilePage.putExtra("USER_ID", uid);
             startActivity(goToProfilePage);
-        }
-        else{
-            //ToDO: Handle case where user no longer exist
-            //aka remove user from the event
         }
     }
 

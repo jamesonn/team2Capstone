@@ -70,6 +70,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private LatLng start, current;
     private String start_title, current_title, home, aEvents, hEvents, mEvents;
     private Marker eventM;
+    private MarkerOptions startM;
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -101,6 +102,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                                 start_title = "Home";
                                 home = info.getFullAddress().substring(0, info.getFullAddress().lastIndexOf("\n"));
                             }
+                            startM = new MarkerOptions().position(start).title(start_title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+
                             aEvents = info.parseEventAttendIDs();//HUE_GREEN
                             hEvents = info.parseEventHostIDs();//HUE_VIOLET
                             mEvents = info.parseEventMaybeIDs();//HUE_ORANGE
@@ -185,6 +188,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         mMap.setBuildingsEnabled(true);
         mMap.setIndoorEnabled(true);
 
+        mMap.addMarker(startM);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 11));
+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //User has previously accepted this permission
             if (ActivityCompat.checkSelfPermission(this,
@@ -203,13 +209,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
          green = attending
          purple = hosting(edited)
          ***********************************/
-        // Special, starting location marker will be in color blue
-        // Add a start marker at UWM and move the camera to center on that coordinate
-        MarkerOptions startM, currentM;
-        startM = new MarkerOptions().position(start).title(start_title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-        mMap.addMarker(startM);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 11));
-
 
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
@@ -242,15 +241,68 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                         }
                     });
                 }
-                else{//click on Event :)
-                    try {
-                        String key = m.getTag().toString();
-                        inspectEvent(key);
+                else{//click on Event Markers :)
 
-                    }
-                    catch (Exception e){
-                        //ToDo: Handle prompting user to remove it ;)
-                    }
+                    String key = m.getTag().toString();
+
+                    eventDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.hasChild(key)) {
+                               inspectEvent(key);
+                            }
+                            else{
+                                userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        User user = User.fromSnapshot(dataSnapshot);
+                                        //Remove event from user's DB profile
+                                        if (user.getMaybeEid().contains(m.getTag() + "`" + m.getTitle() + "`")) {
+                                            userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(m.getTag().toString() + "`" + m.getTitle()+"`", ""));
+                                        }
+                                        if (user.getAttendEid().contains(m.getTag() + "`" + m.getTitle() + "`")) {
+                                            userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(m.getTag().toString() + "`" + m.getTitle()+"`", ""));
+                                        }
+                                        if (user.getHostEid().contains(m.getTag() + "`" + m.getTitle() + "`")) {
+                                            userDatabase.child(getUid()).child("hostEid").setValue(user.getHostEid().replace(m.getTag().toString() + "`" + m.getTitle()+"`", ""));
+                                        }
+
+                                        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_m);
+
+                                        // inflate the layout of the popup window
+                                        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                        View popupView = inflater.inflate(R.layout.pop_up, null);
+                                        TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                        String msg = "The host has cancelled the event!\nIt will now be removed.";
+                                        text.setText(msg);
+
+                                        // create the popup window
+                                        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                        boolean focusable = true; // lets taps outside the popup also dismiss it
+                                        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                                        // show the popup window
+                                        popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+                                        // dismiss the popup window when touched
+                                        popupView.setOnTouchListener(new View.OnTouchListener() {
+                                            @Override
+                                            public boolean onTouch(View v, MotionEvent event) {
+                                                popupWindow.dismiss();
+                                                return true;
+                                            }
+                                        });
+                                        m.remove();//remove marker from map!
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {}
+                                });
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
                 }
             }
         });

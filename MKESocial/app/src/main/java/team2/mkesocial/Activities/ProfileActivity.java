@@ -14,6 +14,9 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
@@ -21,6 +24,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -78,7 +83,6 @@ private String aIDs, hIDs, mIDs, userId;
 
 private PlaceAutocompleteFragment autocompleteFragment;
 private Place placePicked;
-
 
 private StorageReference storageReference  = FirebaseStorage.getInstance().getReference();
 private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
@@ -294,9 +298,10 @@ private void quickUpdatePA() {
 
     if(!getUid().equals(userId)){
         //hide edit button
-        //ToDo: make sure this is right!
         ImageButton edit = (ImageButton) findViewById(R.id.edit_button);
         edit.setVisibility(View.INVISIBLE);
+
+
     }
 
 
@@ -306,6 +311,42 @@ private void quickUpdatePA() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             User user = User.fromSnapshot(dataSnapshot);
+
+            //Idea: If the toggle says off, Header + Fields are all gone from view
+            TextView email_head = (TextView) findViewById(R.id.contact_info);
+            TextView attend_head = (TextView) findViewById(R.id.shared_events);
+            TextView maybe_head = (TextView) findViewById(R.id.shared_m_events);
+            TextView host_head = (TextView) findViewById(R.id.shared_host_events);
+
+                    if (Boolean.parseBoolean(user.getEtog())) {
+                        profile_email.setVisibility(View.VISIBLE);
+                        email_head.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEtog())) {
+                        profile_email.setVisibility(View.GONE);
+                        email_head.setVisibility(View.GONE);
+                    }
+                    if (Boolean.parseBoolean(user.getEattend())) {
+                        attend_head.setVisibility(View.VISIBLE);
+                        events_attend_layout.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEattend())) {
+                        attend_head.setVisibility(View.GONE);
+                        events_attend_layout.setVisibility(View.GONE);
+                    }
+                    if (Boolean.parseBoolean(user.getEattend())) {
+                        maybe_head.setVisibility(View.VISIBLE);
+                        events_maybe_layout.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEattend())) {
+                        maybe_head.setVisibility(View.GONE);
+                        events_maybe_layout.setVisibility(View.GONE);
+                    }
+                    if (Boolean.parseBoolean(user.getEhost())) {
+                        host_head.setVisibility(View.VISIBLE);
+                        events_host_layout.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEhost())) {
+                        host_head.setVisibility(View.GONE);
+                        events_host_layout.setVisibility(View.GONE);
+                    }
+
 
             aIDs = user.parseEventAttendIDs();
             hIDs = user.parseEventHostIDs();
@@ -353,7 +394,54 @@ private void populateAttend(String names){
                 @Override
                 public void onClick(View v) {
                     String key = eventsL.getContentDescription().toString();
-                    inspectEvent(key);
+                    eventDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.hasChild(key)) {
+                                inspectEvent(key);
+                            }
+                            else {
+                                userDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        User user = User.fromSnapshot(dataSnapshot);
+                                        //Remove event from user's DB profile
+                                        userDatabase.child(userId).child("attendEid").setValue(user.getAttendEid().replace(eventsL.getContentDescription().toString()+"`"+eventsL.getText()+"`", ""));
+                                        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_p);
+
+                                        // inflate the layout of the popup window
+                                        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                        View popupView = inflater.inflate(R.layout.pop_up, null);
+                                        TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                        String msg = "The Host has cancelled the event!\nIt will now be removed.";
+                                        text.setText(msg);
+
+                                        // create the popup window
+                                        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                        boolean focusable = true; // lets taps outside the popup also dismiss it
+                                        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                                        // show the popup window
+                                        popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+                                        // dismiss the popup window when touched
+                                        popupView.setOnTouchListener(new View.OnTouchListener() {
+                                            @Override
+                                            public boolean onTouch(View v, MotionEvent event) {
+                                                popupWindow.dismiss();
+                                                return true;
+                                            }
+                                        });
+                                        quickUpdatePA();
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {}
+                                });
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
                 }
             });
         }
@@ -383,7 +471,54 @@ private void populateMaybe(String names){
                     @Override
                     public void onClick(View v) {
                         String key = eventsL.getContentDescription().toString();
-                        inspectEvent(key);
+                        eventDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                if (snapshot.hasChild(key)) {
+                                    inspectEvent(key);
+                                }
+                                else {
+                                    userDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            User user = User.fromSnapshot(dataSnapshot);
+                                            //Remove event from user's DB profile
+                                            userDatabase.child(userId).child("maybeEid").setValue(user.getMaybeEid().replace(eventsL.getContentDescription().toString()+"`"+eventsL.getText()+"`", ""));
+                                            RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_p);
+
+                                            // inflate the layout of the popup window
+                                            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                            View popupView = inflater.inflate(R.layout.pop_up, null);
+                                            TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                            String msg = "The Host has cancelled the event!\nIt will now be removed.";
+                                            text.setText(msg);
+
+                                            // create the popup window
+                                            int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                            boolean focusable = true; // lets taps outside the popup also dismiss it
+                                            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                                            // show the popup window
+                                            popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+                                            // dismiss the popup window when touched
+                                            popupView.setOnTouchListener(new View.OnTouchListener() {
+                                                @Override
+                                                public boolean onTouch(View v, MotionEvent event) {
+                                                    popupWindow.dismiss();
+                                                    return true;
+                                                }
+                                            });
+                                            quickUpdatePA();
+                                        }
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {}
+                                    });
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {}
+                        });
                     }
                 });
             }
@@ -411,13 +546,58 @@ private void populateHost(String names){
             eventsL.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try {
-                        String key = eventsL.getContentDescription().toString();
-                        inspectEvent(key);
-                    }
-                    catch (Exception e){
-                        //ToDo: Handle prompting user to remove it ;)
-                    }
+
+                    String key = eventsL.getContentDescription().toString();
+                    eventDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.hasChild(key)) {
+                                inspectEvent(key);
+                            }
+                            else {
+                                userDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        User user = User.fromSnapshot(dataSnapshot);
+                                        //Remove event from user's DB profile
+                                        userDatabase.child(userId).child("hostEid").setValue(user.getHostEid().replace(eventsL.getContentDescription().toString() + "`" + eventsL.getText() + "`", ""));
+                                        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_p);
+
+                                        // inflate the layout of the popup window
+                                        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                        View popupView = inflater.inflate(R.layout.pop_up, null);
+                                        TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                        String msg = "The Host has cancelled the event!\nIt will now be removed.";
+                                        text.setText(msg);
+
+                                        // create the popup window
+                                        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                        boolean focusable = true; // lets taps outside the popup also dismiss it
+                                        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                                        // show the popup window
+                                        popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+                                        // dismiss the popup window when touched
+                                        popupView.setOnTouchListener(new View.OnTouchListener() {
+                                            @Override
+                                            public boolean onTouch(View v, MotionEvent event) {
+                                                popupWindow.dismiss();
+                                                return true;
+                                            }
+                                        });
+                                        quickUpdatePA();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
                 }
             });
         }

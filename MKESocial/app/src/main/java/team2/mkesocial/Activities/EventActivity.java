@@ -60,6 +60,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
     private boolean editing = false;
     private String fullLocation = "";
     private ImageButton att, maybe, attendees;
+
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
 
@@ -314,7 +315,55 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                     @Override
                                     public void onClick(View v) {
                                         String key = userN.getContentDescription().toString();
-                                        inspectUser(key);
+
+                                        userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot snapshot) {
+                                                if (snapshot.hasChild(key)) {
+                                                    inspectUser(key);
+                                                }
+                                                else {
+                                                    eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            Event event = Event.fromSnapshot(dataSnapshot);
+                                                            //An event knows the people for sure attending it
+                                                            eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(key + "`", ""));
+                                                            RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_p);
+
+                                                            // inflate the layout of the popup window
+                                                            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                                            View popupView = inflater.inflate(R.layout.pop_up, null);
+                                                            TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                                            String msg = "The Host has cancelled the event!\nIt will now be removed.";
+                                                            text.setText(msg);
+
+                                                            // create the popup window
+                                                            int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                                            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                                            boolean focusable = true; // lets taps outside the popup also dismiss it
+                                                            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                                                            // show the popup window
+                                                            popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+                                                            // dismiss the popup window when touched
+                                                            popupView.setOnTouchListener(new View.OnTouchListener() {
+                                                                @Override
+                                                                public boolean onTouch(View v, MotionEvent event) {
+                                                                    popupWindow.dismiss();
+                                                                    return true;
+                                                                }
+                                                            });
+                                                            recreate();
+                                                        }
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {}
+                                                    });
+                                                }
+                                            }
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {}
+                                        });
                                     }
                                 });
                             }

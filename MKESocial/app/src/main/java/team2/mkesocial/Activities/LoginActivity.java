@@ -1,26 +1,24 @@
 package team2.mkesocial.Activities;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -33,6 +31,7 @@ import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,11 +39,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import android.app.ProgressDialog;
-
 import java.util.concurrent.TimeUnit;
 
-import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.Fragments.PhoneLoginDialogFragment;
 import team2.mkesocial.R;
@@ -54,12 +50,12 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     private Button login;
     private EditText userName, password;
 
-    private boolean mVerificationInProgress = false;
     private String mVerificationId;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
 
     private static FirebaseAuth mAuth;
+    private CallbackManager mCallbackManager;
     public static GoogleSignInClient mGoogleSignInClient;
 
     private void signUp(String email, String password) {
@@ -82,6 +78,25 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                             // If sign in fails, display a message to the user.
 
                             Toast.makeText(LoginActivity.this, "Sign-Up failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void handleFacebookAccessToken(AccessToken token) {
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            new User(user).add();
+                            Toast.makeText(LoginActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
+                            logMeRightIn();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -187,6 +202,8 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
 
         signUp = (TextView) findViewById(R.id.signUp);
@@ -194,6 +211,27 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         userName = (EditText) findViewById(R.id.userName);
         password = (EditText) findViewById(R.id.password);
         mAuth = FirebaseAuth.getInstance();
+
+        mCallbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = findViewById(R.id.facebook_login_button);
+        loginButton.setReadPermissions("email", "public_profile");
+        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
+
 
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
@@ -266,6 +304,9 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            logMeRightIn();
+        }
     }
 
     @Override
@@ -288,6 +329,10 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         if(requestCode == 1) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
+        }
+
+        if(requestCode == 64206){
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 

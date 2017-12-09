@@ -437,6 +437,4 @@ public class CreateEventActivity extends BaseActivity {
             .setNegativeButton("No", null)
             .show();
     }
-
-
 }

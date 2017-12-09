@@ -100,7 +100,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                                 start_title = "UWM-Student Union";
                                 home = "2200 E Kenwood Blvd, Milwaukee, WI 53211, USA";
                             } else {//Home Address
-                                start = new LatLng(info.getLat(), info.getLng());
+                                start = new LatLng(MethodOrphanage.getLat(info.getAddress()), MethodOrphanage.getLng(info.getAddress()));
                                 start_title = "Home";
                                 home = info.getFullAddress().substring(0, info.getFullAddress().lastIndexOf("\n"));
                             }

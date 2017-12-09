@@ -339,20 +339,6 @@ public class User implements Databasable{
         return firstPart;
     }
 
-    public Double getLat(){
-        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
-        String toSplit = address.substring(address.indexOf("(") + 1, address.lastIndexOf(")"));
-        String[] getLatLng = toSplit.split(",");
-        return Double.parseDouble(getLatLng[0]);
-    }
-
-    public Double getLng(){
-        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
-        String toSplit = address.substring(address.indexOf("(") + 1, address.lastIndexOf(")"));
-        String[] getLatLng = toSplit.split(",");
-        return Double.parseDouble(getLatLng[1]);
-    }
-	
 	public List<BusyTime> getBusyTimes() { return busyTimes; }
 
     public String getUserId() { return uid; }

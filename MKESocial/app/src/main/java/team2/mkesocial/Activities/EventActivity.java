@@ -335,7 +335,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                                             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                                                             View popupView = inflater.inflate(R.layout.pop_up, null);
                                                             TextView text = (TextView)popupView.findViewById(R.id.pop);
-                                                            String msg = "The Host has cancelled the event!\nIt will now be removed.";
+                                                            String msg = "The User no longer exists!";
                                                             text.setText(msg);
 
                                                             // create the popup window

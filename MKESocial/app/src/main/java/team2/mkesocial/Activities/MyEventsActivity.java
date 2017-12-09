@@ -305,9 +305,13 @@ public class MyEventsActivity extends BaseActivity
     }
 
     private void redrawDecorators() {
-        EventDecorator attendDecorator = new EventDecorator(Color.GREEN, _attendDays.keySet());
-        EventDecorator hostDecorator = new EventDecorator(Color.MAGENTA, _hostDays.keySet());
-        EventDecorator maybeDecorator = new EventDecorator(Color.BLUE, _maybeDays.keySet());
+        final int GREEN = Color.rgb(75, 245, 75);
+        final int PURPLE = Color.rgb(160, 75, 245);
+        final int ORANGE = Color.rgb(245, 160, 75);
+
+        EventDecorator attendDecorator = new EventDecorator(GREEN, _attendDays.keySet());
+        EventDecorator hostDecorator = new EventDecorator(PURPLE, _hostDays.keySet());
+        EventDecorator maybeDecorator = new EventDecorator(ORANGE, _maybeDays.keySet());
         EventDecorator busyDecorator = new EventDecorator(Color.RED, _busyDays.keySet());
 
         _calendarView.removeDecorators();

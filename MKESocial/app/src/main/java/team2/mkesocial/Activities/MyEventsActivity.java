@@ -3,7 +3,6 @@ package team2.mkesocial.Activities;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.graphics.Color;
-import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -48,7 +47,9 @@ public class MyEventsActivity extends BaseActivity
     private Button _busyTimeButton;
 
     private ArrayList<Event> _events = new ArrayList<>();
-    private HashMap<CalendarDay, HashSet<Event>> _markedDays = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<Event>> _attendDays = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<Event>> _maybeDays = new HashMap<>();
+    private HashMap<CalendarDay, HashSet<Event>> _hostDays = new HashMap<>();
     private HashMap<CalendarDay, HashSet<BusyTime>> _busyDays = new HashMap<>();
     private EventAdapter _eventAdapter;
     private FirebaseDatabase _database;
@@ -66,8 +67,18 @@ public class MyEventsActivity extends BaseActivity
         _eventList = (ListView)findViewById(R.id.eventList);
         _busyTimeButton = (Button)findViewById(R.id.busyTimeButton);
 
+        if (Settings.setDarkTheme()) {
+            _calendarView.setDateTextAppearance(R.style.DarkCalendar);
+        }
+
         _database = FirebaseDatabase.getInstance();
         _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("attendEid");
+        _dataRef.addValueEventListener(this);
+
+        _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("hostEid");
+        _dataRef.addValueEventListener(this);
+
+        _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("maybeEid");
         _dataRef.addValueEventListener(this);
 
         _busyRef = _database.getReference(User.DB_USERS_NODE_NAME).child(getUid()).child("busyTimes");
@@ -84,12 +95,12 @@ public class MyEventsActivity extends BaseActivity
                     endDate.setTime(time.getEndTimeAsDate());
 
                     CalendarDay day = CalendarDay.from(startDate.getTime());
-                    addBusyDay(day, time);
+                    addToDayMap(day, _busyDays, time);
 
                     while (endDate.get(Calendar.DAY_OF_YEAR) != startDate.get(Calendar.DAY_OF_YEAR)) {
                         startDate.add(Calendar.DAY_OF_YEAR, 1);
                         day = CalendarDay.from(startDate.getTime());
-                        addBusyDay(day, time);
+                        addToDayMap(day, _busyDays, time);
                     }
                 }
                 redrawDecorators();
@@ -133,9 +144,21 @@ public class MyEventsActivity extends BaseActivity
 
         _events.clear();
 
-        HashSet eventSet = _markedDays.get(date);
+        HashSet<Event> eventSet = _attendDays.get(date);
         if (eventSet != null)
             _events.addAll(eventSet);
+
+        eventSet = _maybeDays.get(date);
+        if (eventSet != null)
+            _events.addAll(eventSet);
+
+        eventSet = _hostDays.get(date);
+        if (eventSet != null) {
+            for (Event e : eventSet) {
+                if (!_events.contains(e))
+                    _events.add(e);
+            }
+        }
 
         HashSet<BusyTime> busySet = _busyDays.get(date);
         if (busySet != null) {
@@ -166,10 +189,17 @@ public class MyEventsActivity extends BaseActivity
             }
         }
 
+        // Sort events by start time
         Collections.sort(_events, new Comparator<Event>() {
             @Override
             public int compare(Event event1, Event event2) {
-                return event1.getStartTime().compareTo(event2.getStartTime());
+                int cmp = event1.getStartTime().compareTo(event2.getStartTime());
+                if (cmp == 0)
+                    cmp = event1.getEndTime().compareTo(event2.getEndTime());
+                if (cmp == 0)
+                    cmp = event1.getTitle().compareTo(event2.getTitle());
+
+                return cmp;
             }
         });
 
@@ -195,9 +225,32 @@ public class MyEventsActivity extends BaseActivity
         try {
             Log.d(TAG, dataSnapshot.toString());
 
-            String[] eventIds = dataSnapshot.getValue().toString().split(" ");
-            _markedDays.clear();
-            for (String eid : eventIds){
+            final HashMap<CalendarDay, HashSet<Event>> map;
+
+            switch (dataSnapshot.getKey()) {
+                case "attendEid":
+                    map = _attendDays;
+                    break;
+                case "maybeEid":
+                    map = _maybeDays;
+                    break;
+                case "hostEid":
+                    map = _hostDays;
+                    break;
+                default:
+                    Log.wtf(TAG, "This shouldn't happen");
+                    return;
+            }
+
+            String[] events = dataSnapshot.getValue().toString().split("`");
+            map.clear();
+
+            for (int i = 0; i < events.length; i++) {
+                // Skip odd indices because even ones have the event id that we want
+                if (i % 2 == 1)
+                    continue;
+
+                String eid = events[i];
                 Query q = _database.getReference(Event.DB_EVENTS_NODE_NAME).child(eid).orderByKey();
                 q.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -209,13 +262,7 @@ public class MyEventsActivity extends BaseActivity
                                 Log.d(TAG, event.getTitle());
 
                                 CalendarDay day = CalendarDay.from(event.getStartDate().getTime());
-                                if (_markedDays.containsKey(day)) {
-                                    _markedDays.get(day).add(event);
-                                } else {
-                                    HashSet<Event> eventSet = new HashSet<>();
-                                    eventSet.add(event);
-                                    _markedDays.put(day, eventSet);
-                                }
+                                addToDayMap(day, map, event);
                             }
                         } catch (Exception e) {
                             Log.d(TAG, "Exception:" + e.toString());
@@ -247,27 +294,28 @@ public class MyEventsActivity extends BaseActivity
         Log.d(TAG, busyTimes.toString());
     }
 
-    private void addBusyDay(CalendarDay day, BusyTime time) {
-        if (_busyDays.containsKey(day)) {
-            _busyDays.get(day).add(time);
+    private <T> void addToDayMap(CalendarDay day, HashMap<CalendarDay, HashSet<T>> map, T obj) {
+        if (map.containsKey(day)) {
+            map.get(day).add(obj);
         } else {
-            HashSet<BusyTime> busySet = new HashSet<>();
-            busySet.add(time);
-            _busyDays.put(day, busySet);
+            HashSet<T> set = new HashSet<>();
+            set.add(obj);
+            map.put(day, set);
         }
     }
 
     private void redrawDecorators() {
-        EventDecorator attendDecorator = new EventDecorator(Color.GREEN, _markedDays.keySet());
+        final int GREEN = Color.rgb(75, 245, 75);
+        final int PURPLE = Color.rgb(160, 75, 245);
+        final int ORANGE = Color.rgb(245, 160, 75);
+
+        EventDecorator attendDecorator = new EventDecorator(GREEN, _attendDays.keySet());
+        EventDecorator hostDecorator = new EventDecorator(PURPLE, _hostDays.keySet());
+        EventDecorator maybeDecorator = new EventDecorator(ORANGE, _maybeDays.keySet());
         EventDecorator busyDecorator = new EventDecorator(Color.RED, _busyDays.keySet());
 
-        HashSet<CalendarDay> attendBusySet = new HashSet<>(_busyDays.keySet());
-        attendBusySet.retainAll(_markedDays.keySet());
-
-        int combinedColor = ColorUtils.blendARGB(attendDecorator.getColor(), busyDecorator.getColor(), 0.5f);
-        EventDecorator attendBusyDecorator = new EventDecorator(combinedColor, attendBusySet);
-
         _calendarView.removeDecorators();
-        _calendarView.addDecorators(new WeekendDecorator(), attendDecorator, busyDecorator, attendBusyDecorator);
+        _calendarView.addDecorators(new WeekendDecorator(), busyDecorator, maybeDecorator,
+                hostDecorator, attendDecorator);
     }
 }

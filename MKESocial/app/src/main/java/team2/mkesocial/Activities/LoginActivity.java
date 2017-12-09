@@ -1,9 +1,19 @@
 package team2.mkesocial.Activities;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -19,22 +29,36 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 
 import android.app.ProgressDialog;
 
+import java.util.concurrent.TimeUnit;
+
 import Firebase.Settings;
 import Firebase.User;
+import team2.mkesocial.Fragments.PhoneLoginDialogFragment;
 import team2.mkesocial.R;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends FragmentActivity implements PhoneLoginDialogFragment.PhoneLoginDialogListener {
     private TextView signUp;
     private Button login;
     private EditText userName, password;
+
+    private boolean mVerificationInProgress = false;
+    private String mVerificationId;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    private PhoneAuthProvider.ForceResendingToken mResendToken;
+
     private static FirebaseAuth mAuth;
     public static GoogleSignInClient mGoogleSignInClient;
 
@@ -69,20 +93,49 @@ public class LoginActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, 1);
     }
 
+    private void signIn(String pn){
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                pn,
+                60,
+                TimeUnit.SECONDS,
+                this,
+                mCallbacks);
+
+        DialogFragment dialog = new PhoneLoginDialogFragment();
+        dialog.show(getFragmentManager(), "PhoneLoginDialogFragment");
+        dialog.onAttach(LoginActivity.this);
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = task.getResult().getUser();
+                            new User(user).add();
+                            Toast.makeText(LoginActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
+                            logMeRightIn();
+                        } else {
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+
+                            }
+                        }
+                    }
+                });
+    }
+
     private void signIn(String email, String password){
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-
                             FirebaseUser user = mAuth.getCurrentUser();
 
                             if(user.isEmailVerified()) {
                                 Toast.makeText(LoginActivity.this, "Sign In Successful",
                                         Toast.LENGTH_SHORT).show();
-                                // add User to our firebase database once the login is successful
                                 new User(mAuth.getCurrentUser()).add();
                                 logMeRightIn();
                             } else {
@@ -90,8 +143,6 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            // If sign in fails, display a message to the user.
-
                             Toast.makeText(LoginActivity.this, "Sign In failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -99,14 +150,15 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    private void logMeRightIn(){
-        Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
-        startActivity(goToFeed);
+    private void verifyPhoneNumberWithCode(String verificationId, String code) {
+
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+        signInWithPhoneAuthCredential(credential);
     }
 
-    private void startOver(){
-        Intent startOver = new Intent(this, SplashActivity.class);
-        startActivity(startOver);
+    private void logMeRightIn() {
+        Intent goToFeed = new Intent(LoginActivity.this, FeedActivity.class);
+        startActivity(goToFeed);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -143,6 +195,29 @@ public class LoginActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         mAuth = FirebaseAuth.getInstance();
 
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential credential) {
+                signInWithPhoneAuthCredential(credential);
+            }
+
+            @Override
+            public void onVerificationFailed(FirebaseException e) {
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+
+                } else if (e instanceof FirebaseTooManyRequestsException) {
+
+                }
+            }
+
+            @Override
+            public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
+                mVerificationId = verificationId;
+                mResendToken = token;
+            }
+        };
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -164,16 +239,24 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //See if user exists
-                signIn(userName.getText().toString(), password.getText().toString());
+                if(userName.getText().toString() != null) {
+                    if (PhoneNumberUtils.isGlobalPhoneNumber(userName.getText().toString())) {
+                        signIn(userName.getText().toString());
+                    } else {
+                        if(password.getText().toString() != null) {
+                            signIn(userName.getText().toString(), password.getText().toString());
+                        }
+                    }
+                }
             }
         });
 
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //See if user exists
-                signUp(userName.getText().toString(), password.getText().toString());
+                if(userName.getText().toString() != null && password.getText().toString() != null) {
+                    signUp(userName.getText().toString(), password.getText().toString());
+                }
             }
         });
     }
@@ -193,6 +276,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onPause() { super.onPause(); }
 
+    @Override
+    public void onDialogPositiveClick(String inputCode) {
+        verifyPhoneNumberWithCode( mVerificationId, inputCode);
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -211,3 +299,4 @@ public class LoginActivity extends AppCompatActivity {
         return mAuth;
     }
 }
+

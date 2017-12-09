@@ -19,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -135,6 +136,7 @@ public class FeedActivity extends BaseActivity
             intent = new Intent(this, AboutActivity.class );
         } else if (id == R.id.nav_log_out) {
             logout();
+            return true;
         }
         startActivity(intent);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -145,12 +147,14 @@ public class FeedActivity extends BaseActivity
     public void logout(){
         LoginActivity.getAuth().signOut();
         final Intent startOver = new Intent(this, SplashActivity.class);
-        LoginActivity.getGoogleSignIn().signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                startActivity(startOver);
-            }
-        });
+        if(LoginActivity.getGoogleSignIn() != null) {
+            LoginActivity.getGoogleSignIn().signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    startActivity(startOver);
+                }
+            });
+        }
     }
 
     @Override

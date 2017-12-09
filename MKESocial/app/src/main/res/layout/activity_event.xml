@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/event_layout"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
@@ -17,6 +18,44 @@
         android:layout_margin="@dimen/nav_header_vertical_spacing"
         android:backgroundTint="@android:color/holo_red_light"
         android:text="Delete" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:id="@+id/attenders_btn"
+        android:background="@android:color/transparent"
+        android:padding="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/button_delete"
+        android:onClick="attenders_btn_on_click"
+        android:tag="false"
+        android:src="@mipmap/ic_attenders_pic" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/attending_btn"
+        android:background="@android:color/transparent"
+        android:padding="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/attenders_btn"
+        android:onClick="attending_btn_on_click"
+        android:clickable="true"
+        android:contentDescription="false"
+        android:src="@mipmap/ic_not_attending_pic" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/maybe_btn"
+        android:background="@android:color/transparent"
+        android:padding="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/attending_btn"
+        android:onClick="maybe_btn_on_click"
+        android:contentDescription="false"
+        android:src="@mipmap/ic_not_maybe_pic" />
 
     <ScrollView
         android:layout_width="match_parent"

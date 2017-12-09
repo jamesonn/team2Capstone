@@ -46,6 +46,7 @@ import team2.mkesocial.R;
 
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
 import static Firebase.Databasable.DB_USERS_NODE_NAME;
+import static Firebase.Databasable.DB_USER_SETTINGS_NODE_NAME;
 import static team2.mkesocial.Activities.BaseActivity.getUid;
 
 public class EventActivity extends BaseActivity implements ValueEventListener {
@@ -63,6 +64,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
 
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
+    private DatabaseReference userSettingsDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_SETTINGS_NODE_NAME);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -320,9 +322,51 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                             @Override
                                             public void onDataChange(DataSnapshot snapshot) {
                                                 if (snapshot.hasChild(key)) {
-                                                    inspectUser(key);
+                                                    userSettingsDatabase.child(key).child("privateProfile").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            if(!Boolean.parseBoolean((String)dataSnapshot.getValue()) || getUid().equals(key))
+                                                            {
+                                                                inspectUser(key);
+                                                            }
+                                                            else{
+                                                                RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.event_layout);
+
+                                                                // inflate the layout of the popup window
+                                                                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                                                View popupView = inflater.inflate(R.layout.pop_up, null);
+                                                                TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                                                String msg = "Cannot View Private Profile!";
+                                                                text.setText(msg);
+
+                                                                // create the popup window
+                                                                int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                                                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                                                boolean focusable = true; // lets taps outside the popup also dismiss it
+                                                                final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+                                                                // show the popup window
+                                                                popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+                                                                // dismiss the popup window when touched
+                                                                popupView.setOnTouchListener(new View.OnTouchListener() {
+                                                                    @Override
+                                                                    public boolean onTouch(View v, MotionEvent event) {
+                                                                        popupWindow.dismiss();
+                                                                        return true;
+                                                                    }
+                                                                });
+                                                            }
+
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+
                                                 }
-                                                else {
+                                                /*else {
                                                     eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -354,12 +398,11 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                                                     return true;
                                                                 }
                                                             });
-                                                            recreate();
                                                         }
                                                         @Override
                                                         public void onCancelled(DatabaseError databaseError) {}
                                                     });
-                                                }
+                                                }*/
                                             }
                                             @Override
                                             public void onCancelled(DatabaseError databaseError) {}

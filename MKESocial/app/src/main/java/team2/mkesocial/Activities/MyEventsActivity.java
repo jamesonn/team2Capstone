@@ -67,6 +67,10 @@ public class MyEventsActivity extends BaseActivity
         _eventList = (ListView)findViewById(R.id.eventList);
         _busyTimeButton = (Button)findViewById(R.id.busyTimeButton);
 
+        if (Settings.setDarkTheme()) {
+            _calendarView.setDateTextAppearance(R.style.DarkCalendar);
+        }
+
         _database = FirebaseDatabase.getInstance();
         _dataRef = _database.getReference(Event.DB_USERS_NODE_NAME).child(getUid()).child("attendEid");
         _dataRef.addValueEventListener(this);

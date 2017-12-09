@@ -318,35 +318,36 @@ private void quickUpdatePA() {
             TextView maybe_head = (TextView) findViewById(R.id.shared_m_events);
             TextView host_head = (TextView) findViewById(R.id.shared_host_events);
 
-                    if (Boolean.parseBoolean(user.getEtog())) {
-                        profile_email.setVisibility(View.VISIBLE);
-                        email_head.setVisibility(View.VISIBLE);
-                    } else if (!Boolean.parseBoolean(user.getEtog())) {
-                        profile_email.setVisibility(View.GONE);
-                        email_head.setVisibility(View.GONE);
-                    }
-                    if (Boolean.parseBoolean(user.getEattend())) {
-                        attend_head.setVisibility(View.VISIBLE);
-                        events_attend_layout.setVisibility(View.VISIBLE);
-                    } else if (!Boolean.parseBoolean(user.getEattend())) {
-                        attend_head.setVisibility(View.GONE);
-                        events_attend_layout.setVisibility(View.GONE);
-                    }
-                    if (Boolean.parseBoolean(user.getEattend())) {
-                        maybe_head.setVisibility(View.VISIBLE);
-                        events_maybe_layout.setVisibility(View.VISIBLE);
-                    } else if (!Boolean.parseBoolean(user.getEattend())) {
-                        maybe_head.setVisibility(View.GONE);
-                        events_maybe_layout.setVisibility(View.GONE);
-                    }
-                    if (Boolean.parseBoolean(user.getEhost())) {
-                        host_head.setVisibility(View.VISIBLE);
-                        events_host_layout.setVisibility(View.VISIBLE);
-                    } else if (!Boolean.parseBoolean(user.getEhost())) {
-                        host_head.setVisibility(View.GONE);
-                        events_host_layout.setVisibility(View.GONE);
-                    }
-
+            if(!getUid().equals(userId)) {
+                if (Boolean.parseBoolean(user.getEtog())) {
+                    profile_email.setVisibility(View.VISIBLE);
+                    email_head.setVisibility(View.VISIBLE);
+                } else if (!Boolean.parseBoolean(user.getEtog())) {
+                    profile_email.setVisibility(View.GONE);
+                    email_head.setVisibility(View.GONE);
+                }
+                if (Boolean.parseBoolean(user.getEattend())) {
+                    attend_head.setVisibility(View.VISIBLE);
+                    events_attend_layout.setVisibility(View.VISIBLE);
+                } else if (!Boolean.parseBoolean(user.getEattend())) {
+                    attend_head.setVisibility(View.GONE);
+                    events_attend_layout.setVisibility(View.GONE);
+                }
+                if (Boolean.parseBoolean(user.getEattend())) {
+                    maybe_head.setVisibility(View.VISIBLE);
+                    events_maybe_layout.setVisibility(View.VISIBLE);
+                } else if (!Boolean.parseBoolean(user.getEattend())) {
+                    maybe_head.setVisibility(View.GONE);
+                    events_maybe_layout.setVisibility(View.GONE);
+                }
+                if (Boolean.parseBoolean(user.getEhost())) {
+                    host_head.setVisibility(View.VISIBLE);
+                    events_host_layout.setVisibility(View.VISIBLE);
+                } else if (!Boolean.parseBoolean(user.getEhost())) {
+                    host_head.setVisibility(View.GONE);
+                    events_host_layout.setVisibility(View.GONE);
+                }
+            }
 
             aIDs = user.parseEventAttendIDs();
             hIDs = user.parseEventHostIDs();

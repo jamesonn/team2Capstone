@@ -6,6 +6,7 @@
     <color name="mke_yellow">#f7a81b</color>
     <color name="mke_dark_blue">#0d223f</color>
     <color name="mke_light_blue">#00a7e1</color>
+    <color name="mke_light_blue_transparent">#9f00a7e1</color>
     <color name="mke_white">#00ffffff</color>
     <color name="mke_white_about_back">#a5ffffff</color>
     <color name="edit_icon_color">#F7AC27</color>

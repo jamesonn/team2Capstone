@@ -40,9 +40,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import Firebase.Event;
+import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.R;
@@ -98,7 +100,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                                 start_title = "UWM-Student Union";
                                 home = "2200 E Kenwood Blvd, Milwaukee, WI 53211, USA";
                             } else {//Home Address
-                                start = new LatLng(info.getLat(), info.getLng());
+                                start = new LatLng(MethodOrphanage.getLat(info.getAddress()), MethodOrphanage.getLng(info.getAddress()));
                                 start_title = "Home";
                                 home = info.getFullAddress().substring(0, info.getFullAddress().lastIndexOf("\n"));
                             }
@@ -121,22 +123,26 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                                         Event event = Event.fromSnapshot(childSnap);
-                                        for (int i = 0; i < aEv.length; ++i) {
-                                            if (event.getEventId().equals(aEv[i])) {  //
-                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(event.getLat(), event.getLng())).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                                        for(int i=0; i<aEv.length;++i) {
+                                            if (event.getEventId().equals(aEv[i])){  //
+                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
+                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                                                 eventM.setTag(aID[i]);
                                             }
                                         }
-                                        for (int i = 0; i < hEv.length; ++i) {
-                                            if (event.getEventId().equals(hEv[i])) {  //
-                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(event.getLat(), event.getLng())).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                                        for(int i=0; i<hEv.length;++i) {
+                                            if (event.getEventId().equals(hEv[i])){  //
+                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
+                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                                                 eventM.setTag(hID[i]);
                                             }
                                         }
 
                                         for (int i = 0; i < mEv.length; ++i) {
                                             if (event.getEventId().equals(mEv[i])) {  //
-                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(event.getLat(), event.getLng())).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                                                eventM = mMap.addMarker(new MarkerOptions()
+                                                        .position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
+                                                                MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                                                 eventM.setTag(mID[i]);
                                             }
                                         }

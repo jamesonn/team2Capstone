@@ -41,7 +41,7 @@ public class Event implements Databasable{
     }
     public Event(String title, String description, GregorianCalendar startDate, GregorianCalendar endDate,
                  GregorianCalendar startTime, GregorianCalendar endTime, String location,
-                 String hostUid, int suggestedAge, int rating, double cost, List<Tag> tags) {
+                 String hostUid, String attendees, int suggestedAge, int rating, double cost, List<Tag> tags) {
         setTitle(title);
         setDescription(description);
         setStartDate(startDate);
@@ -50,6 +50,7 @@ public class Event implements Databasable{
         setEndTime(endTime);
         setLocation(location);
         setHostUid(hostUid);
+        setAttendes(attendees);
         setSuggestedAge(suggestedAge);
         setRating(rating);
         setCost(cost);
@@ -57,7 +58,7 @@ public class Event implements Databasable{
     }
 
     public Event(String title, String description, String startDate, String endDate, String startTime,
-                 String endTime, String location, String hostUid, String suggestedAge, String rating,
+                 String endTime, String location, String hostUid, String attendees, String suggestedAge, String rating,
                  String cost, String tags) {
         setTitle(title);
         setDescription(description);
@@ -67,6 +68,7 @@ public class Event implements Databasable{
         setEndTime(parseTime(endTime));
         setLocation(location);
         setHostUid(hostUid);
+        setAttendes(attendees);
         setSuggestedAge(parseInt(suggestedAge));
         setRating(parseInt(rating));
         setCost(parseInt(cost));
@@ -309,6 +311,30 @@ public class Event implements Databasable{
         Event event = snapshot.getValue(Event.class);
         event.setEventId(snapshot.getKey());
         return event;
+    }
+
+    @Exclude
+    @Override
+    public boolean equals(Object obj)
+    {
+        Event other = (Event)obj;
+
+        if (other == null || getClass() != other.getClass())
+            return false;
+
+        if (eid != null)
+            return eid.equals(other.eid);
+
+        return title.equals(other.title) &&
+                description.equals(other.description) &&
+                startDate == other.startDate &&
+                endDate == other.endDate &&
+                startTime == other.startTime &&
+                endTime == other.endTime &&
+                location.equals(other.location) &&
+                hostUid.equals(other.hostUid) &&
+                suggestedAge == other.suggestedAge &&
+                rating == other.rating;
     }
 
 }

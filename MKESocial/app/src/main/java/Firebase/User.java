@@ -32,8 +32,8 @@ public class User implements Databasable{
 
     private String name, email, age, bio, lname, initm; //info fields
     private String address;
-    private String eattend, ehost, etog; //display those email and/or events on profile page or not "true" or "false"
-    private String attend, host; //layout eventID:eventName eventID:eventName
+    private String eattend, ehost, etog, emaybe; //display those email and/or events on profile page or not "true" or "false"
+    private String attend, host, maybe; //layout eventID:eventName eventID:eventName
     private String img; //holds URL of image on firebase storage
     private String uid; //to help with viewing other profiles
 	private List<BusyTime> busyTimes;
@@ -54,9 +54,11 @@ public class User implements Databasable{
         setAddress("");
         setAge("");
         setAttendEid("");
+        setMaybeEid("");
         setBio("");
         setEattend("true");
         setEhost("true");
+        setEmaybe("true");
         setEmail(fbUser.getEmail());
         setEtog("true");
         setHostEid("");
@@ -72,9 +74,11 @@ public class User implements Databasable{
         setAddress("");
         setAge("");
         setAttendEid("");
+        setMaybeEid("");
         setBio("");
         setEattend("true");
         setEhost("true");
+        setEmaybe("true");
         setEmail(googleUser.getEmail());
         setEtog("true");
         setHostEid("");
@@ -94,9 +98,11 @@ public class User implements Databasable{
         setAddress(address);
         setAge("");
         setAttendEid("");
+        setMaybeEid("");
         setBio("");
         setEattend("true");
         setEhost("true");
+        setEmaybe("true");
         setEmail(email);
         setEtog("true");
         setHostEid("");
@@ -114,6 +120,7 @@ public class User implements Databasable{
         result.put("email", getEmail());
         result.put("age", getAge());
         result.put("bio", getBio());
+        result.put("emaybe", getEmaybe());
         result.put("lname", getLname());
         result.put("initm", getInitm());
         result.put("eattend", getEattend());
@@ -122,6 +129,7 @@ public class User implements Databasable{
         result.put("address", getAddress());
         result.put("attendEid", getAttendEid());
         result.put("hostEid", getHostEid());
+        result.put("maybeEid", getMaybeEid());
         result.put("img", getImg());
         result.put("busyTimes", getBusyTimes());
 
@@ -206,6 +214,10 @@ public class User implements Databasable{
 
     public void setEattend(String eattend){this.eattend=eattend;}
 
+    public String getEmaybe(){return emaybe;}
+
+    public void setEmaybe(String eattend){this.emaybe=eattend;}
+
     public String getEtog(){return etog;}
 
     public void setEtog(String etog){this.etog=etog;}
@@ -225,6 +237,10 @@ public class User implements Databasable{
     public String getHostEid(){return host;}
 
     public void setHostEid(String host){this.host=host;}
+
+    public String getMaybeEid(){return maybe;}
+
+    public void setMaybeEid(String maybe){this.maybe=maybe;}
 
 
     public String parseEventAttendNames(){
@@ -274,6 +290,31 @@ public class User implements Databasable{
         //id`id`id` ....
         return parsed;
     }
+
+    public String parseEventMaybeNames(){
+        ///id`name`id`name`id`name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = maybe.split("`");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length;++i){
+            //names will be at the odd i values: 1 3 5 ...
+            if((i%2)==1){parsed+=parsing[i]+"`";}
+        }
+        //name`name`name` ....
+        return parsed;
+    }
+
+    public String parseEventMaybeIDs(){
+        //id`name`id`name`id`name...  <-- layout of information stored at String host
+        String parsed = "";
+        String[] parsing = maybe.split("`");//id|name|id|name|id|name...
+        for(int i=0; i<parsing.length;++i){
+            //ids will be at the even values: 0 2 4 ...
+            if((i%2)==0){parsed+=parsing[i]+"`";}
+        }
+        //id`id`id` ....
+        return parsed;
+    }
+
 
     public String getImg(){return img;}
 

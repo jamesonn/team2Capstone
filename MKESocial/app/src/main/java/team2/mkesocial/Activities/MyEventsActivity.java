@@ -189,7 +189,13 @@ public class MyEventsActivity extends BaseActivity
         Collections.sort(_events, new Comparator<Event>() {
             @Override
             public int compare(Event event1, Event event2) {
-                event1.getStartTime().compareTo(event2.getStartTime());
+                int cmp = event1.getStartTime().compareTo(event2.getStartTime());
+                if (cmp == 0)
+                    cmp = event1.getEndTime().compareTo(event2.getEndTime());
+                if (cmp == 0)
+                    cmp = event1.getTitle().compareTo(event2.getTitle());
+
+                return cmp;
             }
         });
 

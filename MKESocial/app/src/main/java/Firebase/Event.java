@@ -311,4 +311,28 @@ public class Event implements Databasable{
         return event;
     }
 
+    @Exclude
+    @Override
+    public boolean equals(Object obj)
+    {
+        Event other = (Event)obj;
+
+        if (other == null || getClass() != other.getClass())
+            return false;
+
+        if (eid != null)
+            return eid.equals(other.eid);
+
+        return title.equals(other.title) &&
+                description.equals(other.description) &&
+                startDate == other.startDate &&
+                endDate == other.endDate &&
+                startTime == other.startTime &&
+                endTime == other.endTime &&
+                location.equals(other.location) &&
+                hostUid.equals(other.hostUid) &&
+                suggestedAge == other.suggestedAge &&
+                rating == other.rating;
+    }
+
 }

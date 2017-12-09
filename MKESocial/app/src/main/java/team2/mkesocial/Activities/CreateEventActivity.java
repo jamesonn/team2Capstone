@@ -639,6 +639,4 @@ public class CreateEventActivity extends BaseActivity {
             return image;
         }
     }
-
-
 }

@@ -18,6 +18,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -70,10 +71,10 @@ private String oldImg;
 
 private TextView profile_email, profile_bio, profile_fName, eventsL;
 private EditText pro_email, pro_bio, pro_fName, pro_lName, pro_mInit, pro_age;
-private Switch email_toggle, attend_toggle, host_toggle;
-boolean see_email=true, see_attend=true, see_host=true, addrC=false, picChange=false;
-private LinearLayout events_attend_layout, events_host_layout;
-private String aIDs, hIDs;
+private Switch email_toggle, attend_toggle, maybe_toggle, host_toggle;
+boolean see_email=true, see_attend=true, see_maybe=true, see_host=true, addrC=false, picChange=false;
+private LinearLayout events_attend_layout, events_maybe_layout, events_host_layout;
+private String aIDs, hIDs, mIDs, userId;
 
 private PlaceAutocompleteFragment autocompleteFragment;
 private Place placePicked;
@@ -89,6 +90,9 @@ protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.MKEDarkTheme);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_profile);
+    userId = getIntent().getStringExtra("USER_ID");
+
+    if(userId == null){userId=getUid();}
     quickUpdatePA();
 }
 
@@ -204,6 +208,7 @@ public void save_btn_on_click(View v){
         pro_age = (EditText)findViewById(R.id.age_year);
         email_toggle = (Switch) findViewById(R.id.tog_email);
         attend_toggle = (Switch) findViewById(R.id.tog_events);
+        maybe_toggle = (Switch) findViewById(R.id.tog_m_events);
         host_toggle = (Switch) findViewById(R.id.tog_host_events);
         npic = (ImageView)findViewById(R.id.profile_bg);
 
@@ -242,6 +247,11 @@ public void save_btn_on_click(View v){
         if(see_attend) {userDatabase.child(getUid()).child("eattend").setValue("true");}
         else {userDatabase.child(getUid()).child("eattend").setValue("false");}
 
+        //Maybe Events toggle
+        see_maybe = maybe_toggle.isChecked();
+        if(see_maybe) {userDatabase.child(getUid()).child("emaybe").setValue("true");}
+        else {userDatabase.child(getUid()).child("emaybe").setValue("false");}
+
         //Host Events toggle
         see_host = host_toggle.isChecked();
         if(see_host) {userDatabase.child(getUid()).child("ehost").setValue("true");}
@@ -278,21 +288,32 @@ private void quickUpdatePA() {
     profile_bio = (TextView) findViewById(R.id.about_me_bio);
     profile_fName = (TextView) findViewById(R.id.first_name);
     events_attend_layout = (LinearLayout) findViewById(R.id.for_att_events);
+    events_maybe_layout = (LinearLayout) findViewById(R.id.for_m_events);
     events_host_layout = (LinearLayout) findViewById(R.id.for_host_events);
     npic = (ImageView) findViewById(R.id.profile_bg);
+
+    if(!getUid().equals(userId)){
+        //hide edit button
+        //ToDo: make sure this is right!
+        ImageButton edit = (ImageButton) findViewById(R.id.edit_button);
+        edit.setVisibility(View.INVISIBLE);
+    }
 
 
     //Idea: Retrieve information from DB to know what items should/shouldn't be displayed
     //Other Users who view this profile will only what Owner of the Profile chooses to show (in regards to email and events)
-    userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+    userDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             User user = User.fromSnapshot(dataSnapshot);
 
             aIDs = user.parseEventAttendIDs();
             hIDs = user.parseEventHostIDs();
+            mIDs = user.parseEventMaybeIDs();
+
             populateAttend(user.parseEventAttendNames());
             populateHost(user.parseEventHostNames());
+            populateMaybe(user.parseEventMaybeNames());
 
             Glide.with(getApplicationContext()).load(user.getImg()).into(npic);
 
@@ -313,7 +334,7 @@ private void populateAttend(String names){
 
     String[] id = aIDs.split("`");
     String[] sep = names.split("`");
-    if(sep.length>=1) {
+    if(sep.length>=1 && id.length>=1) {
         for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -325,7 +346,7 @@ private void populateAttend(String names){
             eventsL.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             eventsL.setVisibility(View.VISIBLE);
             eventsL.setId(i);
-            //eventsL.setContentDescription(id[i]);
+            eventsL.setContentDescription(id[i]);
             events_attend_layout.addView(eventsL);
 
             eventsL.setOnClickListener(new View.OnClickListener() {
@@ -339,10 +360,40 @@ private void populateAttend(String names){
     }
 }
 
+private void populateMaybe(String names){
+
+        String[] id = mIDs.split("`");
+        String[] sep = names.split("`");
+        if(sep.length>=1 && id.length>=1) {
+            for (int i = 0; i < sep.length; ++i) {
+                TextView eventsL = new TextView(this);
+                eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                eventsL.setText(sep[i]);
+                eventsL.setTextSize(20);
+                eventsL.setTextColor(0xff424242);
+                eventsL.setAllCaps(false);
+                eventsL.setClickable(true);
+                eventsL.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                eventsL.setVisibility(View.VISIBLE);
+                eventsL.setId(10000+i);
+                eventsL.setContentDescription(id[i]);
+                events_maybe_layout.addView(eventsL);
+
+                eventsL.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String key = eventsL.getContentDescription().toString();
+                        inspectEvent(key);
+                    }
+                });
+            }
+        }
+    }
+
 private void populateHost(String names){
     String[] id = hIDs.split("`");
     String[] sep = names.split("`");
-    if(sep.length>=1) {
+    if(sep.length>=1 && id.length>=1) {
         for (int i = 0; i < sep.length; ++i) {
             TextView eventsL = new TextView(this);
             eventsL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));

@@ -52,6 +52,22 @@ public class BaseActivity extends AppCompatActivity {
             goToEventPage.putExtra("EVENT_ID", eid);
             startActivity(goToEventPage);
         }
+        else {
+            //ToDo: Handle case where event no longer exist
+            //aka need to remove the event from the user
+        }
+    }
+
+    protected void inspectUser(String uid) {
+        if (uid != null) {
+            Intent goToProfilePage = new Intent(this, ProfileActivity.class);
+            goToProfilePage.putExtra("USER_ID", uid);
+            startActivity(goToProfilePage);
+        }
+        else{
+            //ToDO: Handle case where user no longer exist
+            //aka remove user from the event
+        }
     }
 
 

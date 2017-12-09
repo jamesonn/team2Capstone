@@ -91,8 +91,8 @@
             android:id="@+id/shared_events"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="@string/events_i_am_attending"
+            android:padding="16dp"
+            android:text="Events Attending"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -109,13 +109,36 @@
         </LinearLayout>
 
 
+        <!--Section Title: Events I am Maybe Attending-->
+        <TextView
+            android:id="@+id/shared_m_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Events Maybe Attending"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <!--Layout for List of Event Names-->
+        <LinearLayout
+            android:id="@+id/for_m_events"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!--list of events attending goes here-->
+            <!--these events should be clickable-->
+        </LinearLayout>
+
+
         <!--Section Title: Events I am Hosting-->
         <TextView
             android:id="@+id/shared_host_events"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="@string/events_i_am_hosting"
+            android:padding="16dp"
+            android:text="Events Hosting"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold" />

@@ -14,10 +14,10 @@
     <ListView
         android:id="@+id/eventList"
         android:layout_width="wrap_content"
-        android:layout_height="200dp"
+        android:layout_height="285dp"
         android:layout_alignParentBottom="true"
         android:layout_alignStart="@+id/calendarView"
-        android:layout_marginBottom="105dp"
+        android:layout_marginBottom="75dp"
         android:padding="10dp" />
 
     <Button

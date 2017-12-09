@@ -41,9 +41,9 @@ public class SettingsActivity extends BaseActivity {
     private TextView invite, rate;
 
     //publically visible location enabled flag, best coding practices
-    private static boolean location_enabled = true;
-    public boolean getLocationEnabled(){return location_enabled;}
-    public void setLocationEnabled(boolean locationEn){location_enabled = locationEn;}
+    //private static boolean location_enabled = true;
+    //public boolean getLocationEnabled(){return location_enabled;}
+    //public void setLocationEnabled(boolean locationEn){location_enabled = locationEn;}
     private boolean onPageLoad = true;
 
     //DB user setting ref
@@ -61,7 +61,7 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
         // Init Objects
-        location = (Switch) findViewById(R.id.switch_location);
+        //location = (Switch) findViewById(R.id.switch_location);
         notifications = (Switch) findViewById(R.id.switch_notifications);
         privateProfile = (Switch) findViewById(R.id.switch_private_profile);
         darkTheme = (Switch) findViewById(R.id.switch_theme);
@@ -113,13 +113,13 @@ public class SettingsActivity extends BaseActivity {
         }
 
         // Set the switch listeners
-        location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+        /*location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //set the location enabled field
                 setLocationEnabled(isChecked);
 
             }
-        });
+        });*/
 
 
         // Notification Settings enable listener

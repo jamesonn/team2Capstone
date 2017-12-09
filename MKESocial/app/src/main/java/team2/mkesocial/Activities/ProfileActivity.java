@@ -1,8 +1,10 @@
 package team2.mkesocial.Activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -163,6 +165,22 @@ public void edit_btn_on_click(View v){
     }
 }
 
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setIcon(R.mipmap.ic_warning)
+                .setTitle("Back Confirmation")
+                .setMessage("Are you sure you want to go back without saving?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
 public void edit_pic_on_click(View v) {
     //click on Edit Photo button --> Start pick image intent
     if (v.getId() == R.id.edit_photo) {

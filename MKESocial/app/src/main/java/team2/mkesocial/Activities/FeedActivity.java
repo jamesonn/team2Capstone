@@ -1,5 +1,7 @@
 package team2.mkesocial.Activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -87,16 +90,6 @@ public class FeedActivity extends BaseActivity
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.feed, menu);
@@ -149,7 +142,8 @@ public class FeedActivity extends BaseActivity
     }
 
     public void logout(){
-        LoginActivity.getAuth().signOut();
+        FirebaseAuth.getInstance().signOut();
+        LoginManager.getInstance().logOut();
         final Intent startOver = new Intent(this, SplashActivity.class);
         if(LoginActivity.getGoogleSignIn() != null) {
             LoginActivity.getGoogleSignIn().signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -178,5 +172,27 @@ public class FeedActivity extends BaseActivity
             }
         }
         _resultsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            new AlertDialog.Builder(this)
+                    .setIcon(R.mipmap.ic_warning)
+                    .setTitle("Logout Confirmation")
+                    .setMessage("Are you sure you want to logout?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            logout();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        }
     }
 }

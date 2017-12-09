@@ -2,6 +2,7 @@ package team2.mkesocial.Activities;
 
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     private EditText userName, password;
 
     private static final String PROTECTED_RESOURCE_URL = "https://api.github.com/user";
+    private String mkeSocialCallback = "mkesocial://callback";
 
     private String mVerificationId;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
@@ -180,7 +182,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                 });
     }
 
-    private void createAndSendGithubRequest() throws IOException, InterruptedException, ExecutionException {
+    private void createAndSendGithubRequest(String code) throws IOException, InterruptedException, ExecutionException {
         final String secretState = "secret" + new Random().nextInt(999_999);
         try (OAuth20Service service = new ServiceBuilder()
                 .apiKey("29986eb3c7d405c3036c")
@@ -189,12 +191,8 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                 .callback("https://mkesocial-3f65e.firebaseapp.com/__/auth/handler")
                 .build(GitHubApi.instance())) {
 
-            final Scanner in = new Scanner(System.in, "UTF-8");
-
             // Obtain the Authorization URL
             final String authorizationUrl = service.getAuthorizationUrl();
-            final String code = in.nextLine();
-
 
             // Trade the Request Token and Verifier for the Access Token
             final OAuth2AccessToken accessToken = service.getAccessToken(code);
@@ -336,11 +334,8 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         githubLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    createAndSendGithubRequest();
-                }catch (Exception e){
-
-                }
+                Intent gitHubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PROTECTED_RESOURCE_URL + "?client_id=" + "29986eb3c7d405c3036c" + "&redirect_url=" + mkeSocialCallback));
+                startActivity(gitHubIntent);
             }
         });
 
@@ -367,6 +362,14 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     @Override
     protected void onResume() {
         super.onResume();
+        Uri uri = getIntent().getData();
+        if(uri != null && uri.toString().startsWith(mkeSocialCallback)){
+            try {
+                createAndSendGithubRequest(uri.getQueryParameter("code"));
+            }catch(Exception e){
+                //shit
+            }
+        }
     }
 
     @Override

@@ -28,8 +28,17 @@
         <activity android:name=".Activities.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.View" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="callback"
+                    android:scheme="mkesocial"
+                />
             </intent-filter>
         </activity>
         <activity android:name=".Activities.LoginActivity" />

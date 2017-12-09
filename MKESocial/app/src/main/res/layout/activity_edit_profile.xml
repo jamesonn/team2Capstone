@@ -92,7 +92,21 @@
                 android:splitTrack="false"
                 android:text="@string/share_events_attending_on_profile"
                 android:textAlignment="center"
-                android:textSize="18sp"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:checked="true" />
+
+            <!--maybe attending events toggle-->
+            <Switch
+                android:id="@+id/tog_m_events"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:showText="true"
+                android:splitTrack="false"
+                android:text="Share Events Maybe Attending on Profile"
+                android:textAlignment="center"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 tools:checked="true" />
 
@@ -106,7 +120,7 @@
                 android:splitTrack="false"
                 android:text="@string/share_events_hosting_on_profile"
                 android:textAlignment="center"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 tools:checked="true" />
 

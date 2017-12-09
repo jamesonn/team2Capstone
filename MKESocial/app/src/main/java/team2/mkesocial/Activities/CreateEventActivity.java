@@ -395,7 +395,7 @@ public class CreateEventActivity extends BaseActivity {
         // Get user ID to tie event to
         final String userId = getUid();
         Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
-                userId, suggestedAge, "", cost, tags);
+                userId,"", suggestedAge, "", cost, tags);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());
 

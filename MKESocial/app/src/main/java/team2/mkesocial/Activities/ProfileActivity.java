@@ -114,6 +114,7 @@ public void edit_btn_on_click(View v){
         email_toggle = (Switch) findViewById(R.id.tog_email);
         host_toggle = (Switch) findViewById(R.id.tog_host_events);
         attend_toggle = (Switch) findViewById(R.id.tog_events);
+        maybe_toggle = (Switch) findViewById(R.id.tog_m_events);
         profile_picture = (ImageView) findViewById(R.id.profile_ebg);
         autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.addr_autocomplete_fragment);
 
@@ -133,6 +134,7 @@ public void edit_btn_on_click(View v){
                     pro_mInit.setText(user.getInitm());
                     email_toggle.setChecked(Boolean.parseBoolean(user.getEtog()));
                     attend_toggle.setChecked(Boolean.parseBoolean(user.getEattend()));
+                    maybe_toggle.setChecked(Boolean.parseBoolean(user.getEmaybe()));
                     host_toggle.setChecked(Boolean.parseBoolean(user.getEhost()));
                     autocompleteFragment.setHint(user.getAddress());
                     if(user.getAddress().isEmpty())autocompleteFragment.setHint("Search for your home address");

@@ -63,4 +63,8 @@
         <item name="android:textColorPrimaryInverse">@color/mke_white_about_back</item>
     </style>
 
+    <style name="DarkCalendar" parent="MKEDarkTheme">
+        <item name="android:textColor">#FF6D00</item>
+    </style>
+
 </resources>

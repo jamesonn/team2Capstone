@@ -131,8 +131,6 @@ public class CreateEventActivity extends BaseActivity {
         endCalendar = Calendar.getInstance();
         // Standard Time Display
         myTime = Calendar.getInstance();
-        String  myFormat = "MM/dd/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
 
         final DatePickerDialog.OnDateSetListener startDate = new DatePickerDialog.OnDateSetListener() {
@@ -228,10 +226,10 @@ public class CreateEventActivity extends BaseActivity {
                     @Override
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         startCalendar.set(year, month, dayOfMonth);
-                        startDateField.setText(sdf.format(startCalendar.getTime()));
+                        startDateField.setText(Event.dateFormat.format(startCalendar.getTime()));
                         if(startCalendar.getTimeInMillis() >= endCalendar.getTimeInMillis()) {
                             endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
-                            endDateField.setText(sdf.format(endCalendar.getTime()));
+                            endDateField.setText(Event.dateFormat.format(endCalendar.getTime()));
                         }
                     }
                 };
@@ -252,7 +250,7 @@ public class CreateEventActivity extends BaseActivity {
                     @Override
                     public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                         endCalendar.set(year, month, dayOfMonth);
-                        endDateField.setText(sdf.format(endCalendar.getTime()));
+                        endDateField.setText(Event.dateFormat.format(endCalendar.getTime()));
                         Log.d("Date", "Year=" + year + " Month=" + (month + 1) + " day=" + dayOfMonth);
                     }
                 };

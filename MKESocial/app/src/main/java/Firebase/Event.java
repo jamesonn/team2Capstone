@@ -1,20 +1,19 @@
 package Firebase;
 
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.IgnoreExtraProperties;
-import com.google.firebase.database.Exclude;
+import android.util.Log;
 
-import java.util.Locale;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import android.util.Log;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by cfoxj2 on 10/23/2017.
@@ -31,10 +30,12 @@ public class Event implements Databasable{
     private int suggestedAge, rating;
     private double cost;
     private List<Tag> tags;
-    //TODO link to other users https://developer.android.com/training/app-links/deep-linking.html
     private String attendees; //layout attendeesID:attendeesName attendeesID:attendeesName
     private String eid;
     private String image; //holds URL of image on firebase storage
+
+    public static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+    public static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
 
     public Event() {
@@ -46,7 +47,7 @@ public class Event implements Databasable{
         setTitle(title);
         setDescription(description);
         setStartDate(startDate);
-        setEndDate(endDate, startDate);
+        setEndDate(endDate);
         setStartTime(startTime);
         setEndTime(endTime);
         setLocation(location);
@@ -64,7 +65,7 @@ public class Event implements Databasable{
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
-        setEndDate(parseDate(endDate), getStartDate());
+        setEndDate(parseDate(endDate));
         setStartTime(parseTime(startTime));
         setEndTime(parseTime(endTime));
         setLocation(location);
@@ -81,7 +82,7 @@ public class Event implements Databasable{
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
-        setEndDate(parseDate(endDate), getStartDate());
+        setEndDate(parseDate(endDate));
         setStartTime(parseTime(startTime));
         setEndTime(parseTime(endTime));
         setLocation(location);
@@ -93,16 +94,28 @@ public class Event implements Databasable{
         setImage(img);
     }
 
-    public List<Tag> parseTags(String tags)
+    /**
+     * returns the list of tags split from a given string
+     * @param tags
+     * @return
+     */
+    public static List<Tag> parseTags(String tags)
     {
         ArrayList<Tag> tagArray = new ArrayList<Tag>();
-        String[] tagSplit = tags.split("-|\\.|,");
+        // split by - , or . or /
+        String[] tagSplit = tags.split("-|\\.|,|/");
+        // add each tag (trimmed) split to an array to return
         for(String tag: tagSplit)
-            tagArray.add(new Tag(tag));
+            tagArray.add(new Tag(tag.trim().toLowerCase()));
         return tagArray;
-
     }
-    private int parseInt(String number)
+
+    /**
+     * parses an integer from a string, return -1 if NAN
+     * @param number
+     * @return
+     */
+    private static int parseInt(String number)
     {
         if(number.isEmpty()) return -1;
         if(isInteger(number, 10))
@@ -111,6 +124,13 @@ public class Event implements Databasable{
             return -1;
     }
 
+    /**
+     * returns true if string consists of character 0-9
+     * also can be a negative number starting with '-'
+     * @param s
+     * @param radix
+     * @return
+     */
     public static boolean isInteger(String s, int radix) {
         if(s.isEmpty()) return false;
         for(int i = 0; i < s.length(); i++) {
@@ -123,14 +143,17 @@ public class Event implements Databasable{
         return true;
     }
 
+    /**
+     * parses the date from a given string in the format MM/dd/yy
+     * @param cDate
+     * @return
+     */
     public static GregorianCalendar parseDate(String cDate)
     {
-        final String myFormat = "MM/dd/yy";
-        DateFormat df = new SimpleDateFormat(myFormat, Locale.US);
         Date date = new Date();
         GregorianCalendar gDate = new GregorianCalendar();
         try {
-            date = df.parse(cDate);
+            date = dateFormat.parse(cDate);
         }
         catch(java.text.ParseException e){
             Log.w(TAG, "Date not converted: "+ cDate);
@@ -139,14 +162,17 @@ public class Event implements Databasable{
         return gDate;
     }
 
+    /**
+     * parses the time from a given string in the format 'hh:mm a', locale US
+     * @param cTime
+     * @return
+     */
     public static GregorianCalendar parseTime(String cTime)
     {
-        final String displayFormat = "hh:mm a";
-        DateFormat df = new SimpleDateFormat(displayFormat);
         Date time = new Date();
         GregorianCalendar gTime = new GregorianCalendar();
         try {
-            time = df.parse(cTime);
+            time = timeFormat.parse(cTime);
         }
         catch(java.text.ParseException e){
             Log.w(TAG, "Date not converted: "+ cTime);
@@ -155,7 +181,11 @@ public class Event implements Databasable{
         return gTime;
     }
 
-    //MAP to store in DB
+    /**
+     * stores adn returns all the event fields into <String, Obj> HashMap
+     * used to store event obj in db
+     * @return
+     */
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
@@ -193,33 +223,52 @@ public class Event implements Databasable{
         this.description = description;
     }
 
+    /**
+     * returns start date (long) as gregorian calendar obj
+     * @return
+     */
     public GregorianCalendar getStartDate() {
         GregorianCalendar gDate = new GregorianCalendar();
         gDate.setTimeInMillis(startDate);
         return gDate;
     }
 
+    /**
+     * Sets the start date (long) using a GregorianCalendar obj
+     * @param startDate
+     */
     @Exclude
-    public void setStartDate(GregorianCalendar date) {
-        this.startDate = date.getTimeInMillis();
+    public boolean setStartDate(GregorianCalendar startDate) {
+
+        if(startDate == null || (endDate != 0.0 &&
+                MethodOrphanage.compareDates(startDate, getEndDate()) > 0))
+            return false;
+        this.startDate = startDate.getTimeInMillis();
+        return true;
     }
 
+    /**
+     * returns end date (long) as gregorian calendar obj
+     * @return
+     */
     public GregorianCalendar getEndDate() {
         GregorianCalendar gDate = new GregorianCalendar();
         gDate.setTimeInMillis(endDate);
         return gDate;
     }
 
-    //Need both times to compare to set right
+    /**
+     * return true if date was set
+     * @param endDate
+     * @return
+     */
     @Exclude
-    public boolean setEndDate(GregorianCalendar startDate, GregorianCalendar endDate) {
-        if(endDate != null){
-            this.endDate = endDate.getTimeInMillis();
-            if(startDate != null){
-                return startDate.compareTo(endDate) < 0;
-            }
-        }
-        return false;
+    public boolean setEndDate(GregorianCalendar endDate) {
+        if(endDate == null || (startDate != 0.0 &&
+                MethodOrphanage.compareDates(endDate, getStartDate()) < 0))
+            return false;
+        this.endDate = endDate.getTimeInMillis();
+        return true;
     }
 
     public GregorianCalendar getStartTime() {
@@ -228,9 +277,17 @@ public class Event implements Databasable{
         return gTime;
     }
 
+    /**
+     * return true if start date was set correctly
+     * @param startTime
+     */
     @Exclude
-    public void setStartTime(GregorianCalendar startTime) {
+    public boolean setStartTime(GregorianCalendar startTime) {
+        if(startTime == null ||
+                (endTime != 0.0) && MethodOrphanage.compareTimes(startTime, getEndTime()) > 1)
+            return false;
         this.startTime = startTime.getTimeInMillis();
+        return true;
     }
 
     public GregorianCalendar getEndTime() {
@@ -240,8 +297,14 @@ public class Event implements Databasable{
     }
 
     @Exclude
-    public void setEndTime(GregorianCalendar endTime) {
+    public boolean setEndTime(GregorianCalendar endTime) {
+
+        if(endTime == null ||
+                (startTime != 0.0) && MethodOrphanage.compareTimes(endTime, getStartTime()) > 1)
+            return false;
         this.endTime = endTime.getTimeInMillis();
+        return true;
+
     }
 
     public String getLocation() {
@@ -251,34 +314,6 @@ public class Event implements Databasable{
     @Exclude
     public void setLocation(String location) {
         this.location=location;
-    }
-
-    public String getFullAddress(){
-        String fullAddress;//0000 Street Name, City, State Zip, Country:LatLng:(0,0)
-                           //City, State Zip, Country:LatLng:(0,0)
-                           //State Zip, Country:LatLng:(0,0)
-        fullAddress = location.substring(0, location.indexOf(":"));
-        String[] addr = fullAddress.split(",");
-        //for loop to append the stuff together and then return it
-        String firstPart = " ";
-        for(int i=0;i<addr.length;++i){
-            firstPart+=addr[i]+"\n";
-        }
-        return firstPart;
-    }
-
-    public Double getLat(){
-        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
-        String toSplit = location.substring(location.indexOf("(") + 1, location.lastIndexOf(")"));
-        String[] getLatLng = toSplit.split(",");
-        return Double.parseDouble(getLatLng[0]);
-    }
-
-    public Double getLng(){
-        //0000 Street Name, City, State Zip, Country LatLng:(0,0)
-        String toSplit = location.substring(location.indexOf("(") + 1, location.lastIndexOf(")"));
-        String[] getLatLng = toSplit.split(",");
-        return Double.parseDouble(getLatLng[1]);
     }
 
     public String getHostUid() {
@@ -343,6 +378,23 @@ public class Event implements Databasable{
         Event event = snapshot.getValue(Event.class);
         event.setEventId(snapshot.getKey());
         return event;
+    }
+
+    public String getFormattedStartDate()
+    {
+        return dateFormat.format(getStartDate().getTime());
+    }
+    public String getFormattedEndDate()
+    {
+        return dateFormat.format(getEndDate().getTime());
+    }
+    public String getFormattedStartTime()
+    {
+        return timeFormat.format(getStartTime().getTime());
+    }
+    public String getFormattedEndTime()
+    {
+        return timeFormat.format(getEndTime().getTime());
     }
 
 }

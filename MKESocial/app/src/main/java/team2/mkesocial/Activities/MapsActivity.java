@@ -33,6 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import Firebase.Event;
+import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.R;
@@ -98,13 +99,15 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback  {
                                         Event event = Event.fromSnapshot(childSnap);
                                         for(int i=0; i<aEv.length;++i) {
                                             if (event.getEventId().equals(aEv[i])){  //
-                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(event.getLat(), event.getLng())).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
+                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                                                 eventM.setTag(aID[i]);
                                             }
                                         }
                                         for(int i=0; i<hEv.length;++i) {
                                             if (event.getEventId().equals(hEv[i])){  //
-                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(event.getLat(), event.getLng())).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                                                eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
+                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                                                 eventM.setTag(hID[i]);
                                             }
                                         }

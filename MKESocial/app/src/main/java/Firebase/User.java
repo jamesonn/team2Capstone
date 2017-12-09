@@ -321,9 +321,15 @@ public class User implements Databasable{
 
     public static User fromSnapshot(DataSnapshot snapshot)
     {
-        User user = snapshot.getValue(User.class);
-        user.setUserId(snapshot.getKey());
-        return user;
+        try {
+            User user = snapshot.getValue(User.class);
+            user.setUserId(snapshot.getKey());
+            return user;
+        }catch (Exception e)
+        {
+            Log.e("","Unable to fetch user");
+        }
+        return null;
     }
 
 }

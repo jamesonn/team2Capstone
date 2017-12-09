@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import javax.sql.DataSource;
 
 import Firebase.Event;
+import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import team2.mkesocial.R;
 
@@ -109,20 +110,17 @@ public class EventActivity extends Activity implements ValueEventListener {
 
     private void populateEventData(DataSnapshot data){
         fetchedEvent = Event.fromSnapshot(data);
-        SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:mm a");
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
         title.setText(fetchedEvent.getTitle());
         description.setText(fetchedEvent.getDescription());
-        startDate.setText(dateFormatter.format(fetchedEvent.getStartDate().getTime()));
-        endDate.setText(dateFormatter.format(fetchedEvent.getEndDate().getTime()));
-        startTime.setText(timeFormatter.format(fetchedEvent.getStartTime().getTime()));
-        endTime.setText(timeFormatter.format(fetchedEvent.getEndTime().getTime()));
-        location.setText(fetchedEvent.getFullAddress());
+        startDate.setText(fetchedEvent.getFormattedStartDate());
+        endDate.setText(fetchedEvent.getFormattedEndDate());
+        startTime.setText(fetchedEvent.getFormattedStartTime());
+        endTime.setText(fetchedEvent.getFormattedEndTime());
+        location.setText(MethodOrphanage.getFullAddress(fetchedEvent.getLocation()));
 
         //populate image
         if(fetchedEvent.getImage() != null && !fetchedEvent.getImage().isEmpty()) {
-            final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress);
 
             Glide.with(getApplicationContext())
                     .load(fetchedEvent.getImage())

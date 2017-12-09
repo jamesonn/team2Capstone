@@ -45,6 +45,14 @@
             android:text="Log in" />
     </TableRow>
     <TableRow>
+        <Button
+            android:id="@+id/github_sign_in_button"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Log in with GitHub" />
+    </TableRow>
+    <TableRow>
         <com.google.android.gms.common.SignInButton
             android:id="@+id/google_sign_in"
             android:layout_width="0dip"

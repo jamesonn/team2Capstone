@@ -150,12 +150,16 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 //User gets to know events he/she is attending
                 if(user.getAttendEid().isEmpty()|| !user.getAttendEid().contains(_eventId+"`"+title.getText()+"`")){
                     att.setImageResource(R.mipmap.ic_not_attending_pic);
+                } else {
+                    att.setImageResource(R.mipmap.ic_attending_pic);
+                    att.setContentDescription("true");
                 }
-                else{ att.setImageResource(R.mipmap.ic_attending_pic);}
                 if(user.getMaybeEid().isEmpty()|| !user.getMaybeEid().contains(_eventId+"`"+title.getText()+"`")){
                     maybe.setImageResource(R.mipmap.ic_not_maybe_pic);
+                } else {
+                    maybe.setImageResource(R.mipmap.ic_maybe_pic);
+                    maybe.setContentDescription("true");
                 }
-                else{  maybe.setImageResource(R.mipmap.ic_maybe_pic);}
              }
             @Override
             public void onCancelled(DatabaseError databaseError) {}

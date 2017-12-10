@@ -25,10 +25,6 @@ import com.facebook.login.widget.LoginButton;
 import com.github.scribejava.apis.GitHubApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Token;
-import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -51,9 +47,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.io.IOException;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import Firebase.User;
@@ -68,7 +62,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     private AuthCredential credential;
 
     private static final String PROTECTED_RESOURCE_URL = "https://github.com/login/oauth/authorize";
-    private String mkeSocialCallback = "mkesocial://callback";
+    private String mkeSocialCallback = "https://mkesocial-3f65e.firebaseapp.com/__/auth/handler";
 
     private String mVerificationId;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
@@ -185,9 +179,8 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                 });
     }
 
-    private void createAndSendGithubRequest(String token){
-        AuthCredential credential = GithubAuthProvider.getCredential(token);
-        mAuth.signInWithCredential(credential)
+    private void verifyGithubToken(AuthCredential token){
+        mAuth.signInWithCredential(token)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -198,15 +191,9 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-
-                        // ...
                     }
                 });
     }
-
-
-
-
 
     private void verifyPhoneNumberWithCode(String verificationId, String code) {
 
@@ -335,7 +322,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         githubLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent gitHubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PROTECTED_RESOURCE_URL + "?client_id=" + "29986eb3c7d405c3036c" + "&scope=read:user&redirect_url=" + mkeSocialCallback));
+                Intent gitHubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PROTECTED_RESOURCE_URL + "?client_id=" + "29986eb3c7d405c3036c" + "&scope=repo&redirect_url=" + mkeSocialCallback));
                 startActivity(gitHubIntent);
             }
         });
@@ -399,14 +386,16 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         return mAuth;
     }
 
-    private class AsyncTokenRetrieval extends AsyncTask<String, Void, String> {
+    private class AsyncTokenRetrieval extends AsyncTask<String, Void, AuthCredential> {
         @Override
-        protected String doInBackground(String... params) {
+        protected AuthCredential doInBackground(String... params) {
             OAuth2AccessToken accessToken = null;
             try {
+                final String secretState = "secret" + new Random().nextInt(999_999);
                 OAuth20Service service = new ServiceBuilder()
                         .apiKey("29986eb3c7d405c3036c")
                         .apiSecret("4053dd92819fb7d067685c741a72fa9a0cf40502")
+                        .state(secretState)
                         .callback(mkeSocialCallback)
                         .build(GitHubApi.instance());
 
@@ -416,15 +405,16 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                 Log.d("EXCEPTION", e.toString());
             }
             if(accessToken.toString() != null) {
-                return accessToken.toString();
+                AuthCredential credential = GithubAuthProvider.getCredential(accessToken.getAccessToken());
+                return credential;
             }else{
-                return "";
+                return null;
             }
         }
 
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(AuthCredential result) {
             if (result != null) {
-                createAndSendGithubRequest(result);
+                verifyGithubToken(result);
             }
         }
     }

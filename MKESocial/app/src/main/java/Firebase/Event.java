@@ -28,8 +28,14 @@ import Validation.WordScrubber;
 @IgnoreExtraProperties
 public class Event implements Databasable, Cloneable {
 
+    //Stuff to not store
+    @Exclude
     private static final String TAG = Event.class.getSimpleName();
-
+    @Exclude
+    public static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+    @Exclude
+    public static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    //Stuff to store
     private String title, description;
     private long startDate, endDate, startTime, endTime;
     private String location;
@@ -38,16 +44,14 @@ public class Event implements Databasable, Cloneable {
     private double cost;
     private List<Tag> tags;
     private String attendees; //layout attendeesID:attendeesName attendeesID:attendeesName
-    private String eid;
+    private String eventId;
     private String image; //holds URL of image on firebase storage
-
-    public static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-    public static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
 
     public Event() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
+
     public Event(String title, String description, GregorianCalendar startDate, GregorianCalendar endDate,
                  GregorianCalendar startTime, GregorianCalendar endTime, String location,
                  String hostUid, String attendees, int suggestedAge, int rating, double cost, List<Tag> tags) {
@@ -65,7 +69,6 @@ public class Event implements Databasable, Cloneable {
         setCost(cost);
         setTags(tags);
     }
-
     public Event(String title, String description, String startDate, String endDate, String startTime,
                  String endTime, String location, String hostUid, String attendees, String suggestedAge, String rating,
                  String cost, String tags) {
@@ -218,6 +221,7 @@ public class Event implements Databasable, Cloneable {
         return title;
     }
 
+    @Exclude
     public boolean setTitle(String title) {
         this.title = title;
         return true;
@@ -227,6 +231,7 @@ public class Event implements Databasable, Cloneable {
         return description;
     }
 
+    @Exclude
     public boolean setDescription(String description) {
         if(description == null || description.isEmpty()) return false;
         this.description = description;//new WordScrubber().filterOffensiveWords(description, c);
@@ -352,6 +357,7 @@ public class Event implements Databasable, Cloneable {
         return hostUid;
     }
 
+    @Exclude
     public boolean setHostUid(String hostUid) {
         if(hostUid == null || hostUid.isEmpty()) return false;
         this.hostUid = hostUid;
@@ -362,6 +368,7 @@ public class Event implements Databasable, Cloneable {
         return suggestedAge;
     }
 
+    @Exclude
     public boolean setSuggestedAge(int suggestedAge) {
         if(suggestedAge > 120 || suggestedAge < 0)
             return false;
@@ -373,6 +380,7 @@ public class Event implements Databasable, Cloneable {
         return rating;
     }
 
+    @Exclude
     public boolean setRating(int rating) {
         if(rating < 0 || rating > 5) return false;
         this.rating = rating;
@@ -384,6 +392,7 @@ public class Event implements Databasable, Cloneable {
     }
 
     //cost is in double format so 2.00 = 200
+    @Exclude
     public boolean setCost(double cost) {
         if(cost < 0 || cost > 50000)
             return false;
@@ -395,6 +404,7 @@ public class Event implements Databasable, Cloneable {
         return tags;
     }
 
+    @Exclude
     public boolean setTags(List<Tag> tags) {
         if(tags == null || tags.isEmpty()) return false;
         this.tags = tags;
@@ -403,23 +413,26 @@ public class Event implements Databasable, Cloneable {
 
     public String getAttendees(){return this.attendees;}
 
+    @Exclude
     public boolean setAttendes(String attendees){
         if(attendees == null || attendees.isEmpty()) return false;
         this.attendees=attendees;
         return true;
     }
 
-    public String getEventId() { return eid; }
+    public String getEventId() { return eventId; }
 
     @Exclude
-    private boolean setEventId(String id) { eid = id;
+    private boolean setEventId(String id) {
         if(id == null || id.isEmpty()) return false;
+        eventId = id;
         return true;}
 
     public String getImage() {
         return image;
     }
 
+    @Exclude
     public boolean setImage(String img) {
         if(img == null || img.isEmpty()) return false;
         this.image = img;
@@ -429,26 +442,19 @@ public class Event implements Databasable, Cloneable {
     public static Event fromSnapshot(DataSnapshot snapshot)
     {
         Event event = snapshot.getValue(Event.class);
+        if(event == null) return  event;
         event.setEventId(snapshot.getKey());
         return event;
     }
 
-    public String getFormattedStartDate()
-    {
-        return dateFormat.format(getStartDate().getTime());
-    }
-    public String getFormattedEndDate()
-    {
-        return dateFormat.format(getEndDate().getTime());
-    }
-    public String getFormattedStartTime()
-    {
-        return timeFormat.format(getStartTime().getTime());
-    }
-    public String getFormattedEndTime()
-    {
-        return timeFormat.format(getEndTime().getTime());
-    }
+    @Exclude
+    public String getFormattedStartDate() { return dateFormat.format(getStartDate().getTime());}
+    @Exclude
+    public String getFormattedEndDate() {return dateFormat.format(getEndDate().getTime()); }
+    @Exclude
+    public String getFormattedStartTime() { return timeFormat.format(getStartTime().getTime()); }
+    @Exclude
+    public String getFormattedEndTime() { return timeFormat.format(getEndTime().getTime()); }
 
     @Exclude
     @Override
@@ -458,8 +464,8 @@ public class Event implements Databasable, Cloneable {
         if (other == null || getClass() != other.getClass())
             return false;
 
-        if (eid != null)
-            return eid.equals(other.eid);
+        if (eventId != null)
+            return eventId.equals(other.eventId);
 
         return title.equals(other.title) &&
                 description.equals(other.description) &&

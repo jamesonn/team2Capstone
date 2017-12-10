@@ -439,9 +439,15 @@ public class Event implements Databasable, Cloneable {
         return true;
     }
 
+    /**
+     * get event object from snapshot
+     * @param snapshot
+     * @return
+     */
     public static Event fromSnapshot(DataSnapshot snapshot)
     {
         Event event = snapshot.getValue(Event.class);
+        //Event is not in database
         if(event == null) return  event;
         event.setEventId(snapshot.getKey());
         return event;

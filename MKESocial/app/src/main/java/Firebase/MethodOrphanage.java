@@ -274,4 +274,14 @@ public class MethodOrphanage {
         return attendees.substring(0, attendees.length() - 1);
     }
 
+    public static void updateUserHosting(DatabaseReference userDatabase, String userId, String hostListString,
+                                         String eventDelId, String eventDelTitle)
+    {
+        //Remove event from user's DB profile
+        userDatabase.child(userId).child("hostEid").setValue(hostListString
+                .replace(eventDelId + "`" + eventDelTitle + "`", ""));
+
+    }
+
+
 }

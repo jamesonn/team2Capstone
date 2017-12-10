@@ -129,7 +129,7 @@
     <string name="share_events_attending_on_profile">Share Events Attending on Profile</string>
     <string name="share_events_hosting_on_profile">Share Events Hosting on Profile</string>
     <string name="search_for_your_home_address">Search for your home address</string>
-    
+
     <string name="fragment_busy_time_message">Select a busy time to edit it:</string>
     <string name="fragment_busy_time_dupe_error">Busy time already exists</string>
 

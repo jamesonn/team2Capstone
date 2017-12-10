@@ -666,13 +666,18 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                     eventDatabase.child(attendEids.get(index)).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+                            //TODO
                             Event e = Event.fromSnapshot(dataSnapshot);
                             if(e != null)
                                 interestedEvents.add(e);
-                            else {//remove reference to deleted event
-                                eventDatabase.child(attendEids.get(index)).removeValue();
+                            else {//remove event to deleted event
+                                String attendEvId = attendEids.get(index);
                                 attendEids.remove(index);
-                            }
+                                attendEids.remove(index + 1);
+                                String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
+                                //update user's attend list
+                                userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
+                        }
                         }
 
                         @Override
@@ -685,13 +690,20 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 for (int i = 0; i < maybeEids.size(); i++) {
                     if (i % 2 == 1)
                         continue;
-
+                    final int index = i;
                     eventDatabase.child(maybeEids.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Event e = Event.fromSnapshot(dataSnapshot);
                             if(e != null)
                                 interestedEvents.add(e);
+                            else {//remove reference to deleted event
+                                maybeEids.remove(index); //remove key
+                                maybeEids.remove(index + 1); //remove event title
+                                String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
+                                //update users's maybe list
+                                userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);
+                            }
                         }
 
                         @Override

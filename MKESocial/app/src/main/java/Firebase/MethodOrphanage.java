@@ -1,9 +1,36 @@
 package Firebase;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 import org.joda.time.DateTimeComparator;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import team2.mkesocial.Constants;
 
 /**
  * Created by cfoxj2 on 12/8/2017.
@@ -69,6 +96,159 @@ public class MethodOrphanage {
         DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
         return comparator.compare(time1, time2);
 
+    }
+
+
+    /*************************************
+     * IMAGE UPLOADING Helper Methods:
+     * setting up image picker
+     * retrieving image
+     * uploading (store new, delete old)
+     * ************************************/
+    //get file extension information from URI info on picture
+    private static String getFileExtension(Activity a, Uri uri) {
+        ContentResolver cR = a.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+
+    /**
+     * Uploads new file to storeRef, deleting old if it's different,
+     *  and returns URI of image's firestore location
+     * @param a
+     * @param storageReference
+     * @param newFilePath
+     * @param oldFilePath
+     * @return
+     */
+    public static void uploadFile(Activity a, StorageReference storageReference, Uri newFilePath, String oldFilePath, DatabaseReference placeToStoreRef) {
+        //checking if file is available
+        if (newFilePath != null && !newFilePath.toString().equals(oldFilePath)) {
+            //displaying progress dialog while image is uploading
+            final ProgressDialog progressDialog = new ProgressDialog(a.getApplicationContext());
+
+            //getting the storage reference
+            StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS
+                    + System.currentTimeMillis() + "." + getFileExtension(a, newFilePath));
+
+            //adding the file to reference
+            sRef.putFile(newFilePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                            //displaying success toast
+                            Toast.makeText(a.getApplicationContext(), "Image Uploaded ", Toast.LENGTH_LONG).show();
+                            placeToStoreRef.setValue(taskSnapshot.getDownloadUrl().toString());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Toast.makeText(a.getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        }
+                    });
+
+            //Delete old image
+            if (oldFilePath != null && !oldFilePath.isEmpty()){
+                StorageReference oldRef = FirebaseStorage.getInstance().getReference(oldFilePath);
+                oldRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // File deleted successfully
+                        Log.e("firebasestorage", "onSuccess: deleted file");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Uh-oh, an error occurred!
+                        Log.e("firebasestorage", "onFailure: did not delete file");
+                    }
+                });
+            }
+        }
+    }
+
+    //fix rotation issues
+    public static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
+    }
+
+    public static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > ratioBitmap) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
+        }
+    }
+
+    public static Uri onPictureResult(Intent data, int resultCode, Activity a, ImageView eventImage) {
+        Uri filePath = null;
+        // Check if an image was selected
+        if (data != null) {
+            filePath = data.getData();
+            if (resultCode == -1) {//RESULT_OK = -1
+                Uri selectedMediaUri = data.getData();
+                if (selectedMediaUri.toString().contains("image")) {
+                    try {//Update the display values
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(a.getContentResolver(), filePath);
+                        //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+                        ExifInterface exif = new ExifInterface(a.getContentResolver().openInputStream(filePath));
+                        //get current rotation...
+                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        //convert to degrees
+                        int rotationInDegrees = exifToDegrees(rotation);
+                        Matrix matrix = new Matrix();
+                        if (rotation != 0f) {
+                            matrix.preRotate(rotationInDegrees);
+                        }
+
+                        // Screen height
+                        DisplayMetrics display = new DisplayMetrics();
+                        a.getWindowManager().getDefaultDisplay().getMetrics(display);
+                        int screenWidth = display.widthPixels;
+                        int screenHeight = display.heightPixels;
+
+                        Bitmap adjustedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        Bitmap scaledBitmap = resize(adjustedBitmap, bitmap.getWidth(), screenHeight / 3);
+                        //resize the imageView displaying image
+                        android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
+                        layoutParams.width = eventImage.getWidth();
+                        layoutParams.height = scaledBitmap.getHeight();
+                        eventImage.setLayoutParams(layoutParams);
+
+                        eventImage.setImageBitmap(scaledBitmap);
+
+
+                    } catch (Exception e) {
+                    }
+                } else {
+                    Toast.makeText(a.getApplicationContext(), "Incorrect Image format selected", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        return filePath;
     }
 
 }

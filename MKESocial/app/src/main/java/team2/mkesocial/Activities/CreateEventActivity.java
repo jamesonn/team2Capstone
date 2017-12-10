@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import Firebase.Event;
+import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
@@ -81,8 +82,6 @@ public class CreateEventActivity extends BaseActivity {
 
     private PlaceAutocompleteFragment autocompleteFragment;
     private Place placePicked;
-
-    private boolean imageUploaded = false;
 
     private Uri filePath;
 
@@ -383,108 +382,9 @@ public class CreateEventActivity extends BaseActivity {
     }
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Check if an image was selected
-        if(data != null){
-            imageUploaded = true;
-           filePath = data.getData();
-            if (resultCode == RESULT_OK) {
-                Uri selectedMediaUri = data.getData();
-                if (selectedMediaUri.toString().contains("image")) {
-                    try {//Update the display values
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                        //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
-                        ExifInterface exif = new ExifInterface(getContentResolver().openInputStream(filePath));
-                        //get current rotation...
-                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        //convert to degrees
-                        int rotationInDegrees = exifToDegrees(rotation);
-                        Matrix matrix = new Matrix();
-                        if (rotation != 0f) {
-                            matrix.preRotate(rotationInDegrees);
-                        }
 
-                        // Screen height
-                        DisplayMetrics display = new DisplayMetrics();
-                        getWindowManager().getDefaultDisplay().getMetrics(display);
-                        int screenWidth = display.widthPixels;
-                        int screenHeight = display.heightPixels;
-
-                        Bitmap adjustedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                        Bitmap scaledBitmap = resize(adjustedBitmap, bitmap.getWidth(), screenHeight / 3);
-                        //resize the imageView displaying image
-                        android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
-                        layoutParams.width = eventImage.getWidth();
-                        layoutParams.height = scaledBitmap.getHeight();
-                        eventImage.setLayoutParams(layoutParams);
-
-                        eventImage.setImageBitmap(scaledBitmap);
-
-
-                    } catch (Exception e) {
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Incorrect Image format selected", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
+        //TODO OOOOOOOOOOO
     }
-    //EVENT IMAGE PART
-    /*************************************
-     * Helper Methods:
-     * setting up image picker
-     * retrieving image
-     * uploading (store new, delete old)
-     * ************************************/
-    //get file extension information from URI info on picture
-   private String getFileExtension(Uri uri) {
-        ContentResolver cR = getContentResolver();
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        return mime.getExtensionFromMimeType(cR.getType(uri));
-    }
-
-    //upload picture to firebase storage and to update storage + database
-    //ToDo Delete old image from firebase when user decides to upload a new picture
-    private void uploadFile(String eventId) {
-        //checking if file is available
-        if (filePath != null) {
-            //displaying progress dialog while image is uploading
-//            final ProgressDialog progressDialog = new ProgressDialog(this);
-//            progressDialog.setTitle("Updating");
-//            progressDialog.show();
-
-            //getting the storage reference
-            StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
-
-            //adding the file to reference
-            sRef.putFile(filePath)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            //dismissing the progress dialog
-//                            progressDialog.dismiss();
-                            //displaying success toast
-                            eventDatabase.child(eventId).child("image").setValue(taskSnapshot.getDownloadUrl().toString());
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-//                            progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            //displaying the upload progress
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-//                            progressDialog.setMessage("Updated " + ((int) progress) + "%...");
-                        }
-                    });
-
-        }
-    }
-
 
     private boolean submitEvent() {
         //collect filled out info
@@ -555,19 +455,16 @@ public class CreateEventActivity extends BaseActivity {
         // 1) Push event and get a unique Event ID
         // Push an empty node with a unique key under 'events' node in JSON
         final String eventId = eventDatabase.child("events").push().getKey();
-        String imageUrl = eventId;
 
-        if(filePath != null)
-            uploadFile(eventId);
-        else
-            imageUrl = "";
+        if(filePath != null)//Activity a, StorageReference storageReference, Uri newFilePath, String oldFilePath, DatabaseReference placeToStoreRef) {
+            MethodOrphanage.uploadFile(this, storageReference, filePath, "", eventDatabase.child(eventId).child("image"));
 
 
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
         final String userId = getUid();
         Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
-                userId,"", suggestedAge, "", cost, tags, imageUrl);
+                userId,"", suggestedAge, "", cost, tags);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());
 
@@ -609,32 +506,5 @@ public class CreateEventActivity extends BaseActivity {
             .setNegativeButton("No", null)
             .show();
     }
-    //fix rotation issues
-    private static int exifToDegrees(int exifOrientation) {
-        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
-        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
-        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
-        return 0;
-    }
 
-    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
-        if (maxHeight > 0 && maxWidth > 0) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-            float ratioBitmap = (float) width / (float) height;
-            float ratioMax = (float) maxWidth / (float) maxHeight;
-
-            int finalWidth = maxWidth;
-            int finalHeight = maxHeight;
-            if (ratioMax > ratioBitmap) {
-                finalWidth = (int) ((float)maxHeight * ratioBitmap);
-            } else {
-                finalHeight = (int) ((float)maxWidth / ratioBitmap);
-            }
-            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-            return image;
-        } else {
-            return image;
-        }
-    }
 }

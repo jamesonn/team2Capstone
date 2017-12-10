@@ -2,7 +2,6 @@ package team2.mkesocial.Activities;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -21,8 +20,8 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
@@ -30,7 +29,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -40,29 +39,22 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.android.gms.common.api.Status;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 
 import Firebase.Event;
-import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
+import Validation.TextValidator;
 import team2.mkesocial.Constants;
 import team2.mkesocial.R;
-import Validation.TextValidator;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Calendar;
-import java.util.Map;
 
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
 import static Firebase.Databasable.DB_USERS_NODE_NAME;
@@ -89,6 +81,8 @@ public class CreateEventActivity extends BaseActivity {
 
     private PlaceAutocompleteFragment autocompleteFragment;
     private Place placePicked;
+
+    private boolean imageUploaded = false;
 
     private Uri filePath;
 
@@ -391,6 +385,7 @@ public class CreateEventActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         // Check if an image was selected
         if(data != null){
+            imageUploaded = true;
            filePath = data.getData();
             if (resultCode == RESULT_OK) {
                 Uri selectedMediaUri = data.getData();
@@ -549,7 +544,7 @@ public class CreateEventActivity extends BaseActivity {
         // Check if any fields are in error
         for (EditText x : objectList) {
             if (x.getError() != null) {
-                createButton.setError(x.getId() + " field is invalid");
+                createButton.setError(x.getError());
                 return false;
             }
         }
@@ -560,16 +555,19 @@ public class CreateEventActivity extends BaseActivity {
         // 1) Push event and get a unique Event ID
         // Push an empty node with a unique key under 'events' node in JSON
         final String eventId = eventDatabase.child("events").push().getKey();
+        String imageUrl = eventId;
 
         if(filePath != null)
             uploadFile(eventId);
+        else
+            imageUrl = "";
 
 
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
         final String userId = getUid();
         Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
-                userId,"", suggestedAge, "", cost, tags, eventId);
+                userId,"", suggestedAge, "", cost, tags, imageUrl);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(newEvent.toMap());
 

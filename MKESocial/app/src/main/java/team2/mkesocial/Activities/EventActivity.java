@@ -37,6 +37,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
@@ -520,7 +521,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Event event = Event.fromSnapshot(dataSnapshot);
                     //An event knows the people for sure attending it
-                    if(event.getAttendees().isEmpty()){eventDatabase.child(_eventId).child("attendees").setValue(getUid()+"`");}
+                    if(event.getAttendees() == null || event.getAttendees().isEmpty()){eventDatabase.child(_eventId).child("attendees").setValue(getUid()+"`");}
                     else if (!event.getAttendees().contains(getUid()+"`")){//1 user can attend 1x (prevent duplicate attendees)
                         eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees() + getUid()+"`");
                     }
@@ -655,17 +656,28 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
 
                 busyTimes = user.getBusyTimes();
 
-                String[] attendEids = user.getAttendEid().split("`");
-                String[] maybeEids = user.getMaybeEid().split("`");
+                List<String> attendEids = new ArrayList<String>(Arrays.asList(user.getAttendEid().split("`")));
+                List<String> maybeEids = new ArrayList<String>(Arrays.asList(user.getMaybeEid().split("`")));
 
-                for (int i = 0; i < attendEids.length; i++) {
+                for (int i = 0; i < attendEids.size(); i++) {
                     if (i % 2 == 1)
                         continue;
-
-                    eventDatabase.child(attendEids[i]).addListenerForSingleValueEvent(new ValueEventListener() {
+                    final int index = i;
+                    eventDatabase.child(attendEids.get(index)).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            interestedEvents.add(Event.fromSnapshot(dataSnapshot));
+                            //TODO
+                            Event e = Event.fromSnapshot(dataSnapshot);
+                            if(e != null)
+                                interestedEvents.add(e);
+                            else {//remove event to deleted event
+                                String attendEvId = attendEids.get(index);
+                                attendEids.remove(index);
+                                attendEids.remove(index + 1);
+                                String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
+                                //update user's attend list
+                                userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
+                        }
                         }
 
                         @Override
@@ -675,14 +687,23 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                     });
                 }
 
-                for (int i = 0; i < maybeEids.length; i++) {
+                for (int i = 0; i < maybeEids.size(); i++) {
                     if (i % 2 == 1)
                         continue;
-
-                    eventDatabase.child(maybeEids[i]).addListenerForSingleValueEvent(new ValueEventListener() {
+                    final int index = i;
+                    eventDatabase.child(maybeEids.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            interestedEvents.add(Event.fromSnapshot(dataSnapshot));
+                            Event e = Event.fromSnapshot(dataSnapshot);
+                            if(e != null)
+                                interestedEvents.add(e);
+                            else {//remove reference to deleted event
+                                maybeEids.remove(index); //remove key
+                                maybeEids.remove(index + 1); //remove event title
+                                String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
+                                //update users's maybe list
+                                userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);
+                            }
                         }
 
                         @Override

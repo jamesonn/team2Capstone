@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import Firebase.Event;
+import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.User;
 import team2.mkesocial.Constants;
@@ -588,8 +589,9 @@ private void populateHost(String names){
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         User user = User.fromSnapshot(dataSnapshot);
                                         //Remove event from user's DB profile
-                                        userDatabase.child(userId).child("hostEid").setValue(user.getHostEid().replace(eventsL.getContentDescription().toString() + "`" + eventsL.getText() + "`", ""));
-                                        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_p);
+                                        MethodOrphanage.updateUserHosting(userDatabase, userId, user.getHostEid()
+                                                , eventsL.getContentDescription().toString(), eventsL.getText().toString());
+                                       RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_p);
 
                                         // inflate the layout of the popup window
                                         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);

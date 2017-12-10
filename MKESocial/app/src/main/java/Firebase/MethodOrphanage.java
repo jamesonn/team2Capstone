@@ -27,8 +27,10 @@ import com.google.firebase.storage.UploadTask;
 
 import org.joda.time.DateTimeComparator;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import team2.mkesocial.Constants;
 
@@ -247,6 +249,38 @@ public class MethodOrphanage {
             }
         }
         return filePath;
+    }
+
+    public static String safeDBFetch(DatabaseReference d)
+    {
+        String fetch = "";
+        try{
+
+        }catch(Exception e)
+        {
+
+        }
+        return fetch;
+    }
+
+    public static String convertToDBFormat(List<String> attendeeList)
+    {
+        String attendees = "";
+        if(attendeeList == null) return attendees;
+        for(String a: attendeeList)
+        {
+            attendees += a +"`";
+        }
+        return attendees.substring(0, attendees.length() - 1);
+    }
+
+    public static void updateUserHosting(DatabaseReference userDatabase, String userId, String hostListString,
+                                         String eventDelId, String eventDelTitle)
+    {
+        //Remove event from user's DB profile
+        userDatabase.child(userId).child("hostEid").setValue(hostListString
+                .replace(eventDelId + "`" + eventDelTitle + "`", ""));
+
     }
 
 

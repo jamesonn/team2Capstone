@@ -7,7 +7,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
+import org.joda.time.Interval;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -425,6 +427,7 @@ public class Event implements Databasable{
                 suggestedAge == other.suggestedAge &&
                 rating == other.rating;
     }
+
     public boolean sameDay()
     {
         if(getStartDate() == null
@@ -434,5 +437,19 @@ public class Event implements Databasable{
         return comparator.compare(getStartDate(), getEndDate()) == 0;
     }
 
+    @Exclude
+    public boolean overlaps(Event other) {
+        Interval thisSpan = new Interval(startDate + startTime, endDate + endTime);
+        Interval otherSpan = new Interval(other.startDate + other.startTime, other.endDate + other.endTime);
 
+        return thisSpan.overlaps(otherSpan);
+    }
+
+    @Exclude
+    public boolean overlaps(BusyTime busyTime) {
+        Interval thisSpan = new Interval(startDate + startTime, endDate + endTime);
+        Interval otherSpan = new Interval(busyTime.getStartTime(), busyTime.getEndTime());
+
+        return thisSpan.overlaps(otherSpan);
+    }
 }

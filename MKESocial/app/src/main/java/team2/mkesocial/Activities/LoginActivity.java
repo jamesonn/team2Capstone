@@ -3,10 +3,12 @@ package team2.mkesocial.Activities;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,7 +53,6 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.io.IOException;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +65,9 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     private Button login, githubLogin;
     private EditText userName, password;
 
-    private static final String PROTECTED_RESOURCE_URL = "https://api.github.com/user";
+    private AuthCredential credential;
+
+    private static final String PROTECTED_RESOURCE_URL = "https://github.com/login/oauth/authorize";
     private String mkeSocialCallback = "mkesocial://callback";
 
     private String mVerificationId;
@@ -182,27 +185,25 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                 });
     }
 
-    private void createAndSendGithubRequest(String code) throws IOException, InterruptedException, ExecutionException {
-        final String secretState = "secret" + new Random().nextInt(999_999);
-        try (OAuth20Service service = new ServiceBuilder()
-                .apiKey("29986eb3c7d405c3036c")
-                .apiSecret("4053dd92819fb7d067685c741a72fa9a0cf40502")
-                .state(secretState)
-                .callback("https://mkesocial-3f65e.firebaseapp.com/__/auth/handler")
-                .build(GitHubApi.instance())) {
+    private void createAndSendGithubRequest(String token){
+        AuthCredential credential = GithubAuthProvider.getCredential(token);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            logMeRightIn();
+                        }
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
 
-            // Obtain the Authorization URL
-            final String authorizationUrl = service.getAuthorizationUrl();
-
-            // Trade the Request Token and Verifier for the Access Token
-            final OAuth2AccessToken accessToken = service.getAccessToken(code);
-
-            // Now let's go and ask for a protected resource!
-            final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL);
-            service.signRequest(accessToken, request);
-            final Response response = service.execute(request);
-        }
+                        // ...
+                    }
+                });
     }
+
 
 
 
@@ -334,7 +335,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         githubLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent gitHubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PROTECTED_RESOURCE_URL + "?client_id=" + "29986eb3c7d405c3036c" + "&redirect_url=" + mkeSocialCallback));
+                Intent gitHubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PROTECTED_RESOURCE_URL + "?client_id=" + "29986eb3c7d405c3036c" + "&scope=read:user&redirect_url=" + mkeSocialCallback));
                 startActivity(gitHubIntent);
             }
         });
@@ -364,11 +365,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         super.onResume();
         Uri uri = getIntent().getData();
         if(uri != null && uri.toString().startsWith(mkeSocialCallback)){
-            try {
-                createAndSendGithubRequest(uri.getQueryParameter("code"));
-            }catch(Exception e){
-                //shit
-            }
+            new AsyncTokenRetrieval().execute(uri.getQueryParameter("code"));
         }
     }
 
@@ -401,5 +398,39 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     public static FirebaseAuth getAuth(){
         return mAuth;
     }
+
+    private class AsyncTokenRetrieval extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            OAuth2AccessToken accessToken = null;
+            try {
+                OAuth20Service service = new ServiceBuilder()
+                        .apiKey("29986eb3c7d405c3036c")
+                        .apiSecret("4053dd92819fb7d067685c741a72fa9a0cf40502")
+                        .callback(mkeSocialCallback)
+                        .build(GitHubApi.instance());
+
+                accessToken = service.getAccessToken(params[0]);
+
+            } catch (Exception e) {
+                Log.d("EXCEPTION", e.toString());
+            }
+            if(accessToken.toString() != null) {
+                return accessToken.toString();
+            }else{
+                return "";
+            }
+        }
+
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                createAndSendGithubRequest(result);
+            }
+        }
+    }
 }
+
+
+
+
 

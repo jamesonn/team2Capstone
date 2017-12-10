@@ -135,4 +135,8 @@
 
     <string name="fragment_date_time_select_message">Select start and end times:</string>
     <string name="fragment_date_time_select_range_error">End time must be later than start time!</string>
+
+    <string name="conflict_warning">The event you want to attend conflicts with %s Are you sure you want to register your interest?</string>
+    <string name="conflict_busy_time">a busy time.</string>
+    <string name="conflict_event">another event named \"%s.\"</string>
 </resources>

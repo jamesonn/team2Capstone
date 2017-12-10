@@ -1,10 +1,12 @@
 package team2.mkesocial.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,10 +37,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
+import Firebase.BusyTime;
 import Firebase.Event;
 import Firebase.MethodOrphanage;
 import Firebase.Settings;
@@ -64,6 +68,8 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
     private Event fetchedEvent;
     private ImageButton att, maybe, attendees;
     private Uri filePath;
+    private List<BusyTime> busyTimes;
+    private ArrayList<Event> interestedEvents = new ArrayList<>();
 
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
@@ -104,6 +110,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         maybe.bringToFront();
 
         iconsToDisplay();
+        getConflictData();
 
         _database = FirebaseDatabase.getInstance();
 
@@ -502,123 +509,128 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         }
     }
 
+    private void toggleAttend() {
+        if (att.getContentDescription().equals("false")) {
+            att.setImageResource(R.mipmap.ic_attending_pic); //set to attending
+            att.setContentDescription("true");
+            maybe.setImageResource(R.mipmap.ic_not_maybe_pic);//set to not maybe
+            maybe.setContentDescription("false");
+            eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Event event = Event.fromSnapshot(dataSnapshot);
+                    //An event knows the people for sure attending it
+                    if(event.getAttendees().isEmpty()){eventDatabase.child(_eventId).child("attendees").setValue(getUid()+"`");}
+                    else if (!event.getAttendees().contains(getUid()+"`")){//1 user can attend 1x (prevent duplicate attendees)
+                        eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees() + getUid()+"`");
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            });
+            userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = User.fromSnapshot(dataSnapshot);
+                    //User gets to know events he/she is attending
+                    if(user.getAttendEid().isEmpty()){userDatabase.child(getUid()).child("attendEid").setValue(_eventId+"`"+title.getText()+"`");}
+                    else if (!user.getAttendEid().contains(_eventId+"`"+title.getText()+"`")){//only let user add a "new" attending event (don't allow duplicate)
+                        userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid() + _eventId+"`"+title.getText()+"`");
+                    }
+                    userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));//remove maybe
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            });
+        }
+        else {
+            att.setImageResource(R.mipmap.ic_not_attending_pic);
+            att.setContentDescription("false");
+            userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = User.fromSnapshot(dataSnapshot);
+                    //User gets to know events he/she is attending
+                    userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId+"`"+title.getText()+"`", ""));
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            });
+
+            eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Event event = Event.fromSnapshot(dataSnapshot);
+                    //An event knows the people for sure attending it
+                    eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(getUid()+"`", ""));
+
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            });
+        }
+    }
+
     public void attending_btn_on_click(View v) {
-        if (v.getId() == R.id.attending_btn) {
-            if (att.getContentDescription().equals("false")) {
-                att.setImageResource(R.mipmap.ic_attending_pic); //set to attending
-                att.setContentDescription("true");
-                maybe.setImageResource(R.mipmap.ic_not_maybe_pic);//set to not maybe
-                maybe.setContentDescription("false");
-                eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Event event = Event.fromSnapshot(dataSnapshot);
-                        //An event knows the people for sure attending it
-                        if(event.getAttendees().isEmpty()){eventDatabase.child(_eventId).child("attendees").setValue(getUid()+"`");}
-                        else if (!event.getAttendees().contains(getUid()+"`")){//1 user can attend 1x (prevent duplicate attendees)
-                            eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees() + getUid()+"`");
-                        }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
-                userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = User.fromSnapshot(dataSnapshot);
-                        //User gets to know events he/she is attending
-                        if(user.getAttendEid().isEmpty()){userDatabase.child(getUid()).child("attendEid").setValue(_eventId+"`"+title.getText()+"`");}
-                        else if (!user.getAttendEid().contains(_eventId+"`"+title.getText()+"`")){//only let user add a "new" attending event (don't allow duplicate)
-                            userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid() + _eventId+"`"+title.getText()+"`");
-                        }
-                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));//remove maybe
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
-            }
-            else {
-                att.setImageResource(R.mipmap.ic_not_attending_pic);
-                att.setContentDescription("false");
-                userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = User.fromSnapshot(dataSnapshot);
-                        //User gets to know events he/she is attending
-                        userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId+"`"+title.getText()+"`", ""));
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
+        if (!checkConflicts(v.getId()))
+            toggleAttend();
+    }
 
-                eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Event event = Event.fromSnapshot(dataSnapshot);
-                        //An event knows the people for sure attending it
-                        eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(getUid()+"`", ""));
-
+    private void toggleMaybe() {
+        if(maybe.getContentDescription().equals("false")) {
+            maybe.setImageResource(R.mipmap.ic_maybe_pic);
+            maybe.setContentDescription("true");
+            att.setImageResource(R.mipmap.ic_not_attending_pic);
+            att.setContentDescription("false");
+            userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = User.fromSnapshot(dataSnapshot);
+                    //Only the user knows the events he MAY BE attending
+                    if (user.getMaybeEid().isEmpty()) {userDatabase.child(getUid()).child("maybeEid").setValue(_eventId + "`" + title.getText() + "`");}
+                    else if (!user.getMaybeEid().contains(_eventId + "`" + title.getText() + "`")) {
+                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid() + _eventId + "`" + title.getText() + "`");
                     }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
-            }
+                    userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId + "`" + title.getText() + "`", ""));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Event event = Event.fromSnapshot(dataSnapshot);
+                    //An event knows the people for sure attending it
+                    eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(getUid() + "`", ""));
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+        else{
+            maybe.setImageResource(R.mipmap.ic_not_maybe_pic);
+            maybe.setContentDescription("false");
+            userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = User.fromSnapshot(dataSnapshot);
+                    //User gets to know events he/she may be attending
+                    userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            });
         }
     }
 
     public void maybe_btn_on_click(View v) {
-        if (v.getId() == R.id.maybe_btn) {
-            if(maybe.getContentDescription().equals("false")) {
-                maybe.setImageResource(R.mipmap.ic_maybe_pic);
-                maybe.setContentDescription("true");
-                att.setImageResource(R.mipmap.ic_not_attending_pic);
-                att.setContentDescription("false");
-                userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = User.fromSnapshot(dataSnapshot);
-                        //Only the user knows the events he MAY BE attending
-                        if (user.getMaybeEid().isEmpty()) {userDatabase.child(getUid()).child("maybeEid").setValue(_eventId + "`" + title.getText() + "`");}
-                        else if (!user.getMaybeEid().contains(_eventId + "`" + title.getText() + "`")) {
-                            userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid() + _eventId + "`" + title.getText() + "`");
-                        }
-                        userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId + "`" + title.getText() + "`", ""));
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-                eventDatabase.child(_eventId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Event event = Event.fromSnapshot(dataSnapshot);
-                        //An event knows the people for sure attending it
-                        eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(getUid() + "`", ""));
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-            }
-            else{
-                maybe.setImageResource(R.mipmap.ic_not_maybe_pic);
-                maybe.setContentDescription("false");
-                userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = User.fromSnapshot(dataSnapshot);
-                        //User gets to know events he/she may be attending
-                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
-            }
-        }
-
+        if (!checkConflicts(v.getId()))
+            toggleMaybe();
     }
 
     //TODO put in seperate class
@@ -635,6 +647,102 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         return false;
     }
 
+    private void getConflictData() {
+        userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = User.fromSnapshot(dataSnapshot);
 
+                busyTimes = user.getBusyTimes();
+
+                String[] attendEids = user.getAttendEid().split("`");
+                String[] maybeEids = user.getMaybeEid().split("`");
+
+                for (int i = 0; i < attendEids.length; i++) {
+                    if (i % 2 == 1)
+                        continue;
+
+                    eventDatabase.child(attendEids[i]).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            interestedEvents.add(Event.fromSnapshot(dataSnapshot));
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+
+                for (int i = 0; i < maybeEids.length; i++) {
+                    if (i % 2 == 1)
+                        continue;
+
+                    eventDatabase.child(maybeEids[i]).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            interestedEvents.add(Event.fromSnapshot(dataSnapshot));
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private boolean checkConflicts(int buttonId) {
+        String conflictName = null;
+
+        if (att.getContentDescription().equals("true") || maybe.getContentDescription().equals("true"))
+            return false;
+
+        if (busyTimes != null) {
+            for (BusyTime time : busyTimes) {
+                if (fetchedEvent.overlaps(time)) {
+                    conflictName = getString(R.string.conflict_busy_time);
+                    break;
+                }
+            }
+        }
+
+        if (conflictName == null) {
+            for (Event e : interestedEvents) {
+                if (!fetchedEvent.equals(e) && fetchedEvent.overlaps(e)) {
+                    conflictName = String.format(getString(R.string.conflict_event), e.getTitle());
+                    break;
+                }
+            }
+        }
+
+        if (conflictName != null) {
+            new AlertDialog.Builder(this)
+                    .setIcon(R.mipmap.ic_warning)
+                    .setTitle("Time Conflict")
+                    .setMessage(String.format(getString(R.string.conflict_warning), conflictName))
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (buttonId == R.id.attending_btn)
+                                toggleAttend();
+                            else
+                                toggleMaybe();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        }
+
+        return conflictName != null;
+    }
 
 }

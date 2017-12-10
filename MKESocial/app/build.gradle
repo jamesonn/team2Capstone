@@ -47,6 +47,7 @@ dependencies {
     testCompile "org.powermock:powermock-module-junit4-rule:1.6.4"
     testCompile "org.powermock:powermock-api-mockito:1.6.4"
     testCompile "org.powermock:powermock-classloading-xstream:1.6.4"
+    compile 'com.github.scribejava:scribejava-apis:4.1.1'
     compile 'com.google.android.gms:play-services-maps:11.6.0'
     compile 'com.google.android.gms:play-services-auth:11.6.0'
     compile 'com.google.android.gms:play-services-location:11.6.0'

@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content">
 
                 <ProgressBar
-                    android:id="@+id/progress"
+                    android:id="@+id/progress_bar"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:visibility="visible" />
@@ -86,6 +86,8 @@
                     android:id="@+id/imageView_event"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
                     android:adjustViewBounds="true"
                     android:background="@color/mke_light_blue_transparent"
                     android:scaleType="centerCrop" />

@@ -126,14 +126,14 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                                         for(int i=0; i<aEv.length;++i) {
                                             if (event.getEventId().equals(aEv[i])){  //
                                                 eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
-                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                                                 eventM.setTag(aID[i]);
                                             }
                                         }
                                         for(int i=0; i<hEv.length;++i) {
                                             if (event.getEventId().equals(hEv[i])){  //
                                                 eventM = mMap.addMarker(new MarkerOptions().position(new LatLng(MethodOrphanage.getLat(event.getLocation()),
-                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                                                        MethodOrphanage.getLng(event.getLocation()))).title(event.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                                                 eventM.setTag(hID[i]);
                                             }
                                         }

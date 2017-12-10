@@ -13,7 +13,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -45,6 +47,8 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -54,6 +58,7 @@ import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
 import Validation.TextValidator;
+import Validation.WordScrubber;
 import team2.mkesocial.Constants;
 import team2.mkesocial.R;
 
@@ -127,7 +132,6 @@ public class CreateEventActivity extends BaseActivity {
         // Standard Time Display
         myTime = Calendar.getInstance();
 
-
         final DatePickerDialog.OnDateSetListener startDate = new DatePickerDialog.OnDateSetListener() {
 
             @Override
@@ -151,6 +155,66 @@ public class CreateEventActivity extends BaseActivity {
             }
         };
 
+        //no ` allowed in title
+        titleField.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+                if (s.length() > 0) {
+                    if (s.charAt(s.length() - 1) == '`') {
+                        titleField.setText(s.subSequence(0, s.length() - 1));
+                        titleField.setSelection(s.length() - 1);
+                    }
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        //Offensive word check
+        descriptionField.addTextChangedListener(new TextWatcher(){
+            WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
+            @Override
+            public void afterTextChanged(Editable arg0) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            private String current = "";
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!s.toString().equals(current)){
+                    descriptionField.removeTextChangedListener(this);
+
+                    String cleanString = s.toString();
+                    // check word every space
+                    if(s.length() > 1 && s.charAt(s.length() - 1) == ' '){
+                        String[] words = cleanString.split("[\\p{Punct}\\s]+");
+                        if(wordScrubber.isBadWord(words[words.length - 1])) {
+                            cleanString = wordScrubber.filterOffensiveWords(cleanString);
+                            //cleanString = cleanString.substring(0, s.length() - 2) + ' ';//remove last char
+                            descriptionField.setText(cleanString);
+                            descriptionField.setSelection(cleanString.length());
+                    }}
+
+                    current = cleanString;
+                    if(!thisEvent.setDescription(cleanString))
+                        descriptionField.setError("Please input a valid description");
+
+                    descriptionField.addTextChangedListener(this);
+                }
+            }
+        });
 
         //Time calendar format
         Calendar startTime = Calendar.getInstance();
@@ -158,7 +222,6 @@ public class CreateEventActivity extends BaseActivity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 Calendar mcurrentTime = Calendar.getInstance();
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -251,6 +314,7 @@ public class CreateEventActivity extends BaseActivity {
                             if(endDateField.getText().toString().isEmpty()) {
                                 endCalendar.setTimeInMillis(startCalendar.getTimeInMillis());
                                 endDateField.setText(Event.dateFormat.format(endCalendar.getTime()));
+                                thisEvent.setEndDate(Event.parseDate(sDate));
                             }
                         }
                     }
@@ -300,13 +364,11 @@ public class CreateEventActivity extends BaseActivity {
                 // check if text has an non numeric characters
                 if(text.matches("^[0-9]+$"))
                 {
-                    // check range
                     try{
                         int inputtedAge = Integer.parseInt(text);
-                        if(inputtedAge > 120 || inputtedAge < 0) {
+                        if(!thisEvent.setSuggestedAge(inputtedAge)) {
                             suggestedAgeField.setError("Please input a valid age");
                         }
-
                     }catch(NumberFormatException e){
                         suggestedAgeField.setError("Only numeric characters are allowed (0-9)");
                     }
@@ -315,22 +377,33 @@ public class CreateEventActivity extends BaseActivity {
         });
 
         // Cost field verification
-        costField.addTextChangedListener(new TextValidator(costField) {
+        costField.addTextChangedListener(new TextWatcher(){
+            DecimalFormat dec = new DecimalFormat("0.00");
             @Override
-            public void validate(TextView textView, String text) {
-                // check price input is valid
-                if(text.matches("[0-9]+([,.][0-9]{1,2})?"))
-                {
-                    // check price range
-                    try{
-                        double inputtedAge = Double.parseDouble(text);
-                        if(inputtedAge > 500 || inputtedAge < 0) {
-                            costField.setError("Please input a valid price");
-                        }
+            public void afterTextChanged(Editable arg0) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            private String current = "";
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if(!s.toString().equals(current)){
+                        costField.removeTextChangedListener(this);
 
-                    }catch(NumberFormatException e){
-                        costField.setError("Expected format: xx.xx");
-                    }
+                        String cleanString = s.toString().replaceAll("[$,.]", "");
+
+                        double parsed = Double.parseDouble(cleanString);
+                        String formatted = NumberFormat.getCurrencyInstance().format((parsed/100));
+
+                        current = formatted;
+                        costField.setText(formatted);
+                        costField.setSelection(formatted.length());
+                        if(!thisEvent.setCost(parsed))
+                            costField.setError("Please input a valid price");
+
+                        costField.addTextChangedListener(this);
                 }
             }
         });
@@ -368,6 +441,8 @@ public class CreateEventActivity extends BaseActivity {
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
+                if(!thisEvent.setLocation(place))
+                    autocompleteFragment.setHint("Please select a valid location");
                 placePicked = place;
                 Log.i(TAG, "Place: " + place.getName());
             }
@@ -428,13 +503,11 @@ public class CreateEventActivity extends BaseActivity {
         if (TextUtils.isEmpty(endTime)) {
             endTimeField.setError(REQUIRED);
             return false;
-        }//TODO on location deleted check
-        if (placePicked == null || placePicked.getAddress().toString().isEmpty()) {
+        }//Need a valid location
+        if (!thisEvent.setLocation(placePicked)) {
             autocompleteFragment.setHint("Please add a location before creating event");
             return false;
-
-        } else
-            location = placePicked.getAddress().toString()+":"+placePicked.getLatLng();
+        }
         // Tag(s) are required
         if (TextUtils.isEmpty(tags)) {
             tagsField.setError(REQUIRED);

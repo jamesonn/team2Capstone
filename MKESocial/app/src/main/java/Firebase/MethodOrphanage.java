@@ -124,8 +124,6 @@ public class MethodOrphanage {
     public static void uploadFile(Activity a, StorageReference storageReference, Uri newFilePath, String oldFilePath, DatabaseReference placeToStoreRef) {
         //checking if file is available
         if (newFilePath != null && !newFilePath.toString().equals(oldFilePath)) {
-            //displaying progress dialog while image is uploading
-            final ProgressDialog progressDialog = new ProgressDialog(a.getApplicationContext());
 
             //getting the storage reference
             StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS
@@ -156,7 +154,7 @@ public class MethodOrphanage {
 
             //Delete old image
             if (oldFilePath != null && !oldFilePath.isEmpty()){
-                StorageReference oldRef = FirebaseStorage.getInstance().getReference(oldFilePath);
+                StorageReference oldRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldFilePath);
                 oldRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

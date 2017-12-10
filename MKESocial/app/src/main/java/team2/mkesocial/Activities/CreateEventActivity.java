@@ -383,7 +383,7 @@ public class CreateEventActivity extends BaseActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //TODO OOOOOOOOOOO
+        filePath = MethodOrphanage.onPictureResult(data, resultCode, this, eventImage);
     }
 
     private boolean submitEvent() {

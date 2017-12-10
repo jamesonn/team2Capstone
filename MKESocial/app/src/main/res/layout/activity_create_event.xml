@@ -84,7 +84,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:hint="Description"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine|textCapSentences" />
             </GridLayout>
 
             <View

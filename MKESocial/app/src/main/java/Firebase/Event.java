@@ -1,8 +1,10 @@
 package Firebase;
 
 
+import android.content.Context;
 import android.util.Log;
 
+import com.google.android.gms.location.places.Place;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
@@ -16,6 +18,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import Validation.WordScrubber;
 
 /**
  * Created by cfoxj2 on 10/23/2017.
@@ -222,8 +226,10 @@ public class Event implements Databasable{
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public boolean setDescription(String description) {
+        if(description == null || description.isEmpty()) return false;
+        this.description = description;//new WordScrubber().filterOffensiveWords(description, c);
+        return true;
     }
 
     /**
@@ -317,66 +323,106 @@ public class Event implements Databasable{
         return location;
     }
 
+    // Needs to be in format: address : latlong
     @Exclude
-    public void setLocation(String location) {
+    public boolean setLocation(String location) {
+        try
+        {//should be able to format it
+            MethodOrphanage.getLat(location);
+            MethodOrphanage.getLng(location);
+            MethodOrphanage.getFullAddress(location);
+        }catch (Exception e)
+        {
+            return false;
+        }
         this.location=location;
+        return true;
+    }
+
+    @Exclude
+    public boolean setLocation(Place placePickerLoc) {
+        if(placePickerLoc == null || placePickerLoc.getAddress().toString().isEmpty())
+            return false;
+        this.location = placePickerLoc.getAddress().toString()+":"+placePickerLoc.getLatLng();
+        return true;
     }
 
     public String getHostUid() {
         return hostUid;
     }
 
-    public void setHostUid(String hostUid) {
+    public boolean setHostUid(String hostUid) {
+        if(hostUid == null || hostUid.isEmpty()) return false;
         this.hostUid = hostUid;
+        return true;
     }
 
     public int getSuggestedAge() {
         return suggestedAge;
     }
 
-    public void setSuggestedAge(int suggestedAge) {
+    public boolean setSuggestedAge(int suggestedAge) {
+        if(suggestedAge > 120 || suggestedAge < 0)
+            return false;
         this.suggestedAge = suggestedAge;
+        return true;
     }
 
     public int getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public boolean setRating(int rating) {
+        if(rating < 0 || rating > 5) return false;
         this.rating = rating;
+        return true;
     }
 
     public double getCost() {
         return cost;
     }
 
-    public void setCost(double cost) {
+    //cost is in double format so 2.00 = 200
+    public boolean setCost(double cost) {
+        if(cost < 0 || cost > 50000)
+            return false;
         this.cost = cost;
+        return true;
     }
 
     public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public boolean setTags(List<Tag> tags) {
+        if(tags == null || tags.isEmpty()) return false;
         this.tags = tags;
+        return true;
     }
 
     public String getAttendees(){return this.attendees;}
 
-    public void setAttendes(String attendees){this.attendees=attendees;}
+    public boolean setAttendes(String attendees){
+        if(attendees == null || attendees.isEmpty()) return false;
+        this.attendees=attendees;
+        return true;
+    }
 
     public String getEventId() { return eid; }
 
     @Exclude
-    private void setEventId(String id) { eid = id; }
+    private boolean setEventId(String id) { eid = id;
+        if(id == null || id.isEmpty()) return false;
+        return true;}
 
     public String getImage() {
         return image;
     }
 
-    public void setImage(String img) {
+    public boolean setImage(String img) {
+        if(img == null || img.isEmpty()) return false;
         this.image = img;
+        return true;
     }
 
     public static Event fromSnapshot(DataSnapshot snapshot)

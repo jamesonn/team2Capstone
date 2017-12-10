@@ -56,6 +56,7 @@ import static Firebase.Databasable.DB_USER_SETTINGS_NODE_NAME;
 
 public class EventActivity extends BaseActivity implements ValueEventListener {
 
+    private static final String TAG = EventActivity.class.getSimpleName();
     private FirebaseDatabase _database;
     private Query _dataQuery;
     private String _eventId, attenders;

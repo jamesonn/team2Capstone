@@ -251,18 +251,6 @@ public class MethodOrphanage {
         return filePath;
     }
 
-    public static String safeDBFetch(DatabaseReference d)
-    {
-        String fetch = "";
-        try{
-
-        }catch(Exception e)
-        {
-
-        }
-        return fetch;
-    }
-
     public static String convertToDBFormat(List<String> attendeeList)
     {
         String attendees = "";

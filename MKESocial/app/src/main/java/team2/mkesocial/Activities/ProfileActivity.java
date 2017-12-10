@@ -1,8 +1,10 @@
 package team2.mkesocial.Activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -81,6 +83,8 @@ boolean see_email=true, see_attend=true, see_maybe=true, see_host=true, addrC=fa
 private LinearLayout events_attend_layout, events_maybe_layout, events_host_layout;
 private String aIDs, hIDs, mIDs, userId;
 
+private boolean edit_mode=false;
+
 private PlaceAutocompleteFragment autocompleteFragment;
 private Place placePicked;
 
@@ -96,6 +100,7 @@ protected void onCreate(Bundle savedInstanceState) {
     setContentView(R.layout.activity_profile);
     userId = getIntent().getStringExtra("USER_ID");
 
+    edit_mode=false;
     if(userId == null){userId=getUid();}
     quickUpdatePA();
 }
@@ -103,6 +108,7 @@ protected void onCreate(Bundle savedInstanceState) {
 public void edit_btn_on_click(View v){
     //click on Edit Button
     if(v.getId() == R.id.edit_button) {
+        edit_mode=true;
         //Set the xml layout to be the editable one: activity_edit_profile
         setContentView(R.layout.activity_edit_profile);
         pro_email=(EditText)findViewById(R.id.email_addr);
@@ -163,6 +169,24 @@ public void edit_btn_on_click(View v){
     }
 }
 
+    @Override
+    public void onBackPressed() {
+    if(userId.equals(getUid()) && edit_mode) {
+        new AlertDialog.Builder(this)
+                .setIcon(R.mipmap.ic_warning)
+                .setTitle("Back Confirmation")
+                .setMessage("Are you sure you want to go back without saving?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+    else{super.onBackPressed();}
+    }
 public void edit_pic_on_click(View v) {
     //click on Edit Photo button --> Start pick image intent
     if (v.getId() == R.id.edit_photo) {
@@ -208,6 +232,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 public void save_btn_on_click(View v){
     //Idea: Update (DB + Profile View) only when a field has been changed; else leave it alone
     if(v.getId() == R.id.save_button) {
+        edit_mode=false;
         //Initialize fields that exist only for Profile Edit View
         pro_mInit = (EditText)findViewById(R.id.middle_init);
         pro_lName = (EditText)findViewById(R.id.last_nam);

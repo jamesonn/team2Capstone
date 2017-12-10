@@ -180,7 +180,7 @@ public class CreateEventActivity extends BaseActivity {
 
             }
         });
-        //swear check
+        //Offensive word check
         descriptionField.addTextChangedListener(new TextWatcher(){
             WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
             @Override
@@ -201,7 +201,7 @@ public class CreateEventActivity extends BaseActivity {
                     if(s.length() > 1 && s.charAt(s.length() - 1) == ' '){
                         String[] words = cleanString.split("[\\p{Punct}\\s]+");
                         if(wordScrubber.isBadWord(words[words.length - 1])) {
-                            cleanString = wordScrubber.filterWords(cleanString);
+                            cleanString = wordScrubber.filterOffensiveWords(cleanString);
                             //cleanString = cleanString.substring(0, s.length() - 2) + ' ';//remove last char
                             descriptionField.setText(cleanString);
                             descriptionField.setSelection(cleanString.length());

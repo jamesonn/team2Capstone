@@ -56,22 +56,6 @@ public class WordScrubber {
         };
     }
 
-    /**
-     * Stars some bad words from given string
-     * Swear -> S****
-     * @param input
-     * @return
-     */
-    public String filterOffensiveWords(String input)
-    {
-        if(offensiveWords == null) return input;
-        String output = "";
-        if(Collections.binarySearch(offensiveWords, input) < 0)
-            output += input;
-        else //keep first letter star out rest
-            output += input.charAt(0)+ input.substring(1).replaceAll(".", "*");
-        return output;
-    }
     public boolean isBadWord(String input)
     {
         if(offensiveWords == null) return false;
@@ -79,19 +63,24 @@ public class WordScrubber {
             return true;
         return false;
     }
-
-    public String filterWords(String sentence)
+    /**
+     * Stars some bad words from given string
+     * Swear -> S****
+     * @param sentence
+     * @return
+     */
+    public String filterOffensiveWords(String sentence)
     {
         String returnString = "";
         String[] words = sentence.split("[\\p{Punct}\\s]+");
         for(String w: words)
         {
             if(Collections.binarySearch(offensiveWords, w, compare) >= 0)
-                returnString += w.charAt(0)+ w.substring(1).replaceAll(".", "*");
+                returnString += w.charAt(0)+ w.substring(1).replaceAll(".", "*")+ " ";
             else
-                returnString += w;
+                returnString += w + " ";
         }
-        return returnString;
+        return returnString.trim();
     }
 
 

@@ -45,7 +45,7 @@ public class Event implements Databasable{
     }
     public Event(String title, String description, GregorianCalendar startDate, GregorianCalendar endDate,
                  GregorianCalendar startTime, GregorianCalendar endTime, String location,
-                 String hostUid, String attendees, int suggestedAge, int rating, double cost, List<Tag> tags, String img) {
+                 String hostUid, String attendees, int suggestedAge, int rating, double cost, List<Tag> tags) {
         setTitle(title);
         setDescription(description);
         setStartDate(startDate);
@@ -59,12 +59,11 @@ public class Event implements Databasable{
         setRating(rating);
         setCost(cost);
         setTags(tags);
-        setImage(img);
     }
 
     public Event(String title, String description, String startDate, String endDate, String startTime,
                  String endTime, String location, String hostUid, String attendees, String suggestedAge, String rating,
-                 String cost, String tags, String img) {
+                 String cost, String tags) {
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
@@ -78,11 +77,10 @@ public class Event implements Databasable{
         setRating(parseInt(rating));
         setCost(parseInt(cost));
         setTags(parseTags(tags));
-        setImage(img);
     }
     public Event(String title, String description, String startDate, String endDate, String startTime,
                  String endTime, String location, String hostUid, String attendees, String suggestedAge, String rating,
-                 String cost, List<Tag> tags, String img) {
+                 String cost, List<Tag> tags) {
         setTitle(title);
         setDescription(description);
         setStartDate(parseDate(startDate));
@@ -96,7 +94,6 @@ public class Event implements Databasable{
         setRating(parseInt(rating));
         setCost(parseInt(cost));
         setTags(tags);
-        setImage(img);
     }
 
     /**
@@ -216,8 +213,9 @@ public class Event implements Databasable{
         return title;
     }
 
-    public void setTitle(String title) {
+    public boolean setTitle(String title) {
         this.title = title;
+        return true;
     }
 
     public String getDescription() {

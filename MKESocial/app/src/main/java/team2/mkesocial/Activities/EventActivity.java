@@ -1,11 +1,8 @@
 package team2.mkesocial.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.location.Address;
-import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -17,34 +14,30 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.ErrorWrappingGlideException;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.database.ChildEventListener;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-import javax.sql.DataSource;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 import Firebase.Event;
 import Firebase.MethodOrphanage;
@@ -55,7 +48,6 @@ import team2.mkesocial.R;
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
 import static Firebase.Databasable.DB_USERS_NODE_NAME;
 import static Firebase.Databasable.DB_USER_SETTINGS_NODE_NAME;
-import static team2.mkesocial.Activities.BaseActivity.getUid;
 
 public class EventActivity extends BaseActivity implements ValueEventListener {
 
@@ -66,15 +58,19 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
     private Button editButton, deleteButton;
     private ImageButton insertImage;
     private ImageView eventImage;
+    private ProgressBar progressBar;
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
     private boolean editing = false;
     private Event fetchedEvent;
-    private String fullLocation = "";
     private ImageButton att, maybe, attendees;
+    private Uri filePath;
 
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
     private DatabaseReference userSettingsDatabase = FirebaseDatabase.getInstance().getReference(DB_USER_SETTINGS_NODE_NAME);
+
+    private static final int IMAGE_PICKER_SELECT = 234;
+    private StorageReference storageReference  = FirebaseStorage.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +93,8 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         deleteButton = (Button) findViewById(R.id.button_delete);
         insertImage = (ImageButton) findViewById(R.id.imageButton_insert_image);
         eventImage = (ImageView) findViewById(R.id.imageView_event);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
 
         attendees = (ImageButton) findViewById(R.id.attenders_btn);
         attendees.bringToFront();
@@ -140,6 +138,8 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 e.setEnabled(false);
             }
         }
+
+
     }
 
     private void iconsToDisplay(){
@@ -182,14 +182,35 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
 
             Glide.with(getApplicationContext())
                     .load(fetchedEvent.getImage())
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    //.diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .into(eventImage);
+            //hide image button
+            insertImage.setVisibility(View.GONE);
+
         }
-        else {//hide image view
+        else if(!editing){//hide image view if not editing
             android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
             layoutParams.width = eventImage.getWidth();
             layoutParams.height = 0;
             eventImage.setLayoutParams(layoutParams);
+            insertImage.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        }else //hide progress bar - editing
+        {
+           progressBar.setVisibility(View.GONE);
         }
         int ageData = fetchedEvent.getSuggestedAge();
         if (ageData != -1)
@@ -211,11 +232,6 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
             deleteButton.setVisibility(View.GONE);
             insertImage.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
     }
 
     @Override
@@ -248,11 +264,26 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         // Save changed fields to DB
         // We'll just trust they don't need any input validation at this time ;)
         // TODO input validation
+
+        if(filePath != null)
+            MethodOrphanage.uploadFile(this, storageReference, filePath, fetchedEvent.getImage()
+                    , eventDatabase.child(_eventId).child("image"));
+
+        Event event = new Event();
+        //Input validation -> go through one by one each field and set into event obj
+        String badField = "";
+        final BiPredicate<EditText, Event> setTitle = (text, e)-> e.setTitle(text.toString());
+        if(!setOrErrorField(title, event, setTitle))
+            badField = "Title";
+
+        if(!badField.isEmpty())
+            editButton.setError("Invalid "+badField);
+
         Event newEvent = new Event(title.getText().toString(), description.getText().toString(),
                 startDate.getText().toString(), endDate.getText().toString(), startTime.getText().toString(),
                 endTime.getText().toString(), fetchedEvent.getLocation(),
                 BaseActivity.getUid(), fetchedEvent.getAttendees(), suggestedAge.getText().toString(), "", cost.getText().toString(),
-                fetchedEvent.getTags(), fetchedEvent.getImage());
+                fetchedEvent.getTags());
         // Add event obj to database under its event ID
         FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(_eventId).updateChildren(newEvent.toMap());
         Intent goBackToThisEventPage = new Intent(this, EventActivity.class);
@@ -285,6 +316,14 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(_eventId).removeValue();
                 // Done with activity
                 finish();
+            }
+        });
+        eventImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/*");
+                startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
             }
         });
     }
@@ -581,5 +620,21 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         }
 
     }
+
+    //TODO put in seperate class
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        filePath = MethodOrphanage.onPictureResult(data, resultCode, this, eventImage);
+    }
+
+    private boolean setOrErrorField(EditText thing, Event event, final BiPredicate<EditText, Event> set_function)
+    {
+        if(set_function.test(thing, event))
+            return true;
+        thing.setError("Invalid field");
+        return false;
+    }
+
+
 
 }

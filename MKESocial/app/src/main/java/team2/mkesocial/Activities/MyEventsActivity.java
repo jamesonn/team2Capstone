@@ -135,6 +135,35 @@ public class MyEventsActivity extends BaseActivity
         redrawDecorators();
     }
 
+    private void adjustOverlap(@NonNull CalendarDay date, @NonNull HashSet<Event> eventSet, boolean contains) {
+        for (Event e : eventSet) {
+            if (contains && _events.contains(e))
+                continue;
+
+            GregorianCalendar start = new GregorianCalendar();
+            GregorianCalendar end = new GregorianCalendar();
+            start.setTime(e.getStartTime().getTime());
+            end.setTime(e.getEndTime().getTime());
+
+            // Adjust times for overlapping days
+            if (date.getDate().compareTo(e.getStartDate().getTime()) > 0) {
+                start.set(Calendar.HOUR, start.getActualMinimum(Calendar.HOUR));
+                start.set(Calendar.HOUR_OF_DAY, start.getActualMinimum(Calendar.HOUR_OF_DAY));
+                start.set(Calendar.MINUTE, start.getActualMinimum(Calendar.MINUTE));
+            }
+            if (date.getDate().compareTo(e.getEndDate().getTime()) < 0) {
+                end.set(Calendar.HOUR, end.getActualMaximum(Calendar.HOUR));
+                end.set(Calendar.HOUR_OF_DAY, end.getActualMaximum(Calendar.HOUR_OF_DAY));
+                end.set(Calendar.MINUTE, end.getActualMaximum(Calendar.MINUTE));
+            }
+
+            Event eventCopy = (Event)e.clone();
+            eventCopy.setStartTime(start);
+            eventCopy.setEndTime(end);
+            _events.add(eventCopy);
+        }
+    }
+
     @Override
     public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date,
                                boolean selected) {
@@ -146,19 +175,15 @@ public class MyEventsActivity extends BaseActivity
 
         HashSet<Event> eventSet = _attendDays.get(date);
         if (eventSet != null)
-            _events.addAll(eventSet);
+            adjustOverlap(date, eventSet, false);
 
         eventSet = _maybeDays.get(date);
         if (eventSet != null)
-            _events.addAll(eventSet);
+            adjustOverlap(date, eventSet, false);
 
         eventSet = _hostDays.get(date);
-        if (eventSet != null) {
-            for (Event e : eventSet) {
-                if (!_events.contains(e))
-                    _events.add(e);
-            }
-        }
+        if (eventSet != null)
+            adjustOverlap(date, eventSet, true);
 
         HashSet<BusyTime> busySet = _busyDays.get(date);
         if (busySet != null) {
@@ -261,8 +286,20 @@ public class MyEventsActivity extends BaseActivity
                             if (event != null) {
                                 Log.d(TAG, event.getTitle());
 
+                                GregorianCalendar startDate = new GregorianCalendar();
+                                GregorianCalendar endDate = new GregorianCalendar();
+
+                                startDate.setTime(event.getStartDate().getTime());
+                                endDate.setTime(event.getEndDate().getTime());
+
                                 CalendarDay day = CalendarDay.from(event.getStartDate().getTime());
                                 addToDayMap(day, map, event);
+
+                                while (endDate.get(Calendar.DAY_OF_YEAR) != startDate.get(Calendar.DAY_OF_YEAR)) {
+                                    startDate.add(Calendar.DAY_OF_YEAR, 1);
+                                    day = CalendarDay.from(startDate.getTime());
+                                    addToDayMap(day, map, event);
+                                }
                             }
                         } catch (Exception e) {
                             Log.d(TAG, "Exception:" + e.toString());

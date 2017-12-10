@@ -7,7 +7,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
 
@@ -23,7 +22,7 @@ import java.util.Map;
  * Created by cfoxj2 on 10/23/2017.
  */
 @IgnoreExtraProperties
-public class Event implements Databasable{
+public class Event implements Databasable, Cloneable {
 
     private static final String TAG = Event.class.getSimpleName();
 
@@ -426,6 +425,20 @@ public class Event implements Databasable{
                 hostUid.equals(other.hostUid) &&
                 suggestedAge == other.suggestedAge &&
                 rating == other.rating;
+    }
+
+    @Override
+    public Object clone()
+    {
+        Event event = null;
+        try {
+            event = (Event)super.clone();
+        } catch (CloneNotSupportedException e) {
+            Log.wtf(TAG, e.toString());
+        }
+
+        event.tags = new ArrayList<>(tags);
+        return event;
     }
 
     public boolean sameDay()

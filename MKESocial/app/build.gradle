@@ -65,6 +65,7 @@ dependencies {
     compile 'com.android.support:customtabs:27.0.2'
     compile 'cat.ereza:customactivityoncrash:2.2.0'
     compile 'org.apache.commons:commons-lang3:3.6'
+    compile 'com.android.support:mediarouter-v7:27.0.2'
 
 }
 apply plugin: 'com.google.gms.google-services'

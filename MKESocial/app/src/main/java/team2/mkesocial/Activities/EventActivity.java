@@ -298,9 +298,11 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 fetchedEvent.getTags());
 
         if(filePath == null)
-            filePath = Uri.parse(fetchedEvent.getImage());
-        MethodOrphanage.uploadFile(this, storageReference, filePath, fetchedEvent.getImage()
-                    , eventDatabase.child(_eventId).child("image"));
+            try {
+                filePath = Uri.parse(fetchedEvent.getImage());
+                MethodOrphanage.uploadFile(this, storageReference, filePath, fetchedEvent.getImage()
+                        , eventDatabase.child(_eventId).child("image"));
+            }catch(Exception e){}
 
         // Add event obj to database under its event ID
         FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(_eventId).updateChildren(newEvent.toMap());

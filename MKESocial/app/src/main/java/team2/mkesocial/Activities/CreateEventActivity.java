@@ -64,7 +64,6 @@ import Firebase.User;
 import Validation.TextValidator;
 import Validation.WordScrubber;
 import team2.mkesocial.Adapters.EventAdapter;
-//import team2.mkesocial.Adapters.HostAdapter;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
 
@@ -605,7 +604,7 @@ public class CreateEventActivity extends BaseActivity {
             return false;
         }
         // Tag(s) are required
-        if (!thisEvent.setTags(Event.parseTags(tagsField.toString()))){
+        if (!thisEvent.setTags(Event.parseTags(tagsField.getText().toString()))){
             tagsField.setError(REQUIRED);
             return false;
         }
@@ -644,7 +643,7 @@ public class CreateEventActivity extends BaseActivity {
 
         //set the other areas
         thisEvent.setHostUid(getUid());
-        thisEvent.setAttendes("");
+        thisEvent.setAttendes(" ");
         thisEvent.setRating(-1);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(thisEvent.toMap());

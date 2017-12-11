@@ -269,15 +269,15 @@ public class User implements Databasable{
         return address;
     }
 
-    public String getAttendEid(){return attend;}
+    public String getAttendEid(){return attend != null ? attend : "";}
 
     public void setAttendEid(String attend){this.attend=attend;}
 
-    public String getHostEid(){return host;}
+    public String getHostEid(){return host != null ? host : "";}
 
     public void setHostEid(String host){this.host=host;}
 
-    public String getMaybeEid(){return maybe;}
+    public String getMaybeEid(){return maybe != null ? maybe : "";}
 
     public void setMaybeEid(String maybe){this.maybe=maybe;}
 
@@ -285,7 +285,7 @@ public class User implements Databasable{
     public String parseEventAttendNames(){
         //id`name`id`name`id`name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = attend.split("`");//id|name|id|name|id|name...
+        String[] parsing = getAttendEid().split("`");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length;++i){
             //names will be at the odd i values: 1 3 5 ...
             if((i%2)==1){parsed+=parsing[i]+"`";}
@@ -297,7 +297,7 @@ public class User implements Databasable{
     public String parseEventAttendIDs(){
         //id`name`id`name`id`name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = attend.split("`");//id|name|id|name|id|name...
+        String[] parsing = getAttendEid().split("`");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length;++i){
             //ids will be at the even values: 0 2 4 ...
             if((i%2)==0){parsed+=parsing[i]+"`";}
@@ -309,7 +309,7 @@ public class User implements Databasable{
     public String parseEventHostNames(){
         ///id`name`id`name`id`name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = host.split("`");//id|name|id|name|id|name...
+        String[] parsing = getHostEid().split("`");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length;++i){
             //names will be at the odd i values: 1 3 5 ...
             if((i%2)==1){parsed+=parsing[i]+"`";}
@@ -321,7 +321,7 @@ public class User implements Databasable{
     public String parseEventHostIDs(){
         //id`name`id`name`id`name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = host.split("`");//id|name|id|name|id|name...
+        String[] parsing = getHostEid().split("`");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length;++i){
             //ids will be at the even values: 0 2 4 ...
             if((i%2)==0){parsed+=parsing[i]+"`";}
@@ -333,7 +333,7 @@ public class User implements Databasable{
     public String parseEventMaybeNames(){
         ///id`name`id`name`id`name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = maybe.split("`");//id|name|id|name|id|name...
+        String[] parsing = getMaybeEid().split("`");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length;++i){
             //names will be at the odd i values: 1 3 5 ...
             if((i%2)==1){parsed+=parsing[i]+"`";}
@@ -345,7 +345,7 @@ public class User implements Databasable{
     public String parseEventMaybeIDs(){
         //id`name`id`name`id`name...  <-- layout of information stored at String host
         String parsed = "";
-        String[] parsing = maybe.split("`");//id|name|id|name|id|name...
+        String[] parsing = getMaybeEid().split("`");//id|name|id|name|id|name...
         for(int i=0; i<parsing.length;++i){
             //ids will be at the even values: 0 2 4 ...
             if((i%2)==0){parsed+=parsing[i]+"`";}

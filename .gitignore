@@ -6,7 +6,6 @@
 *.dll
 *.exe
 *.o
-*.so
 
 # OS generated files #
 ######################
@@ -29,4 +28,6 @@ build/
 local.properties
 /build
 /captures
+/app/release
 .externalNativeBuild
+app-release.apk

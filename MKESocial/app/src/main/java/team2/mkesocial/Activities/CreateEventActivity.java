@@ -64,7 +64,7 @@ import Firebase.User;
 import Validation.TextValidator;
 import Validation.WordScrubber;
 import team2.mkesocial.Adapters.EventAdapter;
-import team2.mkesocial.Adapters.HostAdapter;
+//import team2.mkesocial.Adapters.HostAdapter;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
 

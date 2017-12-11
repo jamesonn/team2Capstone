@@ -1,7 +1,6 @@
 package Firebase;
 
 
-import android.content.Context;
 import android.util.Log;
 
 import com.google.android.gms.location.places.Place;
@@ -19,8 +18,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import Validation.WordScrubber;
 
 /**
  * Created by cfoxj2 on 10/23/2017.
@@ -83,7 +80,7 @@ public class Event implements Databasable, Cloneable {
         setAttendes(attendees);
         setSuggestedAge(parseInt(suggestedAge));
         setRating(parseInt(rating));
-        setCost(parseInt(cost));
+        setCost(parseDouble(cost));
         setTags(parseTags(tags));
     }
     public Event(String title, String description, String startDate, String endDate, String startTime,
@@ -100,7 +97,7 @@ public class Event implements Databasable, Cloneable {
         setAttendes(attendees);
         setSuggestedAge(parseInt(suggestedAge));
         setRating(parseInt(rating));
-        setCost(parseInt(cost));
+        setCost(parseDouble(cost));
         setTags(tags);
     }
 
@@ -132,6 +129,20 @@ public class Event implements Databasable, Cloneable {
             return Integer.parseInt(number);
         else
             return -1;
+    }
+
+    private static double parseDouble(String amount)
+    {
+        if (amount.isEmpty())
+            return -1.0f;
+
+        double result;
+        try {
+            result = Double.parseDouble(amount);
+        } catch (NumberFormatException e) {
+            result = -1.0f;
+        }
+        return result;
     }
 
     /**

@@ -2,7 +2,9 @@ package team2.mkesocial.Activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -37,6 +39,8 @@ import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -45,6 +49,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -96,25 +101,26 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private double latitude, longitude;
     private Marker eventM;
     private MarkerOptions startM;
-    Polyline polylineFinal;
+    private Polyline polylineFinal;
+    private Location location = null;
     private PolylineOptions lineOptions = null;
-    private boolean hasRoute=false;
+    private boolean hasRoute = false;
+   // private String[] aEv, hEv, mEv, aID, hID, mID;
 
-    // The entry points to the Places API.
-    private GeoDataClient mGeoDataClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
+    private LocationManager locationManager;
 
-    // The entry point to the Fused Location Provider.
-    private FusedLocationProviderClient mFusedLocationProviderClient;
 
 
     @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        MapsInitializer.initialize(getApplicationContext());
         if (Settings.setDarkTheme())
             setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
-        userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+
+       userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
@@ -133,32 +139,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             }
                             startM = new MarkerOptions().position(start).title(start_title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 
-                            /*****************************************************************************************************************************/
-                            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                            Criteria criteria = new Criteria();
-
-                            Location location = null;
-                            if (locationManager != null) {
-                                location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                            }
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-
-                            origin = new LatLng(latitude, longitude);
-
-                            /*****************************************************************************************************************************/
-                            /*************************/
-                            // Getting URL to the Google Directions API
-                            String url = getDirectionsUrl(origin, startM.getPosition());
-                            DownloadTask downloadTask = new DownloadTask();
-                            // Start downloading json data from Google Directions API
-                            downloadTask.execute(url);
-                            /*************************/
-
-
                             aEvents = info.parseEventAttendIDs();//HUE_GREEN
                             hEvents = info.parseEventHostIDs();//HUE_VIOLET
                             mEvents = info.parseEventMaybeIDs();//HUE_ORANGE
+
+                            /*
+                            aEv = aEvents.split("`");
+                            hEv = hEvents.split("`");
+                            mEv = mEvents.split("`");
+
+                            aID = info.parseEventAttendIDs().split("`");
+                            hID = info.parseEventHostIDs().split("`");
+                            mID = info.parseEventMaybeIDs().split("`");
+                            */
 
                             String[] aEv = aEvents.split("`");
                             String[] hEv = hEvents.split("`");
@@ -167,6 +160,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             String[] aID = info.parseEventAttendIDs().split("`");
                             String[] hID = info.parseEventHostIDs().split("`");
                             String[] mID = info.parseEventMaybeIDs().split("`");
+                            
 
                             eventDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -214,19 +208,15 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         });
 
         setContentView(R.layout.activity_maps);
-
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
-
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(MapsActivity.this::onMapReady);
 
 
     }
-
 
     /**
      * Manipulates the map once available.
@@ -249,8 +239,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //User has previously accepted this permission
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.setMyLocationEnabled(true);
             }
         } else {
@@ -578,7 +567,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an expanation to the user *asynchronously* -- don't block
+                // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 //  TODO: Prompt with explanation!
@@ -601,8 +590,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -610,9 +598,37 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // permission was granted, yay!
-                    if (ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         mMap.setMyLocationEnabled(true);
+                        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        Criteria criteria = new Criteria();
+
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return;
+                        }
+                        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+
+                        origin = new LatLng(latitude, longitude);
+
+
+                        // Getting URL to the Google Directions API
+                        String url = getDirectionsUrl(origin, startM.getPosition());
+                        //String url = getDirectionsUrl(origin, new LatLng(43.074982, -87.881344));
+                        DownloadTask downloadTask = new DownloadTask();
+                        // Start downloading json data from Google Directions API
+                        downloadTask.execute(url);
+
+
                     }
                 } else {
                     // permission denied, boo! Disable the

@@ -157,10 +157,9 @@ public class CreateEventActivity extends BaseActivity {
 
         //no ` allowed in title
         titleField.addTextChangedListener(new TextWatcher() {
-
+            WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
             @Override
-            public void onTextChanged(CharSequence s, int start, int before,
-                                      int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     if (s.charAt(s.length() - 1) == '`') {
                         titleField.setText(s.subSequence(0, s.length() - 1));
@@ -168,7 +167,28 @@ public class CreateEventActivity extends BaseActivity {
                     }
                 }
                 if(!thisEvent.setTitle(s.toString()))
-                    descriptionField.setError("Please input a valid Title");
+                    titleField.setError("Please input a valid Title");
+
+                if(!s.toString().isEmpty()){
+                    titleField.removeTextChangedListener(this);//"pause" checker
+
+                    String cleanString = s.toString();
+                    //check as user types if word becomes a swear word!
+                    if(s.length() > 1 ){
+                        String[] words = cleanString.split("[\\p{Punct}\\s]+");
+                        for(int i=0; i<words.length; ++i){
+                            if(wordScrubber.isBadWord(words[i])){
+                                cleanString=wordScrubber.filterHiddenBadWords(cleanString);
+                                titleField.setText(cleanString);
+                                titleField.setSelection(cleanString.length());
+                            }
+                        }
+                    }
+                    if(cleanString.isEmpty()){  titleField.setError("Please input a valid bio");}
+
+                    titleField.addTextChangedListener(this);//"resume" checker
+                }
+
             }
 
             @Override
@@ -186,34 +206,31 @@ public class CreateEventActivity extends BaseActivity {
         descriptionField.addTextChangedListener(new TextWatcher(){
             WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
             @Override
-            public void afterTextChanged(Editable arg0) {
-            }
+            public void afterTextChanged(Editable arg0) {}
             @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-            private String current = "";
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().equals(current)){
-                    descriptionField.removeTextChangedListener(this);
+                if(!s.toString().isEmpty()){
+                    descriptionField.removeTextChangedListener(this);//"pause" checker
 
                     String cleanString = s.toString();
-                    // check word every space
-                    if(s.length() > 1 && s.charAt(s.length() - 1) == ' '){
+                    //check as user types if word becomes a swear word!
+                    if(s.length() > 1 ){
                         String[] words = cleanString.split("[\\p{Punct}\\s]+");
-                        if(wordScrubber.isBadWord(words[words.length - 1])) {
-                            cleanString = wordScrubber.filterOffensiveWords(cleanString);
-                            //cleanString = cleanString.substring(0, s.length() - 2) + ' ';//remove last char
-                            descriptionField.setText(cleanString);
-                            descriptionField.setSelection(cleanString.length());
-                    }}
+                        for(int i=0; i<words.length; ++i){
+                            if(wordScrubber.isBadWord(words[i])){
+                                cleanString=wordScrubber.filterHiddenBadWords(cleanString);
+                                descriptionField.setText(cleanString);
+                                descriptionField.setSelection(cleanString.length());
+                            }
+                        }
+                    }
+                    if(!thisEvent.setDescription(s.toString()))
+                        descriptionField.setError("Please input a valid Title");
+                    if(cleanString.isEmpty()){  descriptionField.setError("Please input a valid bio");}
 
-                    current = cleanString;
-                    if(!thisEvent.setDescription(cleanString))
-                        descriptionField.setError("Please input a valid description");
-
-                    descriptionField.addTextChangedListener(this);
+                    descriptionField.addTextChangedListener(this);//"resume" checker
                 }
             }
         });

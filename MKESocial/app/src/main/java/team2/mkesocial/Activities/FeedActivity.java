@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import Firebase.Event;
 import Firebase.Settings;
@@ -38,6 +39,8 @@ import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
+
+import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
 
 public class FeedActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -49,14 +52,14 @@ public class FeedActivity extends BaseActivity
     private SimpleEventAdapter _resultsAdapter;
     private ArrayList<Event> _eventList;
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_feed);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_feed);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-            _eventResults = (ListView)findViewById(R.id.event_results);
+        _eventResults = (ListView)findViewById(R.id.event_results);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -153,12 +156,37 @@ public class FeedActivity extends BaseActivity
     @Override
     public void onDataChange(DataSnapshot dataSnapshot)
     {
+        GregorianCalendar today = new GregorianCalendar();
+        ArrayList<Event> sortedEvents = new ArrayList<>();
         _resultsAdapter.clear();
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             Event event = Event.fromSnapshot(snapshot);
-            if (event.getTitle() != null) {
-                _resultsAdapter.add(event);
+            if(event.getStartDate().before(today)){
+                FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(event.getEventId()).removeValue();
             }
+            if (event.getTitle() != null) {
+                int indexToAddAt = 0;
+                for(int i = 0; i <= sortedEvents.size(); i++){
+                    if(sortedEvents.size() == 0){
+                        indexToAddAt = -1;
+                        break;
+                    } else if(i == sortedEvents.size()){
+                        indexToAddAt = -1;
+                        break;
+                    }else if(event.getStartDate().before(sortedEvents.get(i).getStartDate())){
+                        indexToAddAt = i;
+                        break;
+                    }
+                }
+                if(indexToAddAt == -1){
+                    sortedEvents.add(event);
+                }else{
+                    sortedEvents.add(indexToAddAt, event);
+                }
+            }
+        }
+        for(int i = 0; i < sortedEvents.size(); i++) {
+            _resultsAdapter.add(sortedEvents.get(i));
         }
         _resultsAdapter.notifyDataSetChanged();
     }

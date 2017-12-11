@@ -203,16 +203,20 @@ public class User implements Databasable{
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public boolean setName(String name) {
+        if(name == null || name.isEmpty()) return false;
+        this.name = name;//new WordScrubber().filterOffensiveWords(description, c);
+        return true;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public boolean setEmail(String email) {
+        if(email == null || email.isEmpty()) return false;
+        this.email = email;//new WordScrubber().filterOffensiveWords(description, c);
+        return true;
     }
 
     public String getAge() {
@@ -227,13 +231,19 @@ public class User implements Databasable{
         return bio;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public boolean setBio(String bio) {
+        if(bio == null || bio.isEmpty()) return false;
+        this.bio = bio;//new WordScrubber().filterOffensiveWords(description, c);
+        return true;
     }
 
     public String getLname(){return lname;}
 
-    public void setLname(String lname){this.lname=lname;}
+    public boolean setLname(String lname){
+        if(lname == null || lname.isEmpty()) return false;
+        this.lname = lname;//new WordScrubber().filterOffensiveWords(description, c);
+        return true;
+    }
 
     public String getInitm(){return initm;}
 

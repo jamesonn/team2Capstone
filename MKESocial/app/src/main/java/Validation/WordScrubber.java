@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by cfoxj2 on 12/9/2017.
@@ -58,9 +59,11 @@ public class WordScrubber {
 
     public boolean isBadWord(String input)
     {
-        if(offensiveWords == null) return false;
-        if(Collections.binarySearch(offensiveWords, input, compare) >= 0)
-            return true;
+        for(int i=0; i<offensiveWords.size();++i){
+            if(StringUtils.containsIgnoreCase(input, offensiveWords.get(i))) {return true;}
+        }
+        if(offensiveWords == null) {return false;}
+        //if(Collections.binarySearch(offensiveWords, input, compare) >= 0) return true;
         return false;
     }
     /**
@@ -69,7 +72,7 @@ public class WordScrubber {
      * @param sentence
      * @return
      */
-    public String filterOffensiveWords(String sentence)
+   /* public String filterOffensiveWords(String sentence)
     {
         String returnString = "";
         String[] words = sentence.split("[\\p{Punct}\\s]+");
@@ -80,9 +83,30 @@ public class WordScrubber {
             else
                 returnString += w + " ";
         }
-        return returnString.trim();
+
+        return filterHiddenBadWords(returnString.trim());
+        //return returnString.trim();
     }
+ */
+    public String filterHiddenBadWords(String sentence){
+        String returnString="";
+        for(int i=0; i<offensiveWords.size(); ++i){ //doesn't capture case; finds buried swear words & handles copy, paste
+            if(StringUtils.containsIgnoreCase(sentence, offensiveWords.get(i))){
 
+                Boolean contain = StringUtils.containsIgnoreCase(sentence, offensiveWords.get(i));
+                System.out.println(contain);
 
+                String replacer ="";
+                for(int x=0;x<offensiveWords.get(i).length();++x){//figure length of swear word
+                    if(x==0){replacer+=offensiveWords.get(i).charAt(x);}
+                    else {replacer+="*";}
+                }
+                //returnString = sentence.replace(offensiveWords.get(i),replacer);
+                returnString = StringUtils.replaceIgnoreCase(sentence, offensiveWords.get(i), replacer);
+                break;
+            }
+        }
+        return returnString;
+    }
 
 }

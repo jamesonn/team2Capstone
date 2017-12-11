@@ -185,6 +185,8 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            new User(user).add();
                             logMeRightIn();
                         }
                         if (!task.isSuccessful()) {

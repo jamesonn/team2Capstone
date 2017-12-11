@@ -34,7 +34,12 @@ public class NotificationFactory extends IntentService implements ValueEventList
     }
 
     private void buildAttendeeNumberNotification(String message){
-
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("My Events Status");
+        builder.setContentText(message);
+        Notification notificationCompat = builder.build();
+        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
+        managerCompat.notify(NOTIFY_ID, notificationCompat);
     }
 
     @Override
@@ -50,11 +55,11 @@ public class NotificationFactory extends IntentService implements ValueEventList
         //Notification.Builder builder = new Notification.Builder(this);
         //builder.setContentTitle("My Title");
         //builder.setContentText("This is the Body");
-        Intent notifyIntent = new Intent(this, FeedActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 2, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //Intent notifyIntent = new Intent(this, FeedActivity.class);
+        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 2, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         //builder.setContentIntent(pendingIntent);
         //Notification notificationCompat = builder.build();
-        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
+        //NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
         //managerCompat.notify(NOTIFY_ID, notificationCompat);
     }
 

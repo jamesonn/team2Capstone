@@ -49,6 +49,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ import Firebase.User;
 import Validation.TextValidator;
 import Validation.WordScrubber;
 import team2.mkesocial.Adapters.EventAdapter;
+import team2.mkesocial.Adapters.HostAdapter;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
 
@@ -483,7 +485,32 @@ public class CreateEventActivity extends BaseActivity {
             }
         });
 
-        _events.add(new Event("asdf","222","","","","","","","","","","",""));
+        //fetch user's current hosting events
+        userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = User.fromSnapshot(dataSnapshot);
+                String hosting = user.getHostEid();
+                //check if they've ever hosted anything
+                if(hosting != null && !hosting.isEmpty()){
+                    for(String eventKey: user.parseEventHostIDs().split("`"))
+                    {
+                        //fetch each event from db
+                        eventDatabase.child(eventKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Event event = Event.fromSnapshot(dataSnapshot);
+                                _events.add(event);
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {}
+                        });
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
         //SYS Req 3.3.1
         _eventAdapter = new EventAdapter(this, _events);
         _eventList.setAdapter(_eventAdapter);
@@ -501,7 +528,37 @@ public class CreateEventActivity extends BaseActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        filePath = MethodOrphanage.onPictureResult(data, resultCode, this, eventImage);
+        if (data != null && data.getData() != null) {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+                ExifInterface exif = new ExifInterface(getContentResolver().openInputStream(filePath));
+                //get current rotation...
+                int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                //convert to degrees
+                int rotationInDegrees = MethodOrphanage.exifToDegrees(rotation);
+                Matrix matrix = new Matrix();
+                if (rotation != 0f) {
+                    matrix.preRotate(rotationInDegrees);
+                }
+                Bitmap bm = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int height = displayMetrics.heightPixels;
+
+                bm = MethodOrphanage.resize(bm, eventImage.getWidth(), height);
+                eventImage.getLayoutParams().height = bm.getHeight();
+                eventImage.requestLayout();
+                eventImage.setImageBitmap(bm);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
+            }
+        }
+
     }
 
     private boolean submitEvent() {
@@ -563,15 +620,15 @@ public class CreateEventActivity extends BaseActivity {
         // Disable button
         setEditingEnabled(false);
 
-        //scrub all edit texts and tags before saving
-        thisEvent.setTitle(wordScrubber.filterOffensiveWords(thisEvent.getTitle()));
-        thisEvent.setDescription(wordScrubber.filterOffensiveWords(thisEvent.getDescription()));
-        List<Tag> tags = new ArrayList<Tag>();
-        for(Tag tag: Event.parseTags(tagsField.toString()))
-        {
-            tags.add(new Tag(wordScrubber.filterOffensiveWords(tag.getName())));
-        }
-        thisEvent.setTags(tags);
+//        //scrub all edit texts and tags before saving
+//        thisEvent.setTitle(wordScrubber.filterHiddenBadWords(thisEvent.getTitle()));
+//        thisEvent.setDescription(wordScrubber.filterHiddenBadWords(thisEvent.getDescription()));
+//        List<Tag> tags = new ArrayList<Tag>();
+//        for(Tag tag: Event.parseTags(tagsField.toString()))
+//        {
+//            tags.add(new Tag(wordScrubber.filterHiddenBadWords(tag.getName())));
+//        }
+//        thisEvent.setTags(tags);
 
         // 1) Push event and get a unique Event ID
         // Push an empty node with a unique key under 'events' node in JSON

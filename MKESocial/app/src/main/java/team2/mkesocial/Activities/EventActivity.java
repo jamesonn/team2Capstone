@@ -2,11 +2,16 @@ package team2.mkesocial.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,6 +32,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +42,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -134,12 +141,13 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
 
         //put all the edit text references in an array for easy access
         objectList.add(title); objectList.add(description); objectList.add(startDate);
-        objectList.add(endDate); objectList.add(startTime);objectList.add(endTime);objectList.add(location);
+        objectList.add(endDate); objectList.add(startTime);objectList.add(endTime);//objectList.add(location);
         objectList.add(suggestedAge);objectList.add(rating);objectList.add(cost);
 
         //are we editing?
         editing = getIntent().getExtras().getBoolean("editing");
 
+        location.setEnabled(false);
         for(EditText e: objectList) {
             if (editing)
                 e.setEnabled(true);
@@ -271,30 +279,30 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         while(fetchedEvent == null)
             Toast.makeText(getApplicationContext(), "Waiting for DB to retrieve event info", Toast.LENGTH_LONG).show();
         // Save changed fields to DB
-        // We'll just trust they don't need any input validation at this time ;)
-        // TODO input validation
-
-        if(filePath != null)
-            MethodOrphanage.uploadFile(this, storageReference, filePath, fetchedEvent.getImage()
-                    , eventDatabase.child(_eventId).child("image"));
-
         Event event = new Event();
         //Input validation -> go through one by one each field and set into event obj
-        String badField = "";
-        final BiPredicate<EditText, Event> setTitle = (text, e)-> e.setTitle(text.toString());
-        if(!setOrErrorField(title, event, setTitle))
-            badField = "Title";
 
-        if(!badField.isEmpty())
-            editButton.setError("Invalid "+badField);
+        String badField = validateFields(event);
+
+        if(!badField.isEmpty()) {
+            editButton.setError("Invalid " + badField);
+            return;
+        }
 
         Event newEvent = new Event(title.getText().toString(), description.getText().toString(),
                 startDate.getText().toString(), endDate.getText().toString(), startTime.getText().toString(),
                 endTime.getText().toString(), fetchedEvent.getLocation(),
                 BaseActivity.getUid(), fetchedEvent.getAttendees(), suggestedAge.getText().toString(), "", cost.getText().toString(),
                 fetchedEvent.getTags());
+
+        if(filePath == null)
+            filePath = Uri.parse(fetchedEvent.getImage());
+        MethodOrphanage.uploadFile(this, storageReference, filePath, fetchedEvent.getImage()
+                    , eventDatabase.child(_eventId).child("image"));
+
         // Add event obj to database under its event ID
         FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(_eventId).updateChildren(newEvent.toMap());
+
         Intent goBackToThisEventPage = new Intent(this, EventActivity.class);
         goBackToThisEventPage.putExtra("EVENT_ID", _eventId);
         finish();
@@ -330,9 +338,12 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
         eventImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                //Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent pickIntent = new Intent();
                 pickIntent.setType("image/*");
-                startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
+                pickIntent.setAction(Intent.ACTION_GET_CONTENT);
+                //startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
+                startActivityForResult(Intent.createChooser(pickIntent, "Select Picture"), IMAGE_PICKER_SELECT);
             }
         });
     }
@@ -637,10 +648,39 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
             toggleMaybe();
     }
 
-    //TODO put in seperate class
+    //
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        filePath = MethodOrphanage.onPictureResult(data, resultCode, this, eventImage);
+        if (data != null && data.getData() != null) {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+                ExifInterface exif = new ExifInterface(getContentResolver().openInputStream(filePath));
+                //get current rotation...
+                int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                //convert to degrees
+                int rotationInDegrees = MethodOrphanage.exifToDegrees(rotation);
+                Matrix matrix = new Matrix();
+                if (rotation != 0f) {
+                    matrix.preRotate(rotationInDegrees);
+                }
+                Bitmap bm = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int height = displayMetrics.heightPixels;
+
+                bm = MethodOrphanage.resize(bm, eventImage.getWidth(), height);
+                eventImage.getLayoutParams().height = bm.getHeight();
+                eventImage.requestLayout();
+                eventImage.setImageBitmap(bm);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private boolean setOrErrorField(EditText thing, Event event, final BiPredicate<EditText, Event> set_function)
@@ -768,5 +808,49 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
 
         return conflictName != null;
     }
+
+    private String validateFields(Event event)
+    {
+        String badField = "";
+        //title
+        final BiPredicate<EditText, Event> setTitle = (text, e)-> e.setTitle(text.getText().toString().replaceAll("`", ""));
+        if(!setOrErrorField(title, event, setTitle))
+            badField += "Title, ";
+        //description
+        final BiPredicate<EditText, Event> setDescription = (text, e)-> e.setDescription(text.getText().toString());
+        if(!setOrErrorField(description, event, setDescription))
+            badField += "Description, ";
+        //start date
+        final BiPredicate<EditText, Event> setStartDate = (text, e)-> e.setStartDate(Event.parseDate(text.getText().toString()));
+        if(!setOrErrorField(startDate, event, setStartDate))
+            badField += "Start Date, ";
+        //end date
+        final BiPredicate<EditText, Event> setEndDate = (text, e)-> e.setEndDate(Event.parseDate(text.getText().toString()));
+        if(!setOrErrorField(endDate, event, setEndDate))
+            badField += "End Date, ";
+        //start time
+        final BiPredicate<EditText, Event> setStartTime = (text, e)-> e.setStartTime(Event.parseTime(text.getText().toString()));
+        if(!setOrErrorField(startTime, event, setStartTime))
+            badField += "Start Time, ";
+        //end time
+        final BiPredicate<EditText, Event> setEndTime = (text, e)-> e.setEndTime(Event.parseTime(text.getText().toString()));
+        if(!setOrErrorField(endTime, event, setEndTime))
+            badField += "End Time, ";
+        //suggested age
+        final BiPredicate<EditText, Event> setAge = (text, e)-> e.setSuggestedAge(Integer.parseInt(text.getText().toString()));
+        if(!setOrErrorField(suggestedAge, event, setAge))
+            badField += "Suggested Age, ";
+        //cost
+        final BiPredicate<EditText, Event> setCost = (text, e)-> e.setCost(Double.parseDouble(text.getText().toString()));
+        if(!setOrErrorField(cost, event, setCost))
+            badField += "Cost, ";
+        //rating
+        final BiPredicate<EditText, Event> setRating = (text, e)-> e.setRating(Integer.parseInt(text.getText().toString()));
+        if(!setOrErrorField(rating, event, setRating))
+            badField += "Rating, ";
+
+        return badField;
+    }
+
 
 }

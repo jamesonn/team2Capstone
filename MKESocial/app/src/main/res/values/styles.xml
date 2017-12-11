@@ -14,6 +14,8 @@
         <item name="android:statusBarColor">@color/mke_dark_blue</item>
 
         -->
+        <item name="android:textColorPrimaryInverse">@android:color/holo_orange_dark</item>
+        <item name="android:textColorSecondaryInverse">@android:color/holo_orange_light</item>
     </style>
 
 

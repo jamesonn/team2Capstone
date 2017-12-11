@@ -27,12 +27,14 @@ import com.google.firebase.storage.UploadTask;
 
 import org.joda.time.DateTimeComparator;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import team2.mkesocial.Constants;
+import team2.mkesocial.R;
 
 /**
  * Created by cfoxj2 on 12/8/2017.
@@ -203,58 +205,85 @@ public class MethodOrphanage {
         }
     }
 
-    public static Uri onPictureResult(Intent data, int resultCode, Activity a, ImageView eventImage) {
-        Uri filePath = null;
-        // Check if an image was selected
-        if (data != null) {
-            filePath = data.getData();
-            if (resultCode == -1) {//RESULT_OK = -1
-                Uri selectedMediaUri = data.getData();
-                if (selectedMediaUri.toString().contains("image")) {
-                    try {//Update the display values
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(a.getContentResolver(), filePath);
-                        //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
-                        ExifInterface exif = new ExifInterface(a.getContentResolver().openInputStream(filePath));
-                        //get current rotation...
-                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        //convert to degrees
-                        int rotationInDegrees = exifToDegrees(rotation);
-                        Matrix matrix = new Matrix();
-                        if (rotation != 0f) {
-                            matrix.preRotate(rotationInDegrees);
-                        }
-
-                        // Screen height
-                        DisplayMetrics display = new DisplayMetrics();
-                        a.getWindowManager().getDefaultDisplay().getMetrics(display);
-                        int screenWidth = display.widthPixels;
-                        int screenHeight = display.heightPixels;
-
-                        Bitmap adjustedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                        Bitmap scaledBitmap = resize(adjustedBitmap, bitmap.getWidth(), screenHeight / 3);
-                        //resize the imageView displaying image
-                        android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
-                        layoutParams.width = eventImage.getWidth();
-                        layoutParams.height = scaledBitmap.getHeight();
-                        eventImage.setLayoutParams(layoutParams);
-
-                        eventImage.setImageBitmap(scaledBitmap);
-
-
-                    } catch (Exception e) {
-                    }
-                } else {
-                    Toast.makeText(a.getApplicationContext(), "Incorrect Image format selected", Toast.LENGTH_LONG).show();
+    public static Bitmap onPictureResult(Intent data, int resultCode, Activity a, ImageView eventImage, ContentResolver cr, Uri file) {
+        Bitmap adjustedBitmap = null;
+        if (data != null && data.getData() != null) {
+            file = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(cr, file);
+                //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+                ExifInterface exif = new ExifInterface(cr.openInputStream(file));
+                //get current rotation...
+                int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                //convert to degrees
+                int rotationInDegrees = exifToDegrees(rotation);
+                Matrix matrix = new Matrix();
+                if (rotation != 0f) {
+                    matrix.preRotate(rotationInDegrees);
                 }
+                adjustedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                //Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
             }
         }
-        return filePath;
+        /**Uri filePath = null;
+         // Check if an image was selected
+         if (data != null) {
+         filePath = data.getData();
+         if (resultCode == -1) {//RESULT_OK = -1
+         Uri selectedMediaUri = data.getData();
+         if (selectedMediaUri.toString().contains("image")) {
+         try {//Update the display values
+         Bitmap bitmap = MediaStore.Images.Media.getBitmap(a.getContentResolver(), filePath);
+         //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+         Matrix matrix = new Matrix();
+         try {
+         ExifInterface exif = new ExifInterface(a.getContentResolver().openInputStream(filePath));
+         //get current rotation...
+         int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+         //convert to degrees
+         int rotationInDegrees = exifToDegrees(rotation);
+
+         if (rotation != 0f) {
+         matrix.preRotate(rotationInDegrees);
+         }
+         }catch(IOException e){}
+
+
+         // Screen height
+         DisplayMetrics display = new DisplayMetrics();
+         a.getWindowManager().getDefaultDisplay().getMetrics(display);
+         int screenWidth = display.widthPixels;
+         int screenHeight = display.heightPixels;
+
+         Bitmap adjustedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+         Bitmap scaledBitmap = resize(adjustedBitmap, bitmap.getWidth(), screenHeight / 3);
+         //resize the imageView displaying image
+         android.view.ViewGroup.LayoutParams layoutParams = eventImage.getLayoutParams();
+         layoutParams.width = eventImage.getWidth();
+         layoutParams.height = scaledBitmap.getHeight();
+         eventImage.setLayoutParams(layoutParams);
+
+         eventImage.setImageBitmap(scaledBitmap);
+
+
+         } catch (Exception e) {
+         }
+         } else {
+         Toast.makeText(a.getApplicationContext(), "Incorrect Image format selected", Toast.LENGTH_LONG).show();
+         }
+         }
+         }
+         return filePath;*/
+        return adjustedBitmap;
     }
 
     public static String convertToDBFormat(List<String> attendeeList)
     {
         String attendees = "";
-        if(attendeeList == null) return attendees;
+        if(attendeeList == null || attendeeList.isEmpty()) return attendees;
         for(String a: attendeeList)
         {
             attendees += a +"`";

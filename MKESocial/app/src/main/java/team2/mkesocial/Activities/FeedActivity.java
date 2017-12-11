@@ -74,6 +74,8 @@ public class FeedActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Settings.setDarkTheme())
+            setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -219,8 +221,6 @@ public class FeedActivity extends BaseActivity
     protected void onStart() {
         //init static settings
         Settings.runMethodOnDBSettingsObj(null, false);
-        if(Settings.setDarkTheme())
-            setTheme(R.style.MKEDarkTheme);
         super.onStart();
     }
           

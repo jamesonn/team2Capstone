@@ -11,6 +11,8 @@ android {
         applicationId "team2.mkesocial"
         minSdkVersion 24
         targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionName '3'
         versionCode 3
@@ -66,5 +68,7 @@ dependencies {
     compile 'com.android.support:customtabs:27.0.2'
     compile 'cat.ereza:customactivityoncrash:2.2.0'
     compile 'org.apache.commons:commons-lang3:3.6'
+    compile 'com.android.support:mediarouter-v7:27.0.2'
+
 }
 apply plugin: 'com.google.gms.google-services'

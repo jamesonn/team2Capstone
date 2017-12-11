@@ -699,11 +699,13 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                             if(e != null)
                                 interestedEvents.add(e);
                             else {//remove reference to deleted event
-                                maybeEids.remove(index); //remove key
-                                maybeEids.remove(index + 1); //remove event title
-                                String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
-                                //update users's maybe list
-                                userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);
+                                if(interestedEvents.size()>1) {
+                                    maybeEids.remove(index); //remove key
+                                    maybeEids.remove(index + 1); //remove event title
+                                    String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
+                                    //update users's maybe list
+                                    userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);
+                                }
                             }
                         }
 

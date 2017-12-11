@@ -48,6 +48,11 @@ dependencies {
     testCompile "org.powermock:powermock-api-mockito:1.6.4"
     testCompile "org.powermock:powermock-classloading-xstream:1.6.4"
     compile 'com.github.scribejava:scribejava-apis:4.1.1'
+    compile 'com.google.android.gms:play-services:11.6.0'
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    compile 'com.google.code.gson:gson:1.7.2'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.google.android.gms:play-services-maps:11.6.0'
     compile 'com.google.android.gms:play-services-auth:11.6.0'
     compile 'com.google.android.gms:play-services-location:11.6.0'
@@ -59,6 +64,7 @@ dependencies {
     implementation 'commons-io:commons-io:2.5'
     compile 'com.android.support:customtabs:27.0.2'
     compile 'cat.ereza:customactivityoncrash:2.2.0'
+    compile 'org.apache.commons:commons-lang3:3.6'
 
 }
 apply plugin: 'com.google.gms.google-services'

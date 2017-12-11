@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import Firebase.Event;
 import Firebase.Settings;
@@ -38,6 +39,8 @@ import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
+
+import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
 
 public class FeedActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -153,10 +156,14 @@ public class FeedActivity extends BaseActivity
     @Override
     public void onDataChange(DataSnapshot dataSnapshot)
     {
+        GregorianCalendar today = new GregorianCalendar();
         ArrayList<Event> sortedEvents = new ArrayList<>();
         _resultsAdapter.clear();
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             Event event = Event.fromSnapshot(snapshot);
+            if(event.getStartDate().before(today)){
+                FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME).child(event.getEventId()).removeValue();
+            }
             if (event.getTitle() != null) {
                 int indexToAddAt = 0;
                 for(int i = 0; i <= sortedEvents.size(); i++){
@@ -170,7 +177,6 @@ public class FeedActivity extends BaseActivity
                         indexToAddAt = i;
                         break;
                     }
-
                 }
                 if(indexToAddAt == -1){
                     sortedEvents.add(event);

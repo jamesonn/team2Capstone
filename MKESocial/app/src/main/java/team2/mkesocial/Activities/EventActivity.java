@@ -605,7 +605,8 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Event event = Event.fromSnapshot(dataSnapshot);
                     //An event knows the people for sure attending it
-                    eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(getUid() + "`", ""));
+                    if(event.getAttendees() != null && !event.getAttendees().isEmpty())
+                        eventDatabase.child(_eventId).child("attendees").setValue(event.getAttendees().replace(getUid() + "`", ""));
 
                 }
 
@@ -622,7 +623,8 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = User.fromSnapshot(dataSnapshot);
                     //User gets to know events he/she may be attending
-                    userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));
+                    if(user.getMaybeEid() != null && !user.getMaybeEid().isEmpty())
+                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {}

@@ -413,8 +413,8 @@ public class CreateEventActivity extends BaseActivity {
 
                         String cleanString = s.toString().replaceAll("[$,.]", "");
 
-                        double parsed = Double.parseDouble(cleanString);
-                        String formatted = NumberFormat.getCurrencyInstance().format((parsed/100));
+                        double parsed = Double.parseDouble(cleanString) / 100;
+                        String formatted = NumberFormat.getCurrencyInstance().format((parsed));
 
                         current = formatted;
                         costField.setText(formatted);

@@ -723,7 +723,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                 else {//remove event to deleted event
                                     String attendEvId = attendEids.get(index);
                                     attendEids.remove(index);
-                                    attendEids.remove(index + 1);
+                                    attendEids.remove(index);
                                     String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
                                     //update user's attend list
                                     userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
@@ -750,7 +750,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                     interestedEvents.add(e);
                                 else {//remove reference to deleted event
                                     maybeEids.remove(index); //remove key
-                                    maybeEids.remove(index + 1); //remove event title
+                                    maybeEids.remove(index); //remove event title
                                     String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
                                     //update users's maybe list
                                     userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);

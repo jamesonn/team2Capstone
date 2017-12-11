@@ -283,7 +283,7 @@ public class MethodOrphanage {
     public static String convertToDBFormat(List<String> attendeeList)
     {
         String attendees = "";
-        if(attendeeList == null) return attendees;
+        if(attendeeList == null || attendeeList.isEmpty()) return attendees;
         for(String a: attendeeList)
         {
             attendees += a +"`";

@@ -350,45 +350,56 @@ private void quickUpdatePA() {
             TextView maybe_head = (TextView) findViewById(R.id.shared_m_events);
             TextView host_head = (TextView) findViewById(R.id.shared_host_events);
 
-            if(!getUid().equals(userId)) {
-                if (Boolean.parseBoolean(user.getEtog())) {
-                    profile_email.setVisibility(View.VISIBLE);
-                    email_head.setVisibility(View.VISIBLE);
-                } else if (!Boolean.parseBoolean(user.getEtog())) {
-                    profile_email.setVisibility(View.GONE);
-                    email_head.setVisibility(View.GONE);
+            if(!getUid().equals(userId) && user!=null) {
+                if(user.getEtog()!=null) {
+                    if (Boolean.parseBoolean(user.getEtog())) {
+                        profile_email.setVisibility(View.VISIBLE);
+                        email_head.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEtog())) {
+                        profile_email.setVisibility(View.GONE);
+                        email_head.setVisibility(View.GONE);
+                    }
                 }
-                if (Boolean.parseBoolean(user.getEattend())) {
-                    attend_head.setVisibility(View.VISIBLE);
-                    events_attend_layout.setVisibility(View.VISIBLE);
-                } else if (!Boolean.parseBoolean(user.getEattend())) {
-                    attend_head.setVisibility(View.GONE);
-                    events_attend_layout.setVisibility(View.GONE);
+                if(user.getEattend()!=null) {
+                    if (Boolean.parseBoolean(user.getEattend())) {
+                        attend_head.setVisibility(View.VISIBLE);
+                        events_attend_layout.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEattend())) {
+                        attend_head.setVisibility(View.GONE);
+                        events_attend_layout.setVisibility(View.GONE);
+                    }
                 }
-                if (Boolean.parseBoolean(user.getEattend())) {
-                    maybe_head.setVisibility(View.VISIBLE);
-                    events_maybe_layout.setVisibility(View.VISIBLE);
-                } else if (!Boolean.parseBoolean(user.getEattend())) {
-                    maybe_head.setVisibility(View.GONE);
-                    events_maybe_layout.setVisibility(View.GONE);
+                if(user.getEmaybe()!=null) {
+                    if (Boolean.parseBoolean(user.getEmaybe())) {
+                        maybe_head.setVisibility(View.VISIBLE);
+                        events_maybe_layout.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEmaybe())) {
+                        maybe_head.setVisibility(View.GONE);
+                        events_maybe_layout.setVisibility(View.GONE);
+                    }
                 }
-                if (Boolean.parseBoolean(user.getEhost())) {
-                    host_head.setVisibility(View.VISIBLE);
-                    events_host_layout.setVisibility(View.VISIBLE);
-                } else if (!Boolean.parseBoolean(user.getEhost())) {
-                    host_head.setVisibility(View.GONE);
-                    events_host_layout.setVisibility(View.GONE);
+                if(user.getEhost()!=null) {
+                    if (Boolean.parseBoolean(user.getEhost())) {
+                        host_head.setVisibility(View.VISIBLE);
+                        events_host_layout.setVisibility(View.VISIBLE);
+                    } else if (!Boolean.parseBoolean(user.getEhost())) {
+                        host_head.setVisibility(View.GONE);
+                        events_host_layout.setVisibility(View.GONE);
+                    }
                 }
             }
+            if(user!=null) {
+                if (user.getAttendEid() != null && user.parseEventAttendIDs() != null)
+                    aIDs = user.parseEventAttendIDs();
+                if (user.getHostEid() != null && user.parseEventHostIDs() != null)
+                    hIDs = user.parseEventHostIDs();
+                if (user.getMaybeEid() != null && user.parseEventHostIDs() != null)
+                    mIDs = user.parseEventMaybeIDs();
 
-            aIDs = user.parseEventAttendIDs();
-            hIDs = user.parseEventHostIDs();
-            mIDs = user.parseEventMaybeIDs();
-
-            populateAttend(user.parseEventAttendNames());
-            populateHost(user.parseEventHostNames());
-            populateMaybe(user.parseEventMaybeNames());
-
+                populateAttend(user.parseEventAttendNames());
+                populateHost(user.parseEventHostNames());
+                populateMaybe(user.parseEventMaybeNames());
+            }
             Glide.with(getApplicationContext()).load(user.getImg()).into(npic);
 
             //Set text fields

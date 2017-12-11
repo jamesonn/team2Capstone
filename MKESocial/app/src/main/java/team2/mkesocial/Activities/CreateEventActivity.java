@@ -643,7 +643,7 @@ public class CreateEventActivity extends BaseActivity {
 
         //set the other areas
         thisEvent.setHostUid(getUid());
-        thisEvent.setAttendes(" ");
+        //thisEvent.setAttendes(" ");
         thisEvent.setRating(-1);
         // Add event obj to database under its event ID
         eventDatabase.child(eventId).setValue(thisEvent.toMap());

@@ -25,13 +25,13 @@
         android:roundIcon="@drawable/flag"
         android:supportsRtl="true"
         android:theme="@style/MKELightTheme">
-        <activity android:name=".Activities.SplashActivity">
+        <activity android:name=".Activities.SplashActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.LoginActivity">
+        <activity android:name=".Activities.LoginActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -74,20 +74,25 @@
         <!-- Adding Maps and Profile Activity to Manifest -->
         <activity
             android:name=".Activities.MapsActivity"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.ProfileActivity"
-            android:label="Profile" />
+            android:label="Profile"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.CreateEventActivity"
-            android:label="CreateEvent"/>
+            android:label="CreateEvent"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.SettingsActivity"
-            android:label="Edit App Settings" />
+            android:label="Edit App Settings"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.AboutActivity"
-            android:label="@string/title_activity_about" />
-        <activity android:name=".Activities.SearchActivity">
+            android:label="@string/title_activity_about"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activities.SearchActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -98,12 +103,14 @@
         </activity>
         <activity
             android:name=".Activities.MyEventsActivity"
-            android:label="My Events" />
+            android:label="My Events"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.FeedActivity"
             android:label="@string/title_activity_feed"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activities.EventActivity" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activities.EventActivity"
+            android:screenOrientation="portrait" />
     </application>
-
 </manifest>

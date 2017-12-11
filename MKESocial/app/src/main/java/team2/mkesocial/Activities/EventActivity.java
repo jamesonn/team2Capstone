@@ -381,7 +381,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                 TextView userN = new TextView(getApplicationContext());
                                 userN.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-                                userDatabase.child(sep[i]).addListenerForSingleValueEvent(new ValueEventListener() {
+                                userDatabase.child(sep[i].trim()).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         User user2 = User.fromSnapshot(dataSnapshot);

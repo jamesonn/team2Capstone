@@ -49,6 +49,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -108,6 +109,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     // private String[] aEv, hEv, mEv, aID, hID, mID;
 
     private LocationManager locationManager;
+    private FusedLocationProviderClient mFusedLocationClient;
 
 
 
@@ -115,6 +117,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         MapsInitializer.initialize(getApplicationContext());
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (Settings.setDarkTheme())
             setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
@@ -611,20 +615,35 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             // for ActivityCompat#requestPermissions for more details.
                             return;
                         }
-                        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
 
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
+                        mFusedLocationClient.getLastLocation()
+                                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                                    @Override
+                                    public void onSuccess(Location location) {
+                                        // Got last known location. In some rare situations this can be null.
+                                        if (location != null) {
+                                           latitude=location.getLatitude();
+                                           longitude=location.getLongitude();
+                                            origin = new LatLng(latitude, longitude);
+                                        }
+                                    }
+                                });
 
-                        origin = new LatLng(latitude, longitude);
+                        //latitude = location.getLatitude();
+                        //longitude = location.getLongitude();
+
+                        System.out.println("LAT and LONG values: ====================================== "+ latitude + " "+ longitude);
+
+                        //origin = new LatLng(latitude, longitude);
 
 /////////////////////////
                         // Getting URL to the Google Directions API
                         //String url = getDirectionsUrl(origin, startM.getPosition());
                         //String url = getDirectionsUrl(origin, new LatLng(43.074982, -87.881344));
-                       // DownloadTask downloadTask = new DownloadTask();
+                        // DownloadTask downloadTask = new DownloadTask();
                         // Start downloading json data from Google Directions API
-                       // downloadTask.execute(url);
+                        // downloadTask.execute(url);
 //////////////////////////
 
                     }

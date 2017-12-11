@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -57,6 +58,7 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         if(Settings.setDarkTheme())
             setTheme(R.style.MKEDarkTheme);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -171,9 +173,9 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
-        darkTheme.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                final String checkedState = String.valueOf(isChecked);
+        darkTheme.setOnClickListener(new CompoundButton.OnClickListener(){
+            public void onClick(View v) {
+                final String checkedState = String.valueOf(darkTheme.isChecked());
                 //lambda to update
                 final BiConsumer<Settings, String> updatePrivateProfileNotifications= (settingsObj, theme_state)
                         -> settingsObj.setTheme(theme_state);
@@ -190,6 +192,10 @@ public class SettingsActivity extends BaseActivity {
                     Toast.makeText(SettingsActivity.this, "Error Saving to DB",
                             Toast.LENGTH_SHORT).show();
                 }
+                getWindow().getDecorView().findViewById(android.R.id.content).invalidate();
+                finish();
+                startActivity(getIntent());
+
                /** if(getIntent().getExtras() == null
                         || !getIntent().getExtras().getBoolean("pageRefreshed"))
                     refreshSettings();

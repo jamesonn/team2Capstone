@@ -401,7 +401,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                 userN.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                                 userN.setVisibility(View.VISIBLE);
                                 userN.setId(i);
-                                userN.setContentDescription(sep[i]);
+                                userN.setContentDescription(sep[i].trim());
                                 forAtt.setBackgroundColor(getResources().getColor(R.color.mke_light_blue,getTheme()));
                                 forAtt.addView(userN);
 

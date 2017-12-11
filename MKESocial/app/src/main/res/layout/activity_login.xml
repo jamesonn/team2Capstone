@@ -29,33 +29,33 @@
         <Button
             android:id="@+id/sign_in_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dip"
             android:text="Log in"
             android:layout_above="@+id/github_sign_in_button"/>
 
         <Button
             android:id="@+id/github_sign_in_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dip"
             android:text="Log in with GitHub"
             android:layout_above="@+id/google_sign_in"/>
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/google_sign_in"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dip"
             android:layout_above="@+id/facebook_login_button"/>
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_login_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="45dip"
             android:layout_above="@+id/signUp"/>
 
         <TextView
             android:id="@+id/signUp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dip"
             android:gravity="center"
             android:text="Sign up"
             android:layout_alignParentBottom="true"

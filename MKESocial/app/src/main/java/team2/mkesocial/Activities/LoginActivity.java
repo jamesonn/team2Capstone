@@ -307,11 +307,11 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(userName.getText() != null) {
+                if(!userName.getText().toString().equals("")) {
                     if (PhoneNumberUtils.isGlobalPhoneNumber(userName.getText().toString())) {
                         signIn(userName.getText().toString());
                     } else {
-                        if(password.getText() != null) {
+                        if(!password.getText().toString().equals("")) {
                             signIn(userName.getText().toString(), password.getText().toString());
                         }
                     }
@@ -330,7 +330,7 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(userName.getText().toString() != null && password.getText().toString() != null) {
+                if(!userName.getText().toString().equals("") && !password.getText().toString().equals("")) {
                     signUp(userName.getText().toString(), password.getText().toString());
                 }
             }

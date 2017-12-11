@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -36,6 +38,7 @@ import Firebase.Event;
 import Firebase.MethodOrphanage;
 import Firebase.Settings;
 import Firebase.User;
+import Validation.WordScrubber;
 import team2.mkesocial.Constants;
 import team2.mkesocial.R;
 import java.io.IOException;
@@ -125,6 +128,7 @@ public void edit_btn_on_click(View v){
         profile_picture = (ImageView) findViewById(R.id.profile_ebg);
         autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.addr_autocomplete_fragment);
 
+        filterText();
 
         userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -397,6 +401,130 @@ private void quickUpdatePA() {
         @Override
         public void onCancelled(DatabaseError databaseError) {}
     });
+}
+
+private void filterText(){
+    //filter first name, last name, bio, and email
+    pro_fName.addTextChangedListener(new TextWatcher(){
+        WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
+        @Override
+        public void afterTextChanged(Editable arg0) {}
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!s.toString().isEmpty()){
+                pro_fName.removeTextChangedListener(this);//"pause" checker
+
+                String cleanString = s.toString();
+                //check as user types if word becomes a swear word!
+                if(s.length() > 1 ){
+                    String[] words = cleanString.split("[\\p{Punct}\\s]+");
+                    for(int i=0; i<words.length; ++i){
+                        if(wordScrubber.isBadWord(words[i])){
+                            cleanString=wordScrubber.filterHiddenBadWords(cleanString);
+                            pro_fName.setText(cleanString);
+                            pro_fName.setSelection(cleanString.length());
+                        }
+                    }
+                }
+                if(cleanString.isEmpty()){  pro_fName.setError("Please input a valid bio");}
+
+                pro_fName.addTextChangedListener(this);//"resume" checker
+            }
+        }
+    });
+
+    pro_bio.addTextChangedListener(new TextWatcher(){
+        WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
+        @Override
+        public void afterTextChanged(Editable arg0) {}
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!s.toString().isEmpty()){
+                pro_bio.removeTextChangedListener(this);//"pause" checker
+
+                String cleanString = s.toString();
+                //check as user types if word becomes a swear word!
+                if(s.length() > 1 ){
+                    String[] words = cleanString.split("[\\p{Punct}\\s]+");
+                    for(int i=0; i<words.length; ++i){
+                        if(wordScrubber.isBadWord(words[i])){
+                            cleanString=wordScrubber.filterHiddenBadWords(cleanString);
+                            pro_bio.setText(cleanString);
+                            pro_bio.setSelection(cleanString.length());
+                        }
+                    }
+                }
+                if(cleanString.isEmpty()){  pro_bio.setError("Please input a valid bio");}
+
+                pro_bio.addTextChangedListener(this);//"resume" checker
+            }
+        }
+    });
+
+    pro_lName.addTextChangedListener(new TextWatcher(){
+        WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
+        @Override
+        public void afterTextChanged(Editable arg0) {}
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!s.toString().isEmpty()){
+                pro_lName.removeTextChangedListener(this);//"pause" checker
+
+                String cleanString = s.toString();
+                //check as user types if word becomes a swear word!
+                if(s.length() > 1 ){
+                    String[] words = cleanString.split("[\\p{Punct}\\s]+");
+                    for(int i=0; i<words.length; ++i){
+                        if(wordScrubber.isBadWord(words[i])){
+                            cleanString=wordScrubber.filterHiddenBadWords(cleanString);
+                            pro_lName.setText(cleanString);
+                            pro_lName.setSelection(cleanString.length());
+                        }
+                    }
+                }
+                if(cleanString.isEmpty()){  pro_lName.setError("Please input a valid bio");}
+
+                pro_lName.addTextChangedListener(this);//"resume" checker
+            }
+        }
+    });
+
+    pro_email.addTextChangedListener(new TextWatcher(){
+        WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
+        @Override
+        public void afterTextChanged(Editable arg0) {}
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!s.toString().isEmpty()){
+                pro_email.removeTextChangedListener(this);//"pause" checker
+
+                String cleanString = s.toString();
+                //check as user types if word becomes a swear word!
+                if(s.length() > 1 ){
+                    String[] words = cleanString.split("[\\p{Punct}\\s]+");
+                    for(int i=0; i<words.length; ++i){
+                        if(wordScrubber.isBadWord(words[i])){
+                            cleanString=wordScrubber.filterHiddenBadWords(cleanString);
+                            pro_email.setText(cleanString);
+                            pro_email.setSelection(cleanString.length());
+                        }
+                    }
+                }
+                if(cleanString.isEmpty()){  pro_email.setError("Please input a valid bio");}
+
+                pro_email.addTextChangedListener(this);//"resume" checker
+            }
+        }
+    });
+
 }
 
 

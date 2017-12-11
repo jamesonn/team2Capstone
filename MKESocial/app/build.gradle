@@ -58,6 +58,7 @@ dependencies {
     compile 'joda-time:joda-time:2.9.9'
     implementation 'commons-io:commons-io:2.5'
     compile 'com.android.support:customtabs:27.0.2'
+    compile 'cat.ereza:customactivityoncrash:2.2.0'
 
 }
 apply plugin: 'com.google.gms.google-services'

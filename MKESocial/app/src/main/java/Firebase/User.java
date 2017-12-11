@@ -30,6 +30,35 @@ import team2.mkesocial.Activities.BaseActivity;
 @IgnoreExtraProperties
 public class User implements Databasable{
 
+    @Exclude
+    public static final String DB_ADDRESS = "address";
+    @Exclude
+    public static final String DB_AGE = "age";
+    @Exclude
+    public static final String DB_ATTENDING_IDS = "attendEid";
+    @Exclude
+    public static final String DB_BIO = "bio";
+    @Exclude
+    public static final String DB_SHOW_EVENTS_ATTENDING = "eattend";
+    @Exclude
+    public static final String DB_SHOW_EVENTS_MAYBE = "emaybe";
+    @Exclude
+    public static final String DB_SHOW_EVENTS_HOSTING = "ehost";
+    @Exclude
+    public static final String DB_SHOW_EMAIL = "etog";
+    @Exclude
+    public static final String DB_MAYBE_IDS = "maybeEid";
+    @Exclude
+    public static final String DB_HOSTING_IDS = "hostEid";
+    @Exclude
+    public static final String DB_IMAGE = "img";
+    @Exclude
+    public static final String DB_M_INITIAL = "initm";
+    @Exclude
+    public static final String DB_L_NAME = "lname";
+
+
+
     private String name, email, age, bio, lname, initm; //info fields
     private String address;
     private String eattend, ehost, etog, emaybe; //display those email and/or events on profile page or not "true" or "false"

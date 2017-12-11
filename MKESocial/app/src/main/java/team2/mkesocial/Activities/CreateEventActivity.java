@@ -167,6 +167,8 @@ public class CreateEventActivity extends BaseActivity {
                         titleField.setSelection(s.length() - 1);
                     }
                 }
+                if(!thisEvent.setTitle(s.toString()))
+                    descriptionField.setError("Please input a valid Title");
             }
 
             @Override
@@ -469,10 +471,6 @@ public class CreateEventActivity extends BaseActivity {
         final String endDate = endDateField.getText().toString();
         final String startTime = startTimeField.getText().toString();
         final String endTime = endTimeField.getText().toString();
-        String location = "";
-        final String suggestedAge = suggestedAgeField.getText().toString();
-        final String cost = costField.getText().toString();
-        final String tags = tagsField.getText().toString();
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -509,7 +507,7 @@ public class CreateEventActivity extends BaseActivity {
             return false;
         }
         // Tag(s) are required
-        if (TextUtils.isEmpty(tags)) {
+        if (!thisEvent.setTags(Event.parseTags(tagsField.toString()))){
             tagsField.setError(REQUIRED);
             return false;
         }
@@ -536,10 +534,13 @@ public class CreateEventActivity extends BaseActivity {
         //2) Store event info in DB under it's Event ID
         // Get user ID to tie event to
         final String userId = getUid();
-        Event newEvent = new Event(title, description, startDate, endDate, startTime, endTime, location,
-                userId,"", suggestedAge, "", cost, tags);
+
+        //set the other areas
+        thisEvent.setHostUid(getUid());
+        thisEvent.setAttendes("");
+        thisEvent.setRating(-1);
         // Add event obj to database under its event ID
-        eventDatabase.child(eventId).setValue(newEvent.toMap());
+        eventDatabase.child(eventId).setValue(thisEvent.toMap());
 
         userDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

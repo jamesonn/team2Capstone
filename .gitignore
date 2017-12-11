@@ -28,5 +28,6 @@ build/
 local.properties
 /build
 /captures
+/app/release
 .externalNativeBuild
 app-release.apk

@@ -59,14 +59,14 @@ public class FeedActivity extends BaseActivity
 
     private void setAttendeeNumberAlarm(){
         Intent intent = new Intent(this, NotificationLauncher.class);
-        intent.putExtra("ATTENDEE_NUMS","");
+        intent.putExtra("ATTENDEE_NUMS","damn");
         intent.putExtra("USER_ID", getUid());
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 15);
-        calendar.set(Calendar.MINUTE, 55);
+        calendar.set(Calendar.HOUR_OF_DAY, 16);
+        calendar.set(Calendar.MINUTE, 16);
         calendar.set(Calendar.SECOND, 0);
         AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
         am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);

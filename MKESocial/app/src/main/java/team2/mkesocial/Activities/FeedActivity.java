@@ -1,6 +1,8 @@
 package team2.mkesocial.Activities;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -30,6 +33,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -38,6 +42,7 @@ import Firebase.Settings;
 import Firebase.Tag;
 import Firebase.User;
 import team2.mkesocial.Adapters.SimpleEventAdapter;
+import team2.mkesocial.NotificationLauncher;
 import team2.mkesocial.R;
 
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
@@ -52,12 +57,28 @@ public class FeedActivity extends BaseActivity
     private SimpleEventAdapter _resultsAdapter;
     private ArrayList<Event> _eventList;
 
+    private void setAttendeeNumberAlarm(){
+        Intent intent = new Intent(this, NotificationLauncher.class);
+        intent.putExtra("ATTENDEE_NUMS","");
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 18);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        setAttendeeNumberAlarm();
 
         _eventResults = (ListView)findViewById(R.id.event_results);
 

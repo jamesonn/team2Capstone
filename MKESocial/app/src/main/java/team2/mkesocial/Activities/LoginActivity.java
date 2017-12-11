@@ -59,8 +59,6 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
     private Button login, githubLogin;
     private EditText userName, password;
 
-    private AuthCredential credential;
-
     private static final String PROTECTED_RESOURCE_URL = "https://github.com/login/oauth/authorize";
     private String mkeSocialCallback = "https://mkesocial-3f65e.firebaseapp.com/__/auth/handler";
 

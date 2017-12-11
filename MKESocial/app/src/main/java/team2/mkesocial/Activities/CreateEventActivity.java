@@ -20,12 +20,14 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -47,10 +49,12 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import Firebase.Event;
 import Firebase.MethodOrphanage;
@@ -59,7 +63,9 @@ import Firebase.Tag;
 import Firebase.User;
 import Validation.TextValidator;
 import Validation.WordScrubber;
-import team2.mkesocial.Constants;
+import team2.mkesocial.Adapters.EventAdapter;
+import team2.mkesocial.Adapters.HostAdapter;
+import team2.mkesocial.Adapters.SimpleEventAdapter;
 import team2.mkesocial.R;
 
 import static Firebase.Databasable.DB_EVENTS_NODE_NAME;
@@ -79,6 +85,7 @@ public class CreateEventActivity extends BaseActivity {
     private ImageView eventImage;
     private ImageButton editButton;
     private ArrayList<EditText> objectList = new ArrayList<EditText>();
+    private WordScrubber wordScrubber;
 
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference(DB_USERS_NODE_NAME);
     private DatabaseReference eventDatabase = FirebaseDatabase.getInstance().getReference(DB_EVENTS_NODE_NAME);
@@ -91,6 +98,10 @@ public class CreateEventActivity extends BaseActivity {
     private Uri filePath;
 
     private Event thisEvent = new Event();
+
+    private ListView _eventList;
+    private EventAdapter _eventAdapter;
+    private ArrayList<Event> _events = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +124,9 @@ public class CreateEventActivity extends BaseActivity {
         createButton = (Button) findViewById(R.id.button_create);
         editButton = (ImageButton) findViewById(R.id.imageButton_insert_image);
         eventImage = (ImageView)  findViewById(R.id.imageView_event);
+        _eventList = (ListView)findViewById(R.id.list_view);
 
+        wordScrubber = new WordScrubber(getApplicationContext());
         //put all the edit text references in an array for easy verification later
         objectList.add(titleField); objectList.add(descriptionField); objectList.add(startDateField);
         objectList.add(endDateField);objectList.add(startTimeField);objectList.add(endTimeField);
@@ -204,7 +217,6 @@ public class CreateEventActivity extends BaseActivity {
         });
         //Offensive word check
         descriptionField.addTextChangedListener(new TextWatcher(){
-            WordScrubber wordScrubber = new WordScrubber(getApplicationContext());
             @Override
             public void afterTextChanged(Editable arg0) {}
             @Override
@@ -473,11 +485,80 @@ public class CreateEventActivity extends BaseActivity {
             }
         });
 
+        //fetch user's current hosting events
+        userDatabase.child(getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = User.fromSnapshot(dataSnapshot);
+                String hosting = user.getHostEid();
+                //check if they've ever hosted anything
+                if(hosting != null && !hosting.isEmpty()){
+                    for(String eventKey: user.parseEventHostIDs().split("`"))
+                    {
+                        //fetch each event from db
+                        eventDatabase.child(eventKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Event event = Event.fromSnapshot(dataSnapshot);
+                                _events.add(event);
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {}
+                        });
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+        //SYS Req 3.3.1
+        _eventAdapter = new EventAdapter(this, _events);
+        _eventList.setAdapter(_eventAdapter);
+
+        _eventList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event)_eventList.getItemAtPosition(position);
+                inspectEvent(selectedEvent.getEventId());
+            }
+        });
+        _eventAdapter.notifyDataSetChanged();
+
     }
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        filePath = MethodOrphanage.onPictureResult(data, resultCode, this, eventImage);
+        if (data != null && data.getData() != null) {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                //For correcting orientation so it displays correctly (on images that where taken sideways/upside-down)
+                ExifInterface exif = new ExifInterface(getContentResolver().openInputStream(filePath));
+                //get current rotation...
+                int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                //convert to degrees
+                int rotationInDegrees = MethodOrphanage.exifToDegrees(rotation);
+                Matrix matrix = new Matrix();
+                if (rotation != 0f) {
+                    matrix.preRotate(rotationInDegrees);
+                }
+                Bitmap bm = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int height = displayMetrics.heightPixels;
+
+                bm = MethodOrphanage.resize(bm, eventImage.getWidth(), height);
+                eventImage.getLayoutParams().height = bm.getHeight();
+                eventImage.requestLayout();
+                eventImage.setImageBitmap(bm);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
+            }
+        }
+
     }
 
     private boolean submitEvent() {
@@ -539,6 +620,15 @@ public class CreateEventActivity extends BaseActivity {
         // Disable button
         setEditingEnabled(false);
 
+//        //scrub all edit texts and tags before saving
+//        thisEvent.setTitle(wordScrubber.filterHiddenBadWords(thisEvent.getTitle()));
+//        thisEvent.setDescription(wordScrubber.filterHiddenBadWords(thisEvent.getDescription()));
+//        List<Tag> tags = new ArrayList<Tag>();
+//        for(Tag tag: Event.parseTags(tagsField.toString()))
+//        {
+//            tags.add(new Tag(wordScrubber.filterHiddenBadWords(tag.getName())));
+//        }
+//        thisEvent.setTags(tags);
 
         // 1) Push event and get a unique Event ID
         // Push an empty node with a unique key under 'events' node in JSON

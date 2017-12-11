@@ -27,6 +27,15 @@
         android:roundIcon="@drawable/flag"
         android:supportsRtl="true"
         android:theme="@style/MKELightTheme">
+        <service
+            android:name=".NotificationFactory"
+            android:exported="false" >
+        </service>
+        <receiver
+            android:name=".NotificationLauncher"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
         <activity android:name=".Activities.SplashActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

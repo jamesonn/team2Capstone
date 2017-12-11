@@ -66,7 +66,7 @@ public class FeedActivity extends BaseActivity
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 10);
-        calendar.set(Calendar.MINUTE, 52);
+        calendar.set(Calendar.MINUTE, 58);
         calendar.set(Calendar.SECOND, 0);
         AlarmManager am = (AlarmManager) this.getSystemService(this.ALARM_SERVICE);
         am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);

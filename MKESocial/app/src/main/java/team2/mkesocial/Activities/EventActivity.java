@@ -401,8 +401,8 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                 userN.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                                 userN.setVisibility(View.VISIBLE);
                                 userN.setId(i);
-                                userN.setContentDescription(sep[i]);
-                                forAtt.setBackgroundColor(getResources().getColor(R.color.mke_light_blue, getTheme()));
+                                userN.setContentDescription(sep[i].trim());
+                                forAtt.setBackgroundColor(getResources().getColor(R.color.mke_light_blue,getTheme()));
                                 forAtt.addView(userN);
 
                                 userN.setOnClickListener(new View.OnClickListener() {
@@ -739,7 +739,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                     attendEids.remove(index);
                                     String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
                                     //update user's attend list
-                                    userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
+                                    userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(newAttendees);
                                 }
                             }
 

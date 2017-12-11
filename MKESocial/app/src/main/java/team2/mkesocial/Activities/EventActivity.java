@@ -372,7 +372,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Event event = Event.fromSnapshot(dataSnapshot);
-
+                    if(event!=null && event.getAttendees()!=null){
                     attenders = event.getAttendees();//id`id`id`
                     if (attenders != null) {
                         String[] sep = attenders.split("`");
@@ -385,7 +385,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         User user2 = User.fromSnapshot(dataSnapshot);
-                                        if(user2 != null)
+                                        if (user2 != null)
                                             userN.setText(user2.getName());
                                     }
 
@@ -401,7 +401,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                 userN.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                                 userN.setVisibility(View.VISIBLE);
                                 userN.setId(i);
-                                userN.setContentDescription(sep[i]);
+                                userN.setContentDescription(sep[i].trim());
                                 forAtt.setBackgroundColor(getResources().getColor(R.color.mke_light_blue,getTheme()));
                                 forAtt.addView(userN);
 
@@ -417,17 +417,15 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                                     userSettingsDatabase.child(key).child("privateProfile").addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            if(!Boolean.parseBoolean((String)dataSnapshot.getValue()) || getUid().equals(key))
-                                                            {
+                                                            if (!Boolean.parseBoolean((String) dataSnapshot.getValue()) || getUid().equals(key)) {
                                                                 inspectUser(key);
-                                                            }
-                                                            else{
+                                                            } else {
                                                                 RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.event_layout);
 
                                                                 // inflate the layout of the popup window
                                                                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                                                                 View popupView = inflater.inflate(R.layout.pop_up, null);
-                                                                TextView text = (TextView)popupView.findViewById(R.id.pop);
+                                                                TextView text = (TextView) popupView.findViewById(R.id.pop);
                                                                 String msg = "Cannot View Private Profile!";
                                                                 text.setText(msg);
 
@@ -496,13 +494,16 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                                     });
                                                 }*/
                                             }
+
                                             @Override
-                                            public void onCancelled(DatabaseError databaseError) {}
+                                            public void onCancelled(DatabaseError databaseError) {
+                                            }
                                         });
                                     }
                                 });
                             }
                         }
+                    }
                     }
                 }
                 @Override
@@ -552,11 +553,14 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = User.fromSnapshot(dataSnapshot);
                     //User gets to know events he/she is attending
-                    if(user.getAttendEid().isEmpty()){userDatabase.child(getUid()).child("attendEid").setValue(_eventId+"`"+title.getText()+"`");}
-                    else if (!user.getAttendEid().contains(_eventId+"`"+title.getText()+"`")){//only let user add a "new" attending event (don't allow duplicate)
-                        userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid() + _eventId+"`"+title.getText()+"`");
+                    if(user!=null) {
+                        if (user.getAttendEid().isEmpty()) {
+                            userDatabase.child(getUid()).child("attendEid").setValue(_eventId + "`" + title.getText() + "`");
+                        } else if (!user.getAttendEid().contains(_eventId + "`" + title.getText() + "`")) {//only let user add a "new" attending event (don't allow duplicate)
+                            userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid() + _eventId + "`" + title.getText() + "`");
+                        }
+                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId + "`" + title.getText() + "`", ""));//remove maybe
                     }
-                    userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));//remove maybe
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {}
@@ -570,6 +574,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = User.fromSnapshot(dataSnapshot);
                     //User gets to know events he/she is attending
+                    if(user!=null)
                     userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId+"`"+title.getText()+"`", ""));
                 }
                 @Override
@@ -606,11 +611,15 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = User.fromSnapshot(dataSnapshot);
                     //Only the user knows the events he MAY BE attending
-                    if (user.getMaybeEid().isEmpty()) {userDatabase.child(getUid()).child("maybeEid").setValue(_eventId + "`" + title.getText() + "`");}
-                    else if (!user.getMaybeEid().contains(_eventId + "`" + title.getText() + "`")) {
-                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid() + _eventId + "`" + title.getText() + "`");
+                    if(user!=null) {
+                        if (user.getMaybeEid().isEmpty()) {
+                            userDatabase.child(getUid()).child("maybeEid").setValue(_eventId + "`" + title.getText() + "`");
+                        } else if (!user.getMaybeEid().contains(_eventId + "`" + title.getText() + "`")) {
+                            userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid() + _eventId + "`" + title.getText() + "`");
+                        }
+                        userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId + "`" + title.getText() + "`", ""));
+
                     }
-                    userDatabase.child(getUid()).child("attendEid").setValue(user.getAttendEid().replace(_eventId + "`" + title.getText() + "`", ""));
                 }
 
                 @Override
@@ -640,8 +649,12 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = User.fromSnapshot(dataSnapshot);
                     //User gets to know events he/she may be attending
-                    if(user.getMaybeEid() != null && !user.getMaybeEid().isEmpty())
-                        userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId+"`"+title.getText()+"`", ""));
+                    if(user!=null) {
+                        if (user.getMaybeEid() != null && !user.getMaybeEid().isEmpty()) {
+                            userDatabase.child(getUid()).child("maybeEid").setValue(user.getMaybeEid().replace(_eventId + "`" + title.getText() + "`", ""));
+
+                        }
+                    }
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {}

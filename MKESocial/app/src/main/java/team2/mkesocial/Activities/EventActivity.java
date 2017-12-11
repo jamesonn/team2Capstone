@@ -157,17 +157,19 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = User.fromSnapshot(dataSnapshot);
                 //User gets to know events he/she is attending
-                if(user.getAttendEid().isEmpty()|| !user.getAttendEid().contains(_eventId+"`"+title.getText()+"`")){
-                    att.setImageResource(R.mipmap.ic_not_attending_pic);
-                } else {
-                    att.setImageResource(R.mipmap.ic_attending_pic);
-                    att.setContentDescription("true");
-                }
-                if(user.getMaybeEid().isEmpty()|| !user.getMaybeEid().contains(_eventId+"`"+title.getText()+"`")){
-                    maybe.setImageResource(R.mipmap.ic_not_maybe_pic);
-                } else {
-                    maybe.setImageResource(R.mipmap.ic_maybe_pic);
-                    maybe.setContentDescription("true");
+                if(user != null) {
+                    if (user.getAttendEid().isEmpty() || !user.getAttendEid().contains(_eventId + "`" + title.getText() + "`")) {
+                        att.setImageResource(R.mipmap.ic_not_attending_pic);
+                    } else {
+                        att.setImageResource(R.mipmap.ic_attending_pic);
+                        att.setContentDescription("true");
+                    }
+                    if (user.getMaybeEid().isEmpty() || !user.getMaybeEid().contains(_eventId + "`" + title.getText() + "`")) {
+                        maybe.setImageResource(R.mipmap.ic_not_maybe_pic);
+                    } else {
+                        maybe.setImageResource(R.mipmap.ic_maybe_pic);
+                        maybe.setContentDescription("true");
+                    }
                 }
              }
             @Override
@@ -655,63 +657,66 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = User.fromSnapshot(dataSnapshot);
 
-                busyTimes = user.getBusyTimes();
+                if (user != null){
+                    busyTimes = user.getBusyTimes();
 
-                List<String> attendEids = new ArrayList<String>(Arrays.asList(user.getAttendEid().split("`")));
-                List<String> maybeEids = new ArrayList<String>(Arrays.asList(user.getMaybeEid().split("`")));
+                    List<String> attendEids = new ArrayList<String>(Arrays.asList(user.getAttendEid().split("`")));
+                    List<String> maybeEids = new ArrayList<String>(Arrays.asList(user.getMaybeEid().split("`")));
 
-                for (int i = 0; i < attendEids.size(); i++) {
-                    if (i % 2 == 1)
-                        continue;
-                    final int index = i;
-                    eventDatabase.child(attendEids.get(index)).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            //TODO
-                            Event e = Event.fromSnapshot(dataSnapshot);
-                            if(e != null)
-                                interestedEvents.add(e);
-                            else {//remove event to deleted event
-                                String attendEvId = attendEids.get(index);
-                                attendEids.remove(index);
-                                attendEids.remove(index + 1);
-                                String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
-                                //update user's attend list
-                                userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
-                        }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-
-                for (int i = 0; i < maybeEids.size(); i++) {
-                    if (i % 2 == 1)
-                        continue;
-                    final int index = i;
-                    eventDatabase.child(maybeEids.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Event e = Event.fromSnapshot(dataSnapshot);
-                            if(e != null)
-                                interestedEvents.add(e);
-                            else {//remove reference to deleted event
-                                maybeEids.remove(index); //remove key
-                                maybeEids.remove(index + 1); //remove event title
-                                String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
-                                //update users's maybe list
-                                userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);
+                    for (int i = 0; i < attendEids.size(); i++) {
+                        if (i % 2 == 1)
+                            continue;
+                        final int index = i;
+                        eventDatabase.child(attendEids.get(index)).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                //TODO
+                                Event e = Event.fromSnapshot(dataSnapshot);
+                                if (e != null)
+                                    interestedEvents.add(e);
+                                else {//remove event to deleted event
+                                    String attendEvId = attendEids.get(index);
+                                    attendEids.remove(index);
+                                    attendEids.remove(index + 1);
+                                    String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
+                                    //update user's attend list
+                                    userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
 
-                        }
-                    });
+                            }
+                        });
+
+                    }
+
+                    for (int i = 0; i < maybeEids.size(); i++) {
+                        if (i % 2 == 1)
+                            continue;
+                        final int index = i;
+                        eventDatabase.child(maybeEids.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Event e = Event.fromSnapshot(dataSnapshot);
+                                if (e != null)
+                                    interestedEvents.add(e);
+                                else {//remove reference to deleted event
+                                    maybeEids.remove(index); //remove key
+                                    maybeEids.remove(index + 1); //remove event title
+                                    String maybeAttendees = MethodOrphanage.convertToDBFormat(maybeEids);
+                                    //update users's maybe list
+                                    userDatabase.child(getUid()).child(User.DB_MAYBE_IDS).setValue(maybeAttendees);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
                 }
             }
 
@@ -720,6 +725,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
 
             }
         });
+
     }
 
     private boolean checkConflicts(int buttonId) {

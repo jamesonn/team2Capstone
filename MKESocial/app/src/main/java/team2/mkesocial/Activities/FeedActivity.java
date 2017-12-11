@@ -166,6 +166,8 @@ public class FeedActivity extends BaseActivity
                     startActivity(startOver);
                 }
             });
+        }else{
+            startActivity(startOver);
         }
     }
 

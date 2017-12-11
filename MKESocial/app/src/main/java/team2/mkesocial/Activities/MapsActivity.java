@@ -105,7 +105,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private Location location = null;
     private PolylineOptions lineOptions = null;
     private boolean hasRoute = false;
-   // private String[] aEv, hEv, mEv, aID, hID, mID;
+    // private String[] aEv, hEv, mEv, aID, hID, mID;
 
     private LocationManager locationManager;
 
@@ -119,7 +119,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             setTheme(R.style.MKEDarkTheme);
         super.onCreate(savedInstanceState);
 
-       userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -147,7 +147,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             aEv = aEvents.split("`");
                             hEv = hEvents.split("`");
                             mEv = mEvents.split("`");
-
                             aID = info.parseEventAttendIDs().split("`");
                             hID = info.parseEventHostIDs().split("`");
                             mID = info.parseEventMaybeIDs().split("`");
@@ -160,7 +159,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             String[] aID = info.parseEventAttendIDs().split("`");
                             String[] hID = info.parseEventHostIDs().split("`");
                             String[] mID = info.parseEventMaybeIDs().split("`");
-                            
+
 
                             eventDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -270,36 +269,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 // Start downloading json data from Google Directions API
                 downloadTask.execute(url);
                 /*************************/
-                // inflate the layout of the popup window
-                RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_m);
-
-                // inflate the layout of the popup window
-                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = inflater.inflate(R.layout.pop_up, null);
-                TextView text = (TextView) popupView.findViewById(R.id.pop);
-                /*if(dist!=null && dur!=null) {
-                    String msg = "Distance: " + dist + "\nDuration: " + dur;
-                    text.setText(msg);
-                }*/
-
-                text.setText(msg);
-
-                // create the popup window
-                int width = LinearLayout.LayoutParams.MATCH_PARENT;
-                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                boolean focusable = true; // lets taps outside the popup also dismiss it
-                final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-
-                // show the popup window
-                popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
-                // dismiss the popup window when touched
-                popupView.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        popupWindow.dismiss();
-                        return true;
-                    }
-                });
                 return true;
             }
         });
@@ -366,7 +335,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                                         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                                         View popupView = inflater.inflate(R.layout.pop_up, null);
                                         TextView text = (TextView) popupView.findViewById(R.id.pop);
-                                        String msg = "The host has cancelled the event!\nIt will now be removed.";
+                                        String msg = "The Event has passed \nor\nhost has cancelled the event";
                                         text.setText(msg);
 
                                         // create the popup window
@@ -507,7 +476,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             String duration = "";
 
             if(result.size()<1){
-                Toast.makeText(getBaseContext(), "No Points", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Unable to Route Right Now", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -549,6 +518,37 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             msg = "Distance: " + dist + "\nDuration: " + dur;
             //tvDistanceDuration.setText("Distance:"+distance + ", Duration:"+duration);
 
+            // inflate the layout of the popup window
+            RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.activity_m);
+
+            // inflate the layout of the popup window
+            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.pop_up, null);
+            TextView text = (TextView) popupView.findViewById(R.id.pop);
+                /*if(dist!=null && dur!=null) {
+                    String msg = "Distance: " + dist + "\nDuration: " + dur;
+                    text.setText(msg);
+                }*/
+
+            text.setText(msg);
+
+            // create the popup window
+            int width = LinearLayout.LayoutParams.MATCH_PARENT;
+            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            boolean focusable = true; // lets taps outside the popup also dismiss it
+            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+            // show the popup window
+            popupWindow.showAtLocation(mapLayout, Gravity.TOP, 0, 0);
+            // dismiss the popup window when touched
+            popupView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    popupWindow.dismiss();
+                    return true;
+                }
+            });
+
             // Drawing polyline in the Google Map for the i-th route
             polylineFinal = mMap.addPolyline (lineOptions);
             //mMap.addPolyline(lineOptions);
@@ -559,9 +559,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
 
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -620,14 +618,14 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                         origin = new LatLng(latitude, longitude);
 
-
+/////////////////////////
                         // Getting URL to the Google Directions API
-                        String url = getDirectionsUrl(origin, startM.getPosition());
+                        //String url = getDirectionsUrl(origin, startM.getPosition());
                         //String url = getDirectionsUrl(origin, new LatLng(43.074982, -87.881344));
-                        DownloadTask downloadTask = new DownloadTask();
+                       // DownloadTask downloadTask = new DownloadTask();
                         // Start downloading json data from Google Directions API
-                        downloadTask.execute(url);
-
+                       // downloadTask.execute(url);
+//////////////////////////
 
                     }
                 } else {
@@ -643,5 +641,3 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
 
 }
-
-

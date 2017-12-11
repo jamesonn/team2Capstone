@@ -2,7 +2,9 @@ package team2.mkesocial.Activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -45,6 +47,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -96,16 +99,23 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private double latitude, longitude;
     private Marker eventM;
     private MarkerOptions startM;
-    Polyline polylineFinal;
+    private Polyline polylineFinal;
+    private Location location = null;
     private PolylineOptions lineOptions = null;
-    private boolean hasRoute=false;
+    private boolean hasRoute = false;
 
-    // The entry points to the Places API.
-    private GeoDataClient mGeoDataClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
+    /* GPS Constant Permission */
+    private static final int MY_PERMISSION_ACCESS_COARSE_LOCATION = 11;
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 12;
 
-    // The entry point to the Fused Location Provider.
-    private FusedLocationProviderClient mFusedLocationProviderClient;
+    /* Position */
+    private static final int MINIMUM_TIME = 10000;  // 10s
+    private static final int MINIMUM_DISTANCE = 50; // 50m
+
+    /* GPS */
+    private String mProviderName;
+    private LocationManager locationManager;
+    private LocationListener mLocationListener;
 
 
     @SuppressLint("MissingPermission")
@@ -134,13 +144,21 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             startM = new MarkerOptions().position(start).title(start_title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 
                             /*****************************************************************************************************************************/
-                            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                             Criteria criteria = new Criteria();
 
-                            Location location = null;
-                            if (locationManager != null) {
-                                location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
                             }
+                            location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
 
@@ -226,7 +244,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
 
     }
-
 
     /**
      * Manipulates the map once available.

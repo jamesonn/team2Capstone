@@ -726,7 +726,7 @@ public class EventActivity extends BaseActivity implements ValueEventListener {
                                     attendEids.remove(index);
                                     String newAttendees = MethodOrphanage.convertToDBFormat(attendEids);
                                     //update user's attend list
-                                    userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(attendEids);
+                                    userDatabase.child(getUid()).child(User.DB_ATTENDING_IDS).setValue(newAttendees);
                                 }
                             }
 

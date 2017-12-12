@@ -84,14 +84,13 @@ public class LoginActivity extends FragmentActivity implements PhoneLoginDialogF
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
+                                                FirebaseAuth.getInstance().signOut();
                                                 Toast.makeText(LoginActivity.this, "Verification Email Sent", Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
                         } else {
-                            // If sign in fails, display a message to the user.
-
-                            Toast.makeText(LoginActivity.this, "Sign-Up failed.",
+                            Toast.makeText(LoginActivity.this, "Failed-Password req. >5 chars.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

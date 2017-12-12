@@ -12,7 +12,7 @@ import team2.mkesocial.R;
 
 public class SplashActivity extends Activity {
 
-    private final int SPLASH_DISPLAY_LENGTH = 3100;
+    private final int SPLASH_DISPLAY_LENGTH = 1700;
 
     @Override
     public void onCreate(Bundle icicle) {
